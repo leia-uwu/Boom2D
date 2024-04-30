@@ -23,8 +23,19 @@ export type HitboxJSON = HitboxJSONMapping[HitboxType];
 
 export type Hitbox = CircleHitbox | RectHitbox;
 
-export abstract class BaseHitbox {
+export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
     abstract type: HitboxType;
+
+    abstract toJSON(): HitboxJSONMapping[T];
+
+    static fromJSON(data: HitboxJSON): Hitbox {
+        switch (data.type) {
+            case HitboxType.Circle:
+                return new CircleHitbox(data.radius, data.position);
+            case HitboxType.Rect:
+                return new RectHitbox(data.min, data.max);
+        }
+    }
 
     /**
      * Checks if this {@link Hitbox} collides with another one
@@ -81,6 +92,14 @@ export class CircleHitbox extends BaseHitbox {
         this.radius = radius;
     }
 
+    override toJSON(): HitboxJSONMapping[HitboxType.Circle] {
+        return {
+            type: this.type,
+            radius: this.radius,
+            position: Vec2.clone(this.position)
+        };
+    }
+
     override collidesWith(that: Hitbox): boolean {
         switch (that.type) {
             case HitboxType.Circle:
@@ -135,7 +154,7 @@ export class RectHitbox extends BaseHitbox {
         this.max = max;
     }
 
-    toJSON(): HitboxJSONMapping[HitboxType.Rect] {
+    override toJSON(): HitboxJSONMapping[HitboxType.Rect] {
         return {
             type: this.type,
             min: Vec2.clone(this.min),
