@@ -1,5 +1,4 @@
 import { GameConstants } from "../../common/src/constants";
-import { type ClassDefKey, ClassDefs } from "../../common/src/defs/classDefs";
 import { ClientConfig } from "./config";
 import { type App } from "./main";
 import { getElem } from "./utils";
@@ -8,7 +7,6 @@ export class UiManager {
     playButton = getElem<HTMLButtonElement>("#play-btn");
     nameInput = getElem<HTMLInputElement>("#name-input");
     serverSelect = getElem<HTMLSelectElement>("#server-selector");
-    classSelect = getElem<HTMLSelectElement>("#class-selector");
     homeDiv = getElem<HTMLDivElement>("#home");
     gameDiv = getElem<HTMLDivElement>("#game");
 
@@ -33,17 +31,6 @@ export class UiManager {
         this.serverSelect.value = this.app.settings.get("server");
         this.serverSelect.addEventListener("change", () => {
             this.app.settings.set("server", this.serverSelect.value);
-        });
-
-        for (const defId of ClassDefs) {
-            const option = document.createElement("option");
-            option.value = defId;
-            option.innerText = defId.charAt(0).toUpperCase() + defId.slice(1);
-            this.classSelect.appendChild(option);
-        }
-        this.classSelect.value = this.app.settings.get("playerClass");
-        this.classSelect.addEventListener("change", () => {
-            this.app.settings.set("playerClass", this.classSelect.value as ClassDefKey);
         });
     }
 

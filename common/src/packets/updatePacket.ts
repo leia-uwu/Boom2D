@@ -1,4 +1,6 @@
+import { BaseBullet, BulletParams } from "../baseBullet";
 import { EntityType, GameConstants } from "../constants";
+import { WeaponDefKey, WeaponDefs } from "../defs/weaponDefs";
 import { type GameBitStream, type Packet } from "../net";
 import { type Vector } from "../utils/vector";
 
@@ -10,7 +12,7 @@ export interface EntitiesNetData {
 
         // while full data for data that rarely changes
         full?: {
-            health: number
+            weapon: WeaponDefKey
         }
     }
     [EntityType.Projectile]: {
@@ -20,11 +22,9 @@ export interface EntitiesNetData {
             shooterId: number
         }
     }
-    [EntityType.Asteroid]: {
-        position: Vector
+    [EntityType.Obstacle]: {
         full?: {
-            radius: number
-            variation: number
+            position: Vector
         }
     }
 }
@@ -48,7 +48,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
             stream.writeUnit(data.direction, 16);
         },
         serializeFull(stream, data): void {
-            stream.writeFloat(data.health, 0, GameConstants.player.maxHealth, 12);
+            WeaponDefs.write(stream, data.weapon);
         },
         deserializePartial(stream) {
             return {
@@ -58,7 +58,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         },
         deserializeFull(stream) {
             return {
-                health: stream.readFloat(0, GameConstants.player.maxHealth, 12)
+                weapon: WeaponDefs.read(stream)
             };
         }
     },
@@ -84,25 +84,20 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
             };
         }
     },
-    [EntityType.Asteroid]: {
+    [EntityType.Obstacle]: {
         partialSize: 6,
         fullSize: 3,
-        serializePartial(stream, data) {
-            stream.writePosition(data.position);
+        serializePartial(_stream, _data) {
         },
         serializeFull(stream, data) {
-            stream.writeUint8(data.variation);
-            stream.writeFloat(data.radius, GameConstants.asteroid.minRadius, GameConstants.asteroid.maxRadius, 8);
+            stream.writePosition(data.position);
         },
-        deserializePartial(stream) {
-            return {
-                position: stream.readPosition()
-            };
+        deserializePartial(_stream) {
+            return {};
         },
         deserializeFull(stream) {
             return {
-                variation: stream.readUint8(),
-                radius: stream.readFloat(GameConstants.asteroid.minRadius, GameConstants.asteroid.maxRadius, 8)
+                position: stream.readPosition()
             };
         }
     }
@@ -119,6 +114,63 @@ export interface Explosion {
     radius: number
 }
 
+export interface Shot {
+    id: number
+    weapon: WeaponDefKey
+}
+
+//
+// Active player serialization
+//
+
+function serializeActivePlayerData(stream: GameBitStream, data: UpdatePacket["playerData"], dirty: UpdatePacket["playerDataDirty"]) {
+    stream.writeBoolean(dirty.id);
+    if (dirty.id) {
+        stream.writeUint16(data.id);
+    }
+
+    stream.writeBoolean(dirty.zoom);
+    if (dirty.zoom) {
+        stream.writeUint8(data.zoom);
+    }
+
+    stream.writeBoolean(dirty.health);
+    if (dirty.health) {
+        stream.writeUint8(data.health);
+    }
+
+    stream.writeBoolean(dirty.armor);
+    if (dirty.armor) {
+        stream.writeUint8(data.armor);
+    }
+
+    stream.writeAlignToNextByte();
+}
+
+function deserializePlayerData(stream: GameBitStream, data: UpdatePacket["playerData"], dirty: UpdatePacket["playerDataDirty"]) {
+    if (stream.readBoolean()) {
+        dirty.id = true;
+        data.id = stream.readUint16();
+    }
+
+    if (stream.readBoolean()) {
+        dirty.zoom = true;
+        data.zoom = stream.readUint8();
+    }
+
+    if (stream.readBoolean()) {
+        dirty.health = true;
+        data.health = stream.readUint8();
+    }
+
+    if (stream.readBoolean()) {
+        dirty.armor = true;
+        data.armor = stream.readUint8();
+    }
+
+    stream.readAlignToNextByte();
+}
+
 enum UpdateFlags {
     DeletedEntities = 1 << 0,
     FullEntities = 1 << 1,
@@ -126,9 +178,10 @@ enum UpdateFlags {
     NewPlayers = 1 << 3,
     DeletedPlayers = 1 << 4,
     PlayerData = 1 << 5,
-    Explosions = 1 << 6,
-    Shots = 1 << 7,
-    Map = 1 << 8
+    Bullets = 1 << 6,
+    Explosions = 1 << 7,
+    Shots = 1 << 8,
+    Map = 1 << 9
 }
 
 export class UpdatePacket implements Packet {
@@ -145,17 +198,23 @@ export class UpdatePacket implements Packet {
 
     playerDataDirty = {
         id: false,
-        zoom: false
+        zoom: false,
+        health: false,
+        armor: false
     };
 
     playerData = {
         id: 0,
-        zoom: 0
+        zoom: 0,
+        health: 0,
+        armor: 0
     };
+
+    bullets: BulletParams[] = [];
 
     explosions: Explosion[] = [];
 
-    shots: Vector[] = [];
+    shots: Shot[] = [];
 
     mapDirty = false;
     map = {
@@ -222,37 +281,30 @@ export class UpdatePacket implements Packet {
         }
 
         if (Object.values(this.playerDataDirty).includes(true)) {
-            stream.writeBoolean(this.playerDataDirty.id);
-            if (this.playerDataDirty.id) {
-                stream.writeUint16(this.playerData.id);
-            }
-
-            stream.writeBoolean(this.playerDataDirty.zoom);
-            if (this.playerDataDirty.zoom) {
-                stream.writeUint8(this.playerData.zoom);
-            }
-            stream.writeAlignToNextByte();
+            serializeActivePlayerData(stream, this.playerData, this.playerDataDirty);
 
             flags |= UpdateFlags.PlayerData;
+        }
+
+        if (this.bullets.length) {
+            stream.writeArray(this.bullets, 8, bullet => {
+                BaseBullet.serialize(stream, bullet);
+            });
+            flags |= UpdateFlags.Bullets;
         }
 
         if (this.explosions.length) {
             stream.writeArray(this.explosions, 8, explosion => {
                 stream.writePosition(explosion.position);
-                stream.writeFloat(
-                    explosion.radius,
-                    GameConstants.explosion.minRadius,
-                    GameConstants.explosion.maxRadius,
-                    8
-                );
             });
 
             flags |= UpdateFlags.Explosions;
         }
 
         if (this.shots.length) {
-            stream.writeArray(this.shots, 8, pos => {
-                stream.writePosition(pos);
+            stream.writeArray(this.shots, 8, shot => {
+                stream.writeUint16(shot.id);
+                WeaponDefs.write(stream, shot.weapon);
             });
 
             flags |= UpdateFlags.Shots;
@@ -327,31 +379,29 @@ export class UpdatePacket implements Packet {
         }
 
         if (flags & UpdateFlags.PlayerData) {
-            if (stream.readBoolean()) {
-                this.playerDataDirty.id = true;
-                this.playerData.id = stream.readUint16();
-            }
+            deserializePlayerData(stream, this.playerData, this.playerDataDirty);
+        }
 
-            if (stream.readBoolean()) {
-                this.playerDataDirty.zoom = true;
-                this.playerData.zoom = stream.readUint8();
-            }
-
-            stream.readAlignToNextByte();
+        if (flags & UpdateFlags.Bullets) {
+            stream.readArray(this.bullets, 8, () => {
+                return BaseBullet.deserialize(stream);
+            });
         }
 
         if (flags & UpdateFlags.Explosions) {
             stream.readArray(this.explosions, 8, () => {
                 return {
-                    position: stream.readPosition(),
-                    radius: stream.readFloat(GameConstants.explosion.minRadius, GameConstants.explosion.maxRadius, 8)
+                    position: stream.readPosition()
                 };
             });
         }
 
         if (flags & UpdateFlags.Shots) {
             stream.readArray(this.shots, 8, () => {
-                return stream.readPosition();
+                return {
+                    id: stream.readUint16(),
+                    weapon: WeaponDefs.read(stream)
+                };
             });
         }
 

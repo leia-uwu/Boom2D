@@ -1,6 +1,22 @@
+#game {
+    cursor: crosshair;
+    user-select: none;
+}
+
 #game-ui {
-    width: 100vw;
-    height: 100vh;
+    display: flex;
+    color: white;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+#player-stats {
+    position: absolute;
+    left: 0%;
+    bottom: 0%;
+    margin: 5px;
+    div {
+        font-size: 1.5em;
+    }
 }
 
 #game-over-screen {
@@ -9,7 +25,7 @@
     height: 150px;
     display: flex;
     text-align: center;
-    background: var(--background-accent);    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
     left: 50vw;
     top: 50%
 }

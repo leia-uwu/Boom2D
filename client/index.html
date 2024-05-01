@@ -4,18 +4,16 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Silly game</title>
+    <title>Boom2D</title>
   </head>
   <body>
     <div id="app">
       <div id="home">
+        <img id="logo" src="./img/logo.svg"/>
         <div id="center-container">
-
           <div id="play-container">
             <input id="name-input" type="text" placeholder="Enter your name...">
             <select id="server-selector">
-            </select>
-            <select id="class-selector">
             </select>
             <button id="play-btn">Play</button>
           </div>
@@ -23,14 +21,18 @@
         </div>
       </div>
       <div id="game" style="display: none;">
-        <canvas id="game-canvas"></canvas>
-          <div id="game-ui">
-            <div id="game-over-screen" style="display: none;">
-              <h2>You died</h2>
-              <div id="game-over-kill-count"></div>
-              <button id="play-again-btn">Play Again</button>
-            </div>
+        <div id="game-ui">
+          <div id="player-stats">
+            <div id="player-armor"></div>
+            <div id="player-health"></div>
+          </div>
+          <div id="game-over-screen" style="display: none;">
+            <h2>You died</h2>
+            <div id="game-over-kill-count"></div>
+            <button id="play-again-btn">Play Again</button>
+          </div>
         </div>
+        <canvas id="game-canvas"></canvas>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

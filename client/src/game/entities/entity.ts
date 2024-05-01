@@ -4,9 +4,11 @@ import { MathUtils } from "../../../../common/src/utils/math";
 import { EntityType } from "../../../../common/src/constants";
 import { Vec2 } from "../../../../common/src/utils/vector";
 import { type Game } from "../game";
+import { Hitbox } from "../../../../common/src/utils/hitbox";
 
 export abstract class ClientEntity<T extends EntityType = EntityType> {
     abstract type: T;
+    abstract hitbox: Hitbox;
     game: Game;
     id: number;
     position = Vec2.new(0, 0);

@@ -1,22 +1,24 @@
 {
     "compilerOptions": {
-        "target": "ES2020",
-        "useDefineForClassFields": true,
-        "module": "ESNext",
         "lib": [
-            "ES2020",
             "DOM",
-            "DOM.Iterable"
+            "ESNext"
         ],
-        "skipLibCheck": true,
-        "moduleResolution": "bundler",
-        "allowImportingTsExtensions": true,
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "outDir": "./dist",
+        "newLine": "lf",
+        "allowSyntheticDefaultImports": true,
+        "useDefineForClassFields": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
-        "noEmit": true,
-        "strictNullChecks": true,
+        "allowJs": true,
+        "checkJs": true,
         "strict": true,
-        "types": ["vite/client"]
+        "types": [
+            "vite/client"
+        ]
     },
     "include": [
         "src",

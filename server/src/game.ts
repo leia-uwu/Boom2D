@@ -4,14 +4,12 @@ import { type PlayerData } from "./server";
 import { type ServerEntity } from "./entities/entity";
 import { Grid } from "./grid";
 import { EntityPool } from "../../common/src/utils/entityPool";
-import { EntityType, GameConstants } from "../../common/src/constants";
+import { GameConstants } from "../../common/src/constants";
 import NanoTimer from "nanotimer";
 import { type ServerConfig } from "./config";
-import { Asteroid } from "./entities/asteroid";
-import { Random } from "../../common/src/utils/random";
-import { type Explosion } from "../../common/src/packets/updatePacket";
+import { Shot, type Explosion } from "../../common/src/packets/updatePacket";
 import { IDAllocator } from "./idAllocator";
-import { type Vector } from "../../common/src/utils/vector";
+import { BulletManager } from "./bullet";
 
 export class Game {
     players = new EntityPool<Player>();
@@ -22,8 +20,9 @@ export class Game {
     partialDirtyEntities = new Set<ServerEntity>();
     fullDirtyEntities = new Set<ServerEntity>();
 
+    bulletManager = new BulletManager(this);
     explosions: Explosion[] = [];
-    shots: Vector[] = [];
+    shots: Shot[] = [];
 
     grid = new Grid(GameConstants.maxPosition, GameConstants.maxPosition);
 
@@ -33,7 +32,6 @@ export class Game {
 
     idAllocator = new IDAllocator(16);
 
-    dt = 0;
     now = Date.now();
 
     timer = new NanoTimer();
@@ -56,25 +54,16 @@ export class Game {
     }
 
     tick(): void {
-        this.dt = (Date.now() - this.now) / 1000;
-        this.now = Date.now();
+        const now = Date.now();
+        const dt = (now - this.now) / 1000;
+        this.now = now;
 
         // update entities
         for (const entity of this.grid.entities.values()) {
-            entity.tick();
+            entity.tick(dt);
         }
 
-        // spawn asteroids
-
-        if (this.grid.byCategory[EntityType.Asteroid].size < 20) {
-            const asteroid = new Asteroid(this, Random.vector(
-                0, this.width,
-                0, this.height
-            ),
-            Random.float(GameConstants.asteroid.minRadius, GameConstants.asteroid.maxRadius)
-            );
-            this.grid.addEntity(asteroid);
-        }
+        this.bulletManager.tick(dt);
 
         // Cache entity serializations
         for (const entity of this.partialDirtyEntities) {
@@ -105,6 +94,7 @@ export class Game {
         this.fullDirtyEntities.clear();
         this.newPlayers.length = 0;
         this.deletedPlayers.length = 0;
+        this.bulletManager.newBullets.length = 0;
         this.explosions.length = 0;
         this.shots.length = 0;
         this.mapDirty = false;

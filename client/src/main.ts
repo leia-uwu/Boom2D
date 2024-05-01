@@ -1,5 +1,4 @@
-import "./scss/home.scss";
-import "./scss/game.scss";
+import "./scss/main.scss";
 import { Game } from "./game/game";
 import { UiManager } from "./ui";
 import { Application } from "pixi.js";
@@ -19,8 +18,9 @@ export class App {
             resolution: window.devicePixelRatio ?? 1,
             antialias: true,
             preference: "webgl",
-            background: 0x000000
+            background: "#3b3b3b"
         });
+
         this.pixi.canvas.addEventListener("contextmenu", e => {
             e.preventDefault();
         });

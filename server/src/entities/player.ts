@@ -11,22 +11,26 @@ import { MathUtils } from "../../../common/src/utils/math";
 import { InputPacket } from "../../../common/src/packets/inputPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { EntityType, GameConstants } from "../../../common/src/constants";
-import { Projectile } from "./projectile";
 import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
-import { Asteroid } from "./asteroid";
-import { type ClassDefKey, ClassDefs } from "../../../common/src/defs/classDefs";
+import { Obstacle } from "./obstacle";
+import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
+import { WeaponManager } from "../weaponManager";
 
 export class Player extends ServerEntity {
     readonly type = EntityType.Player;
+    readonly hitbox = new CircleHitbox(GameConstants.player.radius);
+
     socket: WebSocket<PlayerData>;
     name = "";
-    class: ClassDefKey = "main";
-    direction = Vec2.new(0, 0);
-    mouseDown = false;
-    shoot = false;
-    shotCooldown = 0;
 
-    hitbox = new CircleHitbox(GameConstants.player.radius);
+    direction = Vec2.new(0, 0);
+
+    mouseDown = false;
+
+    moveLeft = false;
+    moveRight = false;
+    moveUp = false;
+    moveDown = false;
 
     private _health = GameConstants.player.defaultHealth;
 
@@ -37,8 +41,24 @@ export class Player extends ServerEntity {
     set health(health: number) {
         if (health === this._health) return;
         this._health = MathUtils.clamp(health, 0, GameConstants.player.maxHealth);
-        this.setFullDirty();
+        this.dirty.health = true;
     }
+
+    private _armor = GameConstants.player.defaultArmor;
+
+    get armor(): number {
+        return this._armor;
+    }
+
+    set armor(armor: number) {
+        if (armor === this._armor) return;
+        this._armor = MathUtils.clamp(armor, 0, GameConstants.player.maxHealth);
+        this.dirty.armor = true;
+    }
+
+    readonly weaponManager = new WeaponManager(this);
+
+    weapon: WeaponDefKey = "pistol";
 
     dead = false;
 
@@ -54,10 +74,12 @@ export class Player extends ServerEntity {
     // what needs to be sent again to the client
     readonly dirty = {
         id: true,
-        zoom: true
+        zoom: true,
+        health: true,
+        armor: true
     };
 
-    private _zoom = 64;
+    private _zoom = GameConstants.player.defaultZoom;
 
     get zoom(): number {
         return this._zoom;
@@ -85,25 +107,28 @@ export class Player extends ServerEntity {
         this.socket = socket;
     }
 
-    tick(): void {
+    tick(dt: number): void {
         const oldPos = Vec2.clone(this.position);
-        if (this.mouseDown) {
-            const speed = Vec2.mul(this.direction, GameConstants.player.speed);
-            this.position = Vec2.add(this.position, Vec2.mul(speed, this.game.dt));
+
+        const movement = Vec2.new(0, 0);
+        if (this.moveUp) movement.y--;
+        if (this.moveDown) movement.y++;
+        if (this.moveLeft) movement.x--;
+        if (this.moveRight) movement.x++;
+
+        if (movement.x * movement.y !== 0) { // If the product is non-zero, then both of the components must be non-zero
+            movement.x *= Math.SQRT1_2;
+            movement.y *= Math.SQRT1_2;
         }
 
-        const classDef = ClassDefs.typeToDef(this.class);
-        if (this.shoot && this.shotCooldown < this.game.now) {
-            this.shotCooldown = this.game.now + classDef.fireDelay;
-            const projectile = new Projectile(this.game, this.position, this.direction, this);
-            this.game.grid.addEntity(projectile);
-            this.game.shots.push(this.position);
-        }
+        this.position = Vec2.add(this.position, Vec2.mul(movement, GameConstants.player.speed * dt));
+
+        this.weaponManager.tick();
 
         const entities = this.game.grid.intersectsHitbox(this.hitbox);
 
         for (const entity of entities) {
-            if (!(entity instanceof Player || entity instanceof Asteroid)) continue;
+            if (!(entity instanceof Player || entity instanceof Obstacle)) continue;
             if (entity === this) continue;
 
             const collision = this.hitbox.getIntersection(entity.hitbox);
@@ -186,14 +211,23 @@ export class Player extends ServerEntity {
         updatePacket.newPlayers = this.firstPacket ? [...this.game.players] : this.game.newPlayers;
         updatePacket.deletedPlayers = this.game.deletedPlayers;
 
+        for (const bullet of this.game.bulletManager.newBullets) {
+            if (rect.isPointInside(bullet.initialPosition)
+                || rect.isPointInside(bullet.finalPosition)
+                || rect.intersectsLine(bullet.initialPosition, bullet.finalPosition)) {
+                updatePacket.bullets.push(bullet);
+            }
+        }
+
         for (const explosion of this.game.explosions) {
             if (rect.isPointInside(explosion.position)) {
                 updatePacket.explosions.push(explosion);
             }
         }
-        for (const shoot of this.game.shots) {
-            if (rect.isPointInside(shoot)) {
-                updatePacket.shots.push(shoot);
+        for (const shot of this.game.shots) {
+            const player = this.game.grid.getById(shot.id)!;
+            if (rect.isPointInside(player.position)) {
+                updatePacket.shots.push(shot);
             }
         }
 
@@ -254,13 +288,6 @@ export class Player extends ServerEntity {
         this.name = packet.name.trim();
         if (!this.name) this.name = GameConstants.player.defaultName;
 
-        const selectedClass = packet.class;
-        if (selectedClass && ClassDefs.typeToId(selectedClass)) {
-            this.class = selectedClass;
-            const def = ClassDefs.typeToDef(selectedClass);
-            this.zoom = def.cameraZoom;
-        }
-
         this.socket.getUserData().joined = true;
         this.game.players.add(this);
         this.game.grid.addEntity(this);
@@ -273,9 +300,13 @@ export class Player extends ServerEntity {
         if (!Vec2.equals(this.direction, packet.direction)) {
             this.setDirty();
         }
+        this.moveLeft = packet.moveLeft;
+        this.moveRight = packet.moveRight;
+        this.moveUp = packet.moveUp;
+        this.moveDown = packet.moveDown;
+
         this.direction = packet.direction;
         this.mouseDown = packet.mouseDown;
-        this.shoot = packet.shoot;
     }
 
     get data(): Required<EntitiesNetData[EntityType.Player]> {
@@ -283,7 +314,7 @@ export class Player extends ServerEntity {
             position: this.position,
             direction: this.direction,
             full: {
-                health: this.health
+                weapon: this.weapon
             }
         };
     }

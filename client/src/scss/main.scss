@@ -1,0 +1,13 @@
+@font-face {
+    font-family: "Russo One";
+    font-display: swap;
+    src: url("../../fonts/RussoOne-Regular.ttf") format("truetype");
+}
+
+@import "./home.scss";
+@import "./game.scss";
+
+* {
+    font-family: "Russo One";
+    font-size: 1rem;
+}

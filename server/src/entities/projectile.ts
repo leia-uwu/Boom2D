@@ -1,11 +1,9 @@
-import { EntityType, GameConstants } from "../../../common/src/constants";
-import { ClassDefs } from "../../../common/src/defs/classDefs";
+import { EntityType } from "../../../common/src/constants";
 import { type EntitiesNetData } from "../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../common/src/utils/math";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { type Game } from "../game";
-import { Asteroid } from "./asteroid";
 import { ServerEntity } from "./entity";
 import { Player } from "./player";
 
@@ -29,30 +27,28 @@ export class Projectile extends ServerEntity {
     constructor(game: Game, position: Vector, direction: Vector, source: Player) {
         super(game, position);
         this.direction = direction;
-        this.hitbox = new CircleHitbox(GameConstants.projectile.radius, position);
+        this.hitbox = new CircleHitbox(0.5, position);
         this.source = source;
     }
 
-    tick(): void {
+    tick(dt: number): void {
         if (this.dead) {
             this.destroy();
             return;
         }
 
-        const classDef = ClassDefs.typeToDef(this.source.class);
-
-        const speed = Vec2.mul(this.direction, classDef.bulletSpeed);
-        this.position = Vec2.add(this.position, Vec2.mul(speed, this.game.dt));
+        const speed = Vec2.mul(this.direction, 10);
+        this.position = Vec2.add(this.position, Vec2.mul(speed, dt));
         this.game.grid.updateEntity(this);
         this.setDirty();
 
         const entities = this.game.grid.intersectsHitbox(this.hitbox);
         for (const entity of entities) {
-            if (!(entity instanceof Player || entity instanceof Asteroid)) continue;
+            if (!(entity instanceof Player)) continue;
             if (entity === this.source) continue;
 
             if (entity.hitbox.collidesWith(this.hitbox)) {
-                entity.damage(classDef.damage, this.source);
+                // entity.damage(classDef.damage, this.source);
                 this.dead = true;
             }
         }

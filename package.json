@@ -1,7 +1,7 @@
 {
-    "name": "io-game-example",
+    "name": "Boom2D",
     "version": "0.0.1",
-    "description": "",
+    "description": "2D DeathMatch game inspired by surviv.io and Doom",
     "scripts": {
         "lint": "eslint . --fix",
         "lint:ci": "eslint . --max-warnings 0 --ext .js,.ts",

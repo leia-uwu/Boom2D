@@ -1,14 +1,11 @@
-import { type ClassDefKey } from "../../common/src/defs/classDefs";
 import { ClientConfig } from "./config";
 
 interface GameSettings {
     server: string
-    playerClass: ClassDefKey
 }
 
 const defaultSettings: GameSettings = {
-    server: ClientConfig.defaultServer,
-    playerClass: "main"
+    server: ClientConfig.defaultServer
 };
 
 export class SettingsManager {

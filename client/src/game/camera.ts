@@ -1,6 +1,7 @@
 import { Container } from "pixi.js";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { type Game } from "./game";
+import { GameConstants } from "../../../common/src/constants";
 
 export class Camera {
     readonly container = new Container({
@@ -15,12 +16,12 @@ export class Camera {
     width = 1;
     height = 1;
 
-    private _zoom = 64;
+    private _zoom = GameConstants.player.defaultZoom;
 
     /**
      * How many pixels each game unit is
      */
-    static scale = 20;
+    static scale = 64;
 
     /**
      * Scales a game vector to pixels

@@ -145,7 +145,7 @@ export class AudioManager {
         // Load all mp3s from the sounds folder
         // and sets an alias with the file name
         // similar to how svgs are loaded
-        const sounds = import.meta.glob("/public/sounds/**/*.mp3");
+        const sounds = import.meta.glob("/public/game/sounds/**/*.mp3");
 
         const soundsToLoad: Record<string, string> = {};
 

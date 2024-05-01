@@ -12,13 +12,14 @@ import { Projectile } from "./entities/projectile";
 import { type App } from "../main";
 import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { GameUi } from "./gameUi";
-import { Asteroid } from "./entities/asteroid";
 import { ParticleManager } from "./particle";
 import { Random } from "../../../common/src/utils/random";
 import { EasinFunctions } from "../../../common/src/utils/math";
-import { type ClassDefKey } from "../../../common/src/defs/classDefs";
 import { AudioManager } from "./audioManager";
 import { EntityType } from "../../../common/src/constants";
+import { Obstacle } from "./entities/obstacle";
+import { BulletManager } from "./bullet";
+import { WeaponDefs } from "../../../common/src/defs/weaponDefs";
 
 export class Game {
     app: App;
@@ -42,6 +43,7 @@ export class Game {
     inputManager = new InputManager(this);
     audioManager = new AudioManager(this);
     particleManager = new ParticleManager(this);
+    bulletManager = new BulletManager(this);
 
     mapGraphics = new Graphics({
         zIndex: -99
@@ -67,19 +69,21 @@ export class Game {
         // so for example you can just do:
         // new Sprite("player.svg")
         // instead of:
-        // new Sprite("/img/player.svg")
+        // new Sprite("./game/img/player.svg")
 
         const promises: Array<ReturnType<typeof Assets["load"]>> = [];
-        const imgs = import.meta.glob("/public/img/**/*.svg");
+        const imgs = import.meta.glob("/public/game/img//**/*.svg");
 
         for (const file in imgs) {
             const path = file.split("/");
             const name = path[path.length - 1];
+            const src = `.${file.replace("/public", "")}`;
 
-            promises.push(Assets.load({
+            const promise = Assets.load({
                 alias: name,
-                src: file.replace("/public", "")
-            }));
+                src
+            });
+            promises.push(promise);
         }
 
         await Promise.all(promises);
@@ -99,7 +103,6 @@ export class Game {
         this.socket.onopen = () => {
             const joinPacket = new JoinPacket();
             joinPacket.name = this.app.uiManager.nameInput.value;
-            joinPacket.class = this.app.uiManager.classSelect.value as ClassDefKey;
             this.sendPacket(joinPacket);
         };
 
@@ -162,7 +165,7 @@ export class Game {
     static typeToEntity = {
         [EntityType.Player]: Player,
         [EntityType.Projectile]: Projectile,
-        [EntityType.Asteroid]: Asteroid
+        [EntityType.Obstacle]: Obstacle
     };
 
     /**
@@ -214,6 +217,12 @@ export class Game {
             entity.updateFromData(entityPartialData.data, false);
         }
 
+        this.ui.updateUi(packet.playerData, packet.playerDataDirty);
+
+        for (const bulletParams of packet.bullets) {
+            this.bulletManager.fireBullet(bulletParams);
+        }
+
         for (const explosion of packet.explosions) {
             this.particleManager.spawnParticles(explosion.radius * 10, () => {
                 return {
@@ -232,8 +241,11 @@ export class Game {
         }
 
         for (const shot of packet.shots) {
-            this.audioManager.play("shot_01.mp3", {
-                position: shot,
+            const player = this.entities.get(shot.id);
+            if (!player) continue;
+            const def = WeaponDefs.typeToDef(shot.weapon);
+            this.audioManager.play(def.sfx.shot, {
+                position: player.position,
                 maxRange: 96
             });
         }
@@ -276,17 +288,20 @@ export class Game {
         this.camera.resize();
     }
 
-    dt = Date.now();
+    now = Date.now();
 
     render(): void {
         if (!this.running) return;
 
-        const dt = (Date.now() - this.dt) / 1000;
-        this.dt = Date.now();
+        const now = Date.now();
+        const dt = (now - this.now) / 1000;
+        this.now = now;
 
         for (const entity of this.entities) {
             entity.render(dt);
         }
+        this.bulletManager.tick(dt);
+
         this.particleManager.render(dt);
 
         if (this.activePlayer) {
@@ -296,8 +311,12 @@ export class Game {
         this.camera.render();
 
         const inputPacket = new InputPacket();
+        inputPacket.moveLeft = this.inputManager.isInputDown("A");
+        inputPacket.moveRight = this.inputManager.isInputDown("D");
+        inputPacket.moveDown = this.inputManager.isInputDown("S");
+        inputPacket.moveUp = this.inputManager.isInputDown("W");
+
         inputPacket.mouseDown = this.inputManager.isInputDown("Mouse0");
-        inputPacket.shoot = this.inputManager.isInputDown("Mouse2");
         inputPacket.direction = this.inputManager.mouseDir;
         this.sendPacket(inputPacket);
     }

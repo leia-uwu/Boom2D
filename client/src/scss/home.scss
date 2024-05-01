@@ -1,10 +1,3 @@
-:root {
-    --background-light: rgb(231, 240, 254);
-    --background-accent: rgba(0, 255, 255, 0.6);
-    --text-color: white;
-}
-
-
 body {
     width: 100vw;
     height: 100vh;
@@ -19,13 +12,25 @@ body {
 #home {
     width: 100vw;
     height: 100vh;
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    #logo {
+        margin: 25px;
+        width: 400px;
+        margin-top: -200px;
+    }
 
     #center-container {
         place-self: center;
         justify-self: center;
         display: flex;
+        flex-direction: column;
+        text-align: center;
         padding: 10px;
+        margin-top: 50px;
 
         #play-container {
             display: flex;
@@ -33,39 +38,4 @@ body {
             gap: 4px;
         }
     }
-}
-
-button {
-    padding: 8px;
-    font-size: 20px;
-    font-weight: 900;
-    outline: none;
-    transition: transform 150ms;
-    cursor: pointer;
-    color: var(--text-color);
-    box-shadow: 0px 2px 5px cyan;
-    border: solid 1px cyan;
-    background-color: var(--background-accent);
-}
-
-button:hover {
-    transform: scale(1.15);
-}
-
-select {
-    outline: none;
-    border: none;
-    padding: 8px;
-    border-radius: 0px;
-    background-color: var(--background-light);
-}
-
-input {
-    outline: none;
-    padding: 7px;
-    font-family: 'Orbitron';
-    font-size: 15px;
-    color: rgb(71, 71, 71);
-    border: none;
-    background-color: var(--background-light);
 }

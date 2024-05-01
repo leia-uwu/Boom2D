@@ -140,6 +140,16 @@ export const Vec2 = {
         const diff = Vec2.sub(a, b);
         return Vec2.length(diff);
     },
+    /**
+    * Gets the distance between two vectors squared
+    * @param a - The first Vector
+    * @param b - The second Vector
+    * @returns The distance between Vector a and b squared
+    */
+    distanceSqrt(a: Vector, b: Vector): number {
+        const diff = Vec2.sub(a, b);
+        return Vec2.lengthSqr(diff);
+    },
 
     /**
      * Normalizes a Vector
@@ -183,6 +193,9 @@ export const Vec2 = {
      */
     dot(a: Vector, b: Vector): number {
         return a.x * b.x + a.y * b.y;
+    },
+    perp(a: Vector): Vector {
+        return { x: -a.y, y: a.x };
     },
     /**
      * Tests whether two `Vectors` are equal, within a certain tolerance
