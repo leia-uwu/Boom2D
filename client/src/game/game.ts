@@ -244,7 +244,7 @@ export class Game {
             const player = this.entities.get(shot.id);
             if (!player) continue;
             const def = WeaponDefs.typeToDef(shot.weapon);
-            this.audioManager.play(def.sfx.shot, {
+            this.audioManager.play(def.sfx.shoot, {
                 position: player.position,
                 maxRange: 96
             });

@@ -14,7 +14,7 @@ interface GunDef {
     barrelLength: number
     barrelOffset: number
     sfx: {
-        shot: string
+        shoot: string
     }
 }
 export const WeaponDefs = new DefinitionList({
@@ -36,7 +36,7 @@ export const WeaponDefs = new DefinitionList({
             zIndex: -1
         },
         sfx: {
-            shot: "pistol_fire.mp3"
+            shoot: "pistol_fire.mp3"
         },
         leftFistPos: Vec2.new(0, 0)
     },
@@ -58,7 +58,7 @@ export const WeaponDefs = new DefinitionList({
             zIndex: -1
         },
         sfx: {
-            shot: "shotgun_fire.mp3"
+            shoot: "shotgun_fire.mp3"
         },
         leftFistPos: Vec2.new(100, 5)
     },
@@ -80,7 +80,7 @@ export const WeaponDefs = new DefinitionList({
             zIndex: -1
         },
         sfx: {
-            shot: "ak_fire.mp3"
+            shoot: "ak_fire.mp3"
         },
         leftFistPos: Vec2.new(130, 5)
     }
