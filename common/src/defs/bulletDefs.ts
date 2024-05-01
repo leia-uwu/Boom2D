@@ -16,9 +16,18 @@ export const BulletDefs = new DefinitionList({
             min: 5,
             max: 15
         },
-        speed: 120,
+        speed: 110,
         maxDistance: 150,
         trailMaxLength: 20
+    },
+    shotgun_bullet: {
+        damage: {
+            min: 5,
+            max: 15
+        },
+        speed: 80,
+        maxDistance: 80,
+        trailMaxLength: 15
     }
 } satisfies Record<string, BulletDef>);
 

@@ -58,7 +58,7 @@ export class Player extends ServerEntity {
 
     readonly weaponManager = new WeaponManager(this);
 
-    weapon: WeaponDefKey = "pistol";
+    weapon: WeaponDefKey = "ak";
 
     dead = false;
 

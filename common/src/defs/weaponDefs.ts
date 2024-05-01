@@ -6,6 +6,7 @@ interface GunDef {
     type: "gun"
     fireDelay: number
     bulletType?: BulletDefKey
+    bulletCount: number
     spread: number
     inventoryImg: ImgDefinition
     worldImg: ImgDefinition
@@ -21,7 +22,8 @@ export const WeaponDefs = new DefinitionList({
         type: "gun",
         fireDelay: 250,
         bulletType: "pistol_bullet",
-        spread: 5.6,
+        bulletCount: 1,
+        spread: 6,
         barrelLength: 2,
         barrelOffset: 0,
         inventoryImg: {
@@ -37,6 +39,50 @@ export const WeaponDefs = new DefinitionList({
             shot: "pistol_fire.mp3"
         },
         leftFistPos: Vec2.new(0, 0)
+    },
+    shotgun: {
+        type: "gun",
+        fireDelay: 900,
+        bulletType: "shotgun_bullet",
+        bulletCount: 7,
+        spread: 10,
+        barrelLength: 2.5,
+        barrelOffset: 0,
+        inventoryImg: {
+            src: "./game/img/weapons/shotgun.svg"
+        },
+        worldImg: {
+            src: "./game/img/weapons/shotgun_world.svg",
+            rotation: Math.PI / 2,
+            position: Vec2.new(90, 0),
+            zIndex: -1
+        },
+        sfx: {
+            shot: "shotgun_fire.mp3"
+        },
+        leftFistPos: Vec2.new(100, 5)
+    },
+    ak: {
+        type: "gun",
+        fireDelay: 35,
+        bulletType: "pistol_bullet",
+        bulletCount: 1,
+        spread: 6,
+        barrelLength: 3,
+        barrelOffset: 0,
+        inventoryImg: {
+            src: "./game/img/weapons/ak.svg"
+        },
+        worldImg: {
+            src: "./game/img/weapons/ak_world.svg",
+            rotation: Math.PI / 2,
+            position: Vec2.new(90, 0),
+            zIndex: -1
+        },
+        sfx: {
+            shot: "ak_fire.mp3"
+        },
+        leftFistPos: Vec2.new(130, 5)
     }
 } satisfies Record<string, GunDef>);
 
