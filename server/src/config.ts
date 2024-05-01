@@ -1,7 +1,7 @@
 export const Config: ServerConfig = {
     host: "127.0.0.1",
     port: 8000,
-    tps: 30
+    tps: 35
 };
 
 export interface ServerConfig {
