@@ -13,7 +13,7 @@ import { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { EntityType, GameConstants } from "../../../common/src/constants";
 import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { Obstacle } from "./obstacle";
-import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
+import { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
 import { WeaponManager } from "../weaponManager";
 
 export class Player extends ServerEntity {
@@ -58,7 +58,13 @@ export class Player extends ServerEntity {
 
     readonly weaponManager = new WeaponManager(this);
 
-    weapon: WeaponDefKey = "ak";
+    weapons: Record<WeaponDefKey, boolean> = {
+        pistol: true,
+        shotgun: true,
+        ak: true
+    };
+
+    activeWeapon: WeaponDefKey = "pistol";
 
     dead = false;
 
@@ -76,7 +82,8 @@ export class Player extends ServerEntity {
         id: true,
         zoom: true,
         health: true,
-        armor: true
+        armor: true,
+        weapons: true
     };
 
     private _zoom = GameConstants.player.defaultZoom;
@@ -307,6 +314,11 @@ export class Player extends ServerEntity {
 
         this.direction = packet.direction;
         this.mouseDown = packet.mouseDown;
+
+        if (packet.weaponToSwitch && this.weapons[packet.weaponToSwitch]) {
+            this.activeWeapon = packet.weaponToSwitch;
+            this.setFullDirty();
+        }
     }
 
     get data(): Required<EntitiesNetData[EntityType.Player]> {
@@ -314,7 +326,7 @@ export class Player extends ServerEntity {
             position: this.position,
             direction: this.direction,
             full: {
-                weapon: this.weapon
+                activeWeapon: this.activeWeapon
             }
         };
     }

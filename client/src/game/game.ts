@@ -19,7 +19,7 @@ import { AudioManager } from "./audioManager";
 import { EntityType } from "../../../common/src/constants";
 import { Obstacle } from "./entities/obstacle";
 import { BulletManager } from "./bullet";
-import { WeaponDefs } from "../../../common/src/defs/weaponDefs";
+import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
 
 export class Game {
     app: App;
@@ -317,6 +317,15 @@ export class Game {
         inputPacket.moveUp = this.inputManager.isInputDown("W");
 
         inputPacket.mouseDown = this.inputManager.isInputDown("Mouse0");
+
+        for (const weapon in WeaponDefs.definitions) {
+            const def = WeaponDefs.typeToDef(weapon);
+            if (this.inputManager.isInputDown(def.key) && weapon !== this.activePlayer?.activeWeapon) {
+                inputPacket.weaponToSwitch = weapon as WeaponDefKey;
+                break;
+            }
+        }
+
         inputPacket.direction = this.inputManager.mouseDir;
         this.sendPacket(inputPacket);
     }

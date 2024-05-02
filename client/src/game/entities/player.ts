@@ -14,7 +14,7 @@ export class Player extends ClientEntity {
 
     readonly hitbox = new CircleHitbox(GameConstants.player.radius);
 
-    weapon!: WeaponDefKey;
+    activeWeapon!: WeaponDefKey;
 
     images = {
         base: Sprite.from("player-base.svg"),
@@ -76,8 +76,8 @@ export class Player extends ClientEntity {
         this.direction = data.direction;
 
         if (data.full) {
-            this.weapon = data.full.weapon;
-            const weaponDef = WeaponDefs.typeToDef(this.weapon);
+            this.activeWeapon = data.full.activeWeapon;
+            const weaponDef = WeaponDefs.typeToDef(this.activeWeapon);
             spriteFromDef(this.images.weapon, weaponDef.worldImg);
 
             if (weaponDef.type === "gun") {
@@ -85,6 +85,7 @@ export class Player extends ClientEntity {
                 this.images.leftFist.position = weaponDef.leftFistPos;
                 this.images.leftFist.zIndex = -2;
             }
+            this.game.ui.updateWeaponsUi();
 
             this.container.sortChildren();
         }

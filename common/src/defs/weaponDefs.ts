@@ -4,6 +4,7 @@ import { type BulletDefKey } from "./bulletDefs";
 
 interface GunDef {
     type: "gun"
+    key: string
     fireDelay: number
     bulletType?: BulletDefKey
     bulletCount: number
@@ -20,6 +21,7 @@ interface GunDef {
 export const WeaponDefs = new DefinitionList({
     pistol: {
         type: "gun",
+        key: "1",
         fireDelay: 250,
         bulletType: "pistol_bullet",
         bulletCount: 1,
@@ -42,6 +44,7 @@ export const WeaponDefs = new DefinitionList({
     },
     shotgun: {
         type: "gun",
+        key: "2",
         fireDelay: 900,
         bulletType: "shotgun_bullet",
         bulletCount: 7,
@@ -64,6 +67,7 @@ export const WeaponDefs = new DefinitionList({
     },
     ak: {
         type: "gun",
+        key: "3",
         fireDelay: 35,
         bulletType: "pistol_bullet",
         bulletCount: 1,

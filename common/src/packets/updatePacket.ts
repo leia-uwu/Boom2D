@@ -12,7 +12,7 @@ export interface EntitiesNetData {
 
         // while full data for data that rarely changes
         full?: {
-            weapon: WeaponDefKey
+            activeWeapon: WeaponDefKey
         }
     }
     [EntityType.Projectile]: {
@@ -48,7 +48,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
             stream.writeUnit(data.direction, 16);
         },
         serializeFull(stream, data): void {
-            WeaponDefs.write(stream, data.weapon);
+            WeaponDefs.write(stream, data.activeWeapon);
         },
         deserializePartial(stream) {
             return {
@@ -58,7 +58,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         },
         deserializeFull(stream) {
             return {
-                weapon: WeaponDefs.read(stream)
+                activeWeapon: WeaponDefs.read(stream)
             };
         }
     },
@@ -144,6 +144,13 @@ function serializeActivePlayerData(stream: GameBitStream, data: UpdatePacket["pl
         stream.writeUint8(data.armor);
     }
 
+    stream.writeBoolean(dirty.weapons);
+    if (dirty.weapons) {
+        for (const key in WeaponDefs.definitions) {
+            stream.writeBoolean(data.weapons[key as WeaponDefKey]);
+        }
+    }
+
     stream.writeAlignToNextByte();
 }
 
@@ -166,6 +173,13 @@ function deserializePlayerData(stream: GameBitStream, data: UpdatePacket["player
     if (stream.readBoolean()) {
         dirty.armor = true;
         data.armor = stream.readUint8();
+    }
+
+    if (stream.readBoolean()) {
+        dirty.weapons = true;
+        for (const weapon in WeaponDefs.definitions) {
+            data.weapons[weapon as WeaponDefKey] = stream.readBoolean();
+        }
     }
 
     stream.readAlignToNextByte();
@@ -200,14 +214,16 @@ export class UpdatePacket implements Packet {
         id: false,
         zoom: false,
         health: false,
-        armor: false
+        armor: false,
+        weapons: false
     };
 
     playerData = {
         id: 0,
         zoom: 0,
         health: 0,
-        armor: 0
+        armor: 0,
+        weapons: {} as Record<WeaponDefKey, boolean>
     };
 
     bullets: BulletParams[] = [];

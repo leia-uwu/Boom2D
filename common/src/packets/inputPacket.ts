@@ -1,3 +1,4 @@
+import { WeaponDefKey, WeaponDefs } from "../defs/weaponDefs";
 import { type GameBitStream, type Packet } from "../net";
 import { Vec2 } from "../utils/vector";
 
@@ -10,6 +11,8 @@ export class InputPacket implements Packet {
     direction = Vec2.new(0, 0);
     mouseDown = false;
 
+    weaponToSwitch = "" as WeaponDefKey;
+
     serialize(stream: GameBitStream): void {
         stream.writeBoolean(this.moveLeft);
         stream.writeBoolean(this.moveRight);
@@ -18,6 +21,8 @@ export class InputPacket implements Packet {
 
         stream.writeBoolean(this.mouseDown);
         stream.writeUnit(this.direction, 16);
+
+        WeaponDefs.write(stream, this.weaponToSwitch);
     }
 
     deserialize(stream: GameBitStream): void {
@@ -28,5 +33,7 @@ export class InputPacket implements Packet {
 
         this.mouseDown = stream.readBoolean();
         this.direction = stream.readUnit(16);
+
+        this.weaponToSwitch = WeaponDefs.read(stream);
     }
 }

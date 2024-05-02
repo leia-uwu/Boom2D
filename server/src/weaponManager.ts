@@ -11,7 +11,7 @@ export class WeaponManager {
 
     fireGun() {
         const game = this.player.game;
-        const weaponDef = WeaponDefs.typeToDef(this.player.weapon);
+        const weaponDef = WeaponDefs.typeToDef(this.player.activeWeapon);
         const dir = this.player.direction;
 
         this.shotCooldown = game.now + weaponDef.fireDelay;
@@ -38,7 +38,7 @@ export class WeaponManager {
 
         game.shots.push({
             id: this.player.id,
-            weapon: this.player.weapon
+            weapon: this.player.activeWeapon
         });
     }
 
