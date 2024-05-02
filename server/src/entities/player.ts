@@ -130,7 +130,7 @@ export class Player extends ServerEntity {
 
         this.position = Vec2.add(this.position, Vec2.mul(movement, GameConstants.player.speed * dt));
 
-        this.weaponManager.tick();
+        this.weaponManager.tick(dt);
 
         const entities = this.game.grid.intersectsHitbox(this.hitbox);
 
@@ -316,8 +316,7 @@ export class Player extends ServerEntity {
         this.mouseDown = packet.mouseDown;
 
         if (packet.weaponToSwitch && this.weapons[packet.weaponToSwitch]) {
-            this.activeWeapon = packet.weaponToSwitch;
-            this.setFullDirty();
+            this.weaponManager.weaponToSwitch = packet.weaponToSwitch;
         }
     }
 

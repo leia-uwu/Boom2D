@@ -6,6 +6,7 @@ interface GunDef {
     type: "gun"
     key: string
     fireDelay: number
+    switchDelay: number
     bulletType?: BulletDefKey
     bulletCount: number
     spread: number
@@ -22,7 +23,8 @@ export const WeaponDefs = new DefinitionList({
     pistol: {
         type: "gun",
         key: "1",
-        fireDelay: 250,
+        fireDelay: 0.25,
+        switchDelay: 0.5,
         bulletType: "pistol_bullet",
         bulletCount: 1,
         spread: 6,
@@ -45,7 +47,8 @@ export const WeaponDefs = new DefinitionList({
     shotgun: {
         type: "gun",
         key: "2",
-        fireDelay: 900,
+        fireDelay: 0.9,
+        switchDelay: 1,
         bulletType: "shotgun_bullet",
         bulletCount: 7,
         spread: 10,
@@ -68,7 +71,8 @@ export const WeaponDefs = new DefinitionList({
     ak: {
         type: "gun",
         key: "3",
-        fireDelay: 35,
+        fireDelay: 0.035,
+        switchDelay: 0.5,
         bulletType: "pistol_bullet",
         bulletCount: 1,
         spread: 6,

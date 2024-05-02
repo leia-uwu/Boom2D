@@ -1,20 +1,31 @@
-import { WeaponDefs } from "../../common/src/defs/weaponDefs";
+import { WeaponDefKey, WeaponDefs } from "../../common/src/defs/weaponDefs";
 import { MathUtils } from "../../common/src/utils/math";
 import { Random } from "../../common/src/utils/random";
 import { Vec2 } from "../../common/src/utils/vector";
 import { Player } from "./entities/player";
 
+enum WeaponState {
+    Idle,
+    Firing,
+    Switching
+}
+
 export class WeaponManager {
     constructor(readonly player: Player) { }
 
-    shotCooldown = 0;
+    stateTicker = 0;
+
+    state = WeaponState.Idle;
+
+    weaponToSwitch = "" as WeaponDefKey;
 
     fireGun() {
         const game = this.player.game;
-        const weaponDef = WeaponDefs.typeToDef(this.player.activeWeapon);
-        const dir = this.player.direction;
+        const weaponDef = this.getCurrentWeapDef();
+        this.stateTicker = weaponDef.fireDelay;
+        this.state = WeaponState.Firing;
 
-        this.shotCooldown = game.now + weaponDef.fireDelay;
+        const dir = this.player.direction;
 
         const gunPos = Vec2.add(this.player.position, Vec2.mul(Vec2.perp(dir), weaponDef.barrelOffset));
 
@@ -42,9 +53,31 @@ export class WeaponManager {
         });
     }
 
-    tick() {
-        if (this.player.mouseDown && this.shotCooldown < this.player.game.now) {
+
+    tick(dt: number) {
+
+        if (this.stateTicker > 0) {
+            this.stateTicker -= dt;
+        } else {
+            this.state = WeaponState.Idle;
+        }
+
+        if (this.stateTicker <= 0 && this.weaponToSwitch) {
+            this.player.activeWeapon = this.weaponToSwitch;
+            this.weaponToSwitch = "" as WeaponDefKey;
+
+            const def = this.getCurrentWeapDef();
+            this.stateTicker = def.switchDelay;
+            this.state = WeaponState.Switching;
+            this.player.setFullDirty();
+        }
+
+        if (this.player.mouseDown && this.state === WeaponState.Idle) {
             this.fireGun();
         }
+
+    }
+        getCurrentWeapDef() {
+        return WeaponDefs.typeToDef(this.player.activeWeapon)
     }
 }
