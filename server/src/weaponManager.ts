@@ -53,9 +53,7 @@ export class WeaponManager {
         });
     }
 
-
     tick(dt: number) {
-
         if (this.stateTicker > 0) {
             this.stateTicker -= dt;
         } else {
@@ -75,9 +73,9 @@ export class WeaponManager {
         if (this.player.mouseDown && this.state === WeaponState.Idle) {
             this.fireGun();
         }
-
     }
-        getCurrentWeapDef() {
-        return WeaponDefs.typeToDef(this.player.activeWeapon)
+
+    getCurrentWeapDef() {
+        return WeaponDefs.typeToDef(this.player.activeWeapon);
     }
 }
