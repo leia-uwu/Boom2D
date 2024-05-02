@@ -57,12 +57,12 @@ export class GameUi {
             const def = WeaponDefs.typeToDef(weapon);
 
             this.weaponsContainer.innerHTML += `
-                    <div class="inventory-weapon${activeWeapon === weapon ? " active" : ""}">
-                        ${def.key}
-                        <img src="${def.inventoryImg.src}" height="50"></img>
-                        ${weapon}
-                    </div>
-                `;
+            <div class="inventory-weapon${activeWeapon === weapon ? " active" : ""}">
+                ${def.key}
+                <img src="${def.inventoryImg.src}" height="50"></img>
+                ${weapon}
+            </div>
+            `;
         }
     }
 

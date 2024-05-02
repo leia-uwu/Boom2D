@@ -2,10 +2,12 @@ import { ClientConfig } from "./config";
 
 interface GameSettings {
     server: string
+    name: string
 }
 
 const defaultSettings: GameSettings = {
-    server: ClientConfig.defaultServer
+    server: ClientConfig.defaultServer,
+    name: ""
 };
 
 export class SettingsManager {

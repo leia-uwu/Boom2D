@@ -42,9 +42,6 @@ export class WeaponManager {
                 type: weaponDef.bulletType,
                 shooterId: this.player.id
             });
-
-            // const projectile = (this.game, this.position, this.direction, this);
-            // this.game.grid.addEntity(projectile);
         }
 
         game.shots.push({

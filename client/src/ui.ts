@@ -19,6 +19,11 @@ export class UiManager {
     setupMainMenu(): void {
         this.nameInput.maxLength = GameConstants.player.nameMaxLength;
 
+        this.nameInput.value = this.app.settings.get("name");
+        this.nameInput.addEventListener("input", () => {
+            this.app.settings.set("name", this.nameInput.value);
+        })
+
         this.playButton.disabled = true;
         this.playButton.addEventListener("click", () => {
             if (this.playButton.disabled) return;
