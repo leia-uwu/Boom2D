@@ -2,7 +2,7 @@ import { DefinitionList, ImgDefinition } from "../utils/definitionList";
 import { Vec2, Vector } from "../utils/vector";
 import { type BulletDefKey } from "./bulletDefs";
 
-interface GunDef {
+export interface GunDef {
     type: "gun"
     key: string
     fireDelay: number
@@ -20,7 +20,7 @@ interface GunDef {
         shoot: string
     }
 }
-export const WeaponDefs = new DefinitionList<GunDef>({
+export const WeaponDefs = new DefinitionList({
     pistol: {
         type: "gun",
         key: "1",

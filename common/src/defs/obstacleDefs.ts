@@ -1,12 +1,12 @@
 import { DefinitionList } from "../utils/definitionList";
 import { CircleHitbox, HitboxJSON } from "../utils/hitbox";
 
-interface ObstacleDef {
+export interface ObstacleDef {
     hitbox: HitboxJSON
     health: number
 }
 
-export const ObstacleDefs = new DefinitionList<ObstacleDef>({
+export const ObstacleDefs = new DefinitionList({
     barrel: {
         hitbox: new CircleHitbox(2).toJSON(),
         health: 100

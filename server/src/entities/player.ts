@@ -108,7 +108,7 @@ export class Player extends ServerEntity {
     }
 
     constructor(game: Game, socket: WebSocket<PlayerData>) {
-        const pos = Random.vector(0, game.width, 0, game.height);
+        const pos = Random.vector(0, game.map.width, 0, game.map.height);
         super(game, pos);
         this.position = pos;
         this.socket = socket;
@@ -145,8 +145,8 @@ export class Player extends ServerEntity {
         }
 
         const rad = this.hitbox.radius;
-        this.position.x = MathUtils.clamp(this.position.x, rad, this.game.width - rad);
-        this.position.y = MathUtils.clamp(this.position.y, rad, this.game.height - rad);
+        this.position.x = MathUtils.clamp(this.position.x, rad, this.game.map.width - rad);
+        this.position.y = MathUtils.clamp(this.position.y, rad, this.game.map.height - rad);
 
         if (!Vec2.equals(this.position, oldPos)) {
             this.setDirty();
@@ -238,14 +238,13 @@ export class Player extends ServerEntity {
             }
         }
 
-        updatePacket.map.width = this.game.width;
-        updatePacket.map.height = this.game.height;
-        updatePacket.mapDirty = this.firstPacket ?? this.game.mapDirty;
-
-        this.firstPacket = false;
-
         this.packetStream.stream.index = 0;
         this.packetStream.serializeServerPacket(updatePacket);
+
+        if (this.firstPacket) {
+            const mapStream = this.game.map.serializedData.stream;
+            this.packetStream.stream.writeBytes(mapStream, 0, mapStream.byteIndex);
+        }
 
         for (const packet of this.packetsToSend) {
             this.packetStream.serializeServerPacket(packet);
@@ -254,6 +253,7 @@ export class Player extends ServerEntity {
         this.packetsToSend.length = 0;
         const buffer = this.packetStream.getBuffer();
         this.sendData(buffer);
+        this.firstPacket = false;
     }
 
     packetStream = new PacketStream(GameBitStream.alloc(1 << 16));

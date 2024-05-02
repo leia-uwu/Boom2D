@@ -14,7 +14,11 @@ export interface ImgDefinition {
     position?: Vector
 }
 
-export class DefinitionList<DefType extends object, T extends Record<string, DefType> = Record<string, DefType>> {
+//
+// Definition list
+//
+
+export class DefinitionList<T extends Record<string, object>> {
     private readonly _typeToId = {} as unknown as Record<keyof T, number>;
     private readonly _idToType: Record<number, keyof T> = {};
     private _nextId = 0;
@@ -60,7 +64,7 @@ export class DefinitionList<DefType extends object, T extends Record<string, Def
     /**
      * Get a definition from a type
      */
-    typeToDef(type: keyof T | string): DefType {
+    typeToDef(type: keyof T | string): T[keyof T] {
         const def = this.definitions[type];
         if (def === undefined) {
             throw new Error(`Invalid type: ${type.toString()}`);

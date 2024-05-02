@@ -10,6 +10,7 @@ import { type ServerConfig } from "./config";
 import { Shot, type Explosion } from "../../common/src/packets/updatePacket";
 import { IDAllocator } from "./idAllocator";
 import { BulletManager } from "./bullet";
+import { GameMap } from "./map";
 
 export class Game {
     players = new EntityPool<Player>();
@@ -26,8 +27,8 @@ export class Game {
 
     grid = new Grid(GameConstants.maxPosition, GameConstants.maxPosition);
 
-    width = 128;
-    height = 128;
+    map: GameMap;
+
     mapDirty = false;
 
     idAllocator = new IDAllocator(16);
@@ -37,6 +38,7 @@ export class Game {
     timer = new NanoTimer();
 
     constructor(config: ServerConfig) {
+        this.map = new GameMap(this, config.map);
         this.timer.setInterval(this.tick.bind(this), "", `${1000 / config.tps}m`);
     }
 

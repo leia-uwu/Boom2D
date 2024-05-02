@@ -147,7 +147,7 @@ function serializeActivePlayerData(stream: GameBitStream, data: UpdatePacket["pl
     stream.writeBoolean(dirty.weapons);
     if (dirty.weapons) {
         for (const key in WeaponDefs.definitions) {
-            stream.writeBoolean(data.weapons[key]);
+            stream.writeBoolean(data.weapons[key as WeaponDefKey]);
         }
     }
 
@@ -178,7 +178,7 @@ function deserializePlayerData(stream: GameBitStream, data: UpdatePacket["player
     if (stream.readBoolean()) {
         dirty.weapons = true;
         for (const weapon in WeaponDefs.definitions) {
-            data.weapons[weapon] = stream.readBoolean();
+            data.weapons[weapon as WeaponDefKey] = stream.readBoolean();
         }
     }
 
@@ -194,8 +194,7 @@ enum UpdateFlags {
     PlayerData = 1 << 5,
     Bullets = 1 << 6,
     Explosions = 1 << 7,
-    Shots = 1 << 8,
-    Map = 1 << 9
+    Shots = 1 << 8
 }
 
 export class UpdatePacket implements Packet {
@@ -231,12 +230,6 @@ export class UpdatePacket implements Packet {
     explosions: Explosion[] = [];
 
     shots: Shot[] = [];
-
-    mapDirty = false;
-    map = {
-        width: 0,
-        height: 0
-    };
 
     // server side cached entity serializations
     serverPartialEntities: Array<{
@@ -326,13 +319,6 @@ export class UpdatePacket implements Packet {
             flags |= UpdateFlags.Shots;
         }
 
-        if (this.mapDirty) {
-            stream.writeUint16(this.map.width);
-            stream.writeUint16(this.map.height);
-
-            flags |= UpdateFlags.Map;
-        }
-
         // write flags and restore stream index
         const idx = stream.index;
         stream.index = flagsIdx;
@@ -419,12 +405,6 @@ export class UpdatePacket implements Packet {
                     weapon: WeaponDefs.read(stream)
                 };
             });
-        }
-
-        if (flags & UpdateFlags.Map) {
-            this.mapDirty = true;
-            this.map.width = stream.readUint16();
-            this.map.height = stream.readUint16();
         }
     }
 }

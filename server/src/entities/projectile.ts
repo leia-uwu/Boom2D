@@ -53,12 +53,12 @@ export class Projectile extends ServerEntity {
             }
         }
 
-        if (this.position.x <= 0 || this.position.x >= this.game.width
-            || this.position.y <= 0 || this.position.y >= this.game.height) {
+        if (this.position.x <= 0 || this.position.x >= this.game.map.width
+            || this.position.y <= 0 || this.position.y >= this.game.map.height) {
             this.dead = true;
         }
-        this.position.x = MathUtils.clamp(this.position.x, 0, this.game.width);
-        this.position.y = MathUtils.clamp(this.position.y, 0, this.game.height);
+        this.position.x = MathUtils.clamp(this.position.x, 0, this.game.map.width);
+        this.position.y = MathUtils.clamp(this.position.y, 0, this.game.map.height);
     }
 
     destroy() {

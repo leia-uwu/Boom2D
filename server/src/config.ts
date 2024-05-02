@@ -1,12 +1,17 @@
+import { MapDefKey } from "../../common/src/defs/mapDefs";
+
 export const Config: ServerConfig = {
     host: "127.0.0.1",
     port: 8000,
-    tps: 35
+    tps: 35,
+    map: "main"
 };
 
 export interface ServerConfig {
     readonly host: string
     readonly port: number
+
+    readonly map: MapDefKey
 
     /**
      * The server tick rate

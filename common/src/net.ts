@@ -6,6 +6,7 @@ import { JoinPacket } from "./packets/joinPacket";
 import { InputPacket } from "./packets/inputPacket";
 import { UpdatePacket } from "./packets/updatePacket";
 import { GameOverPacket } from "./packets/gameOverPacket";
+import { MapPacket } from "./packets/mapPacke";
 
 export class GameBitStream extends BitStream {
     static alloc(size: number): GameBitStream {
@@ -255,7 +256,8 @@ ClientToServerPackets.register(
 const ServerToClientPackets = new PacketRegister();
 ServerToClientPackets.register(
     UpdatePacket,
-    GameOverPacket
+    GameOverPacket,
+    MapPacket
 );
 
 export class PacketStream {

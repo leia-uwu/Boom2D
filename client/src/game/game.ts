@@ -1,5 +1,5 @@
 import { GameBitStream, type Packet, PacketStream } from "../../../common/src/net";
-import { type Application, Assets, Graphics, Color } from "pixi.js";
+import { type Application, Assets, Color } from "pixi.js";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
 import { EntityPool } from "../../../common/src/utils/entityPool";
 import { type ClientEntity } from "./entities/entity";
@@ -20,6 +20,8 @@ import { EntityType } from "../../../common/src/constants";
 import { Obstacle } from "./entities/obstacle";
 import { BulletManager } from "./bullet";
 import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
+import { MapPacket } from "../../../common/src/packets/mapPacke";
+import { GameMap } from "./map";
 
 export class Game {
     app: App;
@@ -40,14 +42,11 @@ export class Game {
     playerNames = new Map<number, string>();
 
     camera = new Camera(this);
+    map = new GameMap(this);
     inputManager = new InputManager(this);
     audioManager = new AudioManager(this);
     particleManager = new ParticleManager(this);
     bulletManager = new BulletManager(this);
-
-    mapGraphics = new Graphics({
-        zIndex: -99
-    });
 
     constructor(app: App) {
         this.app = app;
@@ -123,14 +122,16 @@ export class Game {
             if (packet === undefined) break;
 
             switch (true) {
-                case packet instanceof UpdatePacket: {
+                case packet instanceof UpdatePacket:
                     this.updateFromPacket(packet);
                     this.startGame();
                     break;
-                }
-                case packet instanceof GameOverPacket: {
+                case packet instanceof GameOverPacket:
                     this.ui.showGameOverScreen(packet);
-                }
+                    break;
+                case packet instanceof MapPacket:
+                    this.map.updateFromPacket(packet);
+                    break;
             }
         }
     }
@@ -249,31 +250,6 @@ export class Game {
                 maxRange: 96
             });
         }
-
-        if (packet.mapDirty) {
-            const ctx = this.mapGraphics;
-            ctx.clear();
-            this.camera.addObject(ctx);
-
-            const gridSize = 16 * Camera.scale;
-            const gridWidth = packet.map.width * Camera.scale;
-            const gridHeight = packet.map.height * Camera.scale;
-            for (let x = 0; x <= gridWidth; x += gridSize) {
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, gridHeight);
-            }
-
-            for (let y = 0; y <= gridHeight; y += gridSize) {
-                ctx.moveTo(0, y);
-                ctx.lineTo(gridWidth, y);
-            }
-
-            ctx.stroke({
-                color: 0xffffff,
-                alpha: 0.1,
-                width: 2
-            });
-        }
     }
 
     sendPacket(packet: Packet) {
@@ -321,7 +297,7 @@ export class Game {
         for (const weapon in WeaponDefs.definitions) {
             const def = WeaponDefs.typeToDef(weapon);
             if (this.inputManager.isInputDown(def.key) && weapon !== this.activePlayer?.activeWeapon) {
-                inputPacket.weaponToSwitch = weapon;
+                inputPacket.weaponToSwitch = weapon as WeaponDefKey;
                 break;
             }
         }

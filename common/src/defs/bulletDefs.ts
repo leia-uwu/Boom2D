@@ -1,6 +1,6 @@
 import { DefinitionList } from "../utils/definitionList";
 
-interface BulletDef {
+export interface BulletDef {
     damage: {
         min: number
         max: number
@@ -10,7 +10,7 @@ interface BulletDef {
     trailMaxLength: number
 }
 
-export const BulletDefs = new DefinitionList<BulletDef>({
+export const BulletDefs = new DefinitionList({
     pistol_bullet: {
         damage: {
             min: 5,

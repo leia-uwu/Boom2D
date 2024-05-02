@@ -1,4 +1,4 @@
-import { WeaponDefKey, WeaponDefs } from "../../common/src/defs/weaponDefs";
+import { GunDef, WeaponDefKey, WeaponDefs } from "../../common/src/defs/weaponDefs";
 import { MathUtils } from "../../common/src/utils/math";
 import { Random } from "../../common/src/utils/random";
 import { Vec2 } from "../../common/src/utils/vector";
@@ -83,6 +83,6 @@ export class WeaponManager {
     }
 
     getCurrentWeapDef() {
-        return WeaponDefs.typeToDef(this.player.activeWeapon);
+        return WeaponDefs.typeToDef(this.player.activeWeapon) as GunDef;
     }
 }
