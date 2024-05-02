@@ -53,7 +53,7 @@ export class GameUi {
         const activeWeapon = this.game.activePlayer?.activeWeapon;
 
         for (const weapon in this.weapons) {
-            if (!this.weapons[weapon as WeaponDefKey]) return;
+            if (!this.weapons[weapon]) return;
             const def = WeaponDefs.typeToDef(weapon);
 
             this.weaponsContainer.innerHTML += `

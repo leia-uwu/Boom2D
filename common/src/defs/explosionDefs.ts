@@ -5,7 +5,7 @@ interface ExplosionDef {
     damage: number
 }
 
-export const ExplosionDefs = new DefinitionList({
+export const ExplosionDefs = new DefinitionList<ExplosionDef>({
     barrel: {
         radius: 15,
         damage: 120

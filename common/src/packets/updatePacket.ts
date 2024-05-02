@@ -147,7 +147,7 @@ function serializeActivePlayerData(stream: GameBitStream, data: UpdatePacket["pl
     stream.writeBoolean(dirty.weapons);
     if (dirty.weapons) {
         for (const key in WeaponDefs.definitions) {
-            stream.writeBoolean(data.weapons[key as WeaponDefKey]);
+            stream.writeBoolean(data.weapons[key]);
         }
     }
 
@@ -178,7 +178,7 @@ function deserializePlayerData(stream: GameBitStream, data: UpdatePacket["player
     if (stream.readBoolean()) {
         dirty.weapons = true;
         for (const weapon in WeaponDefs.definitions) {
-            data.weapons[weapon as WeaponDefKey] = stream.readBoolean();
+            data.weapons[weapon] = stream.readBoolean();
         }
     }
 

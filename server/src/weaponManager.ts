@@ -29,19 +29,29 @@ export class WeaponManager {
 
         const gunPos = Vec2.add(this.player.position, Vec2.mul(Vec2.perp(dir), weaponDef.barrelOffset));
 
-        for (let i = 0; i < weaponDef.bulletCount; i++) {
-            const deviation = Random.float(-0.5, 0.5) * weaponDef.spread;
+        if (weaponDef.bulletType) {
+            const jitter = weaponDef.jitterRadius ?? 0;
 
-            const shotDir = Vec2.rotate(dir, MathUtils.degreesToRadians(deviation));
+            for (let i = 0; i < weaponDef.bulletCount; i++) {
+                const deviation = Random.float(-0.5, 0.5) * weaponDef.spread;
 
-            const bulletPos = Vec2.add(gunPos, Vec2.mul(dir, weaponDef.barrelLength));
+                const shotDir = Vec2.rotate(dir, MathUtils.degreesToRadians(deviation));
 
-            game.bulletManager.fireBullet(this.player, {
-                initialPosition: bulletPos,
-                direction: shotDir,
-                type: weaponDef.bulletType,
-                shooterId: this.player.id
-            });
+                let bulletPos = Vec2.add(gunPos, Vec2.mul(dir, weaponDef.barrelLength));
+
+                // Add shotgun jitter
+                if (jitter > 0) {
+                    const offset = Vec2.mul(Vec2.new(Random.float(-jitter, jitter), Random.float(-jitter, jitter)), 1.11);
+                    bulletPos = Vec2.add(bulletPos, offset);
+                }
+
+                game.bulletManager.fireBullet(this.player, {
+                    initialPosition: bulletPos,
+                    direction: shotDir,
+                    type: weaponDef.bulletType,
+                    shooterId: this.player.id
+                });
+            }
         }
 
         game.shots.push({

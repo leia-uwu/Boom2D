@@ -321,7 +321,7 @@ export class Game {
         for (const weapon in WeaponDefs.definitions) {
             const def = WeaponDefs.typeToDef(weapon);
             if (this.inputManager.isInputDown(def.key) && weapon !== this.activePlayer?.activeWeapon) {
-                inputPacket.weaponToSwitch = weapon as WeaponDefKey;
+                inputPacket.weaponToSwitch = weapon;
                 break;
             }
         }

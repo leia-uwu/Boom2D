@@ -10,8 +10,8 @@ const defaultSettings: GameSettings = {
     name: ""
 };
 
-export class SettingsManager {
-    readonly settingsKey = "game_settings";
+class SettingsManager {
+    readonly settingsKey = "boom2d_settings";
     readonly storedSettings: Partial<GameSettings>;
 
     constructor() {
@@ -33,3 +33,5 @@ export class SettingsManager {
         }
     }
 }
+
+export const settings = new SettingsManager();

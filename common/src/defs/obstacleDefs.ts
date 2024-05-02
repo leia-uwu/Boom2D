@@ -6,7 +6,7 @@ interface ObstacleDef {
     health: number
 }
 
-export const ObstacleDefs = new DefinitionList({
+export const ObstacleDefs = new DefinitionList<ObstacleDef>({
     barrel: {
         hitbox: new CircleHitbox(2).toJSON(),
         health: 100

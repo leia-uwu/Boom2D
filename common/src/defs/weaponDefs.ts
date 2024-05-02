@@ -8,6 +8,7 @@ interface GunDef {
     fireDelay: number
     switchDelay: number
     bulletType?: BulletDefKey
+    jitterRadius?: number
     bulletCount: number
     spread: number
     inventoryImg: ImgDefinition
@@ -19,7 +20,7 @@ interface GunDef {
         shoot: string
     }
 }
-export const WeaponDefs = new DefinitionList({
+export const WeaponDefs = new DefinitionList<GunDef>({
     pistol: {
         type: "gun",
         key: "1",
@@ -51,6 +52,7 @@ export const WeaponDefs = new DefinitionList({
         switchDelay: 1,
         bulletType: "shotgun_bullet",
         bulletCount: 7,
+        jitterRadius: 0.3,
         spread: 10,
         barrelLength: 2.5,
         barrelOffset: 0,

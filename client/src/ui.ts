@@ -1,6 +1,7 @@
 import { GameConstants } from "../../common/src/constants";
 import { ClientConfig } from "./config";
 import { type App } from "./main";
+import { settings } from "./settings";
 import { getElem } from "./utils";
 
 export class UiManager {
@@ -10,19 +11,17 @@ export class UiManager {
     homeDiv = getElem<HTMLDivElement>("#home");
     gameDiv = getElem<HTMLDivElement>("#game");
 
-    app: App;
-    constructor(app: App) {
-        this.app = app;
+    constructor(readonly app: App) {
         this.setupMainMenu();
     }
 
     setupMainMenu(): void {
         this.nameInput.maxLength = GameConstants.player.nameMaxLength;
 
-        this.nameInput.value = this.app.settings.get("name");
+        this.nameInput.value = settings.get("name");
         this.nameInput.addEventListener("input", () => {
-            this.app.settings.set("name", this.nameInput.value);
-        })
+            settings.set("name", this.nameInput.value);
+        });
 
         this.playButton.disabled = true;
         this.playButton.addEventListener("click", () => {
@@ -33,9 +32,9 @@ export class UiManager {
 
         this.loadServerInfo();
 
-        this.serverSelect.value = this.app.settings.get("server");
+        this.serverSelect.value = settings.get("server");
         this.serverSelect.addEventListener("change", () => {
-            this.app.settings.set("server", this.serverSelect.value);
+            settings.set("server", this.serverSelect.value);
         });
     }
 

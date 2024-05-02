@@ -10,7 +10,7 @@ interface BulletDef {
     trailMaxLength: number
 }
 
-export const BulletDefs = new DefinitionList({
+export const BulletDefs = new DefinitionList<BulletDef>({
     pistol_bullet: {
         damage: {
             min: 5,
