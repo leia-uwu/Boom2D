@@ -1,5 +1,6 @@
 import { BaseBullet, BulletParams } from "../baseBullet";
 import { EntityType, GameConstants } from "../constants";
+import { ObstacleDefKey, ObstacleDefs } from "../defs/obstacleDefs";
 import { WeaponDefKey, WeaponDefs } from "../defs/weaponDefs";
 import { type GameBitStream, type Packet } from "../net";
 import { type Vector } from "../utils/vector";
@@ -25,6 +26,7 @@ export interface EntitiesNetData {
     [EntityType.Obstacle]: {
         full?: {
             position: Vector
+            obstacleType: ObstacleDefKey
         }
     }
 }
@@ -85,19 +87,21 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         }
     },
     [EntityType.Obstacle]: {
-        partialSize: 6,
-        fullSize: 3,
+        partialSize: 7,
+        fullSize: 6,
         serializePartial(_stream, _data) {
         },
         serializeFull(stream, data) {
             stream.writePosition(data.position);
+            ObstacleDefs.write(stream, data.obstacleType);
         },
         deserializePartial(_stream) {
             return {};
         },
         deserializeFull(stream) {
             return {
-                position: stream.readPosition()
+                position: stream.readPosition(),
+                obstacleType: ObstacleDefs.read(stream)
             };
         }
     }

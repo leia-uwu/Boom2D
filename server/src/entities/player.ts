@@ -130,8 +130,6 @@ export class Player extends ServerEntity {
 
         this.position = Vec2.add(this.position, Vec2.mul(movement, GameConstants.player.speed * dt));
 
-        this.weaponManager.tick(dt);
-
         const entities = this.game.grid.intersectsHitbox(this.hitbox);
 
         for (const entity of entities) {
@@ -147,6 +145,8 @@ export class Player extends ServerEntity {
         const rad = this.hitbox.radius;
         this.position.x = MathUtils.clamp(this.position.x, rad, this.game.map.width - rad);
         this.position.y = MathUtils.clamp(this.position.y, rad, this.game.map.height - rad);
+
+        this.weaponManager.tick(dt);
 
         if (!Vec2.equals(this.position, oldPos)) {
             this.setDirty();

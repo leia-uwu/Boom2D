@@ -1,3 +1,5 @@
+import { GameConstants } from "../constants";
+import { GameBitStream } from "../net";
 import { Collision, type CollisionResponse, type LineIntersection } from "./collision";
 import { Vec2, type Vector } from "./vector";
 
@@ -36,6 +38,42 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
                 return new RectHitbox(data.min, data.max);
         }
     }
+
+    static serialize(stream: GameBitStream, hitbox: Hitbox) {
+        stream.writeBits(hitbox.type, 2);
+
+        switch (hitbox.type) {
+            case HitboxType.Circle: {
+                stream.writeFloat(hitbox.radius, 0, GameConstants.maxPosition, 16);
+                stream.writePosition(hitbox.position);
+                break;
+            }
+            case HitboxType.Rect: {
+                stream.writePosition(hitbox.min);
+                stream.writePosition(hitbox.max);
+                break;
+            }
+        }
+    }
+
+    static deserialize(stream: GameBitStream): Hitbox {
+        const type = stream.readBits(2) as HitboxType;
+
+        switch (type) {
+            case HitboxType.Circle: {
+                const radius = stream.readFloat(0, GameConstants.maxPosition, 16);
+                const position = stream.readPosition();
+                return new CircleHitbox(radius, position);
+            }
+            case HitboxType.Rect: {
+                const min = stream.readPosition();
+                const max = stream.readPosition();
+                return new RectHitbox(min, max);
+            }
+        }
+    }
+
+    abstract transform(position: Vector, rotation: number, scale: number): Hitbox;
 
     /**
      * Checks if this {@link Hitbox} collides with another one
@@ -100,6 +138,12 @@ export class CircleHitbox extends BaseHitbox {
         };
     }
 
+    override transform(position: Vector, rotation = 0, scale = 1) {
+        const radius = this.radius * scale;
+        const newPos = Vec2.add(Vec2.rotate(Vec2.mul(this.position, scale), rotation), position);
+        return new CircleHitbox(radius, newPos);
+    }
+
     override collidesWith(that: Hitbox): boolean {
         switch (that.type) {
             case HitboxType.Circle:
@@ -154,14 +198,6 @@ export class RectHitbox extends BaseHitbox {
         this.max = max;
     }
 
-    override toJSON(): HitboxJSONMapping[HitboxType.Rect] {
-        return {
-            type: this.type,
-            min: Vec2.clone(this.min),
-            max: Vec2.clone(this.max)
-        };
-    }
-
     static fromLine(a: Vector, b: Vector): RectHitbox {
         return new RectHitbox(
             Vec2.new(
@@ -184,6 +220,14 @@ export class RectHitbox extends BaseHitbox {
         );
     }
 
+    override toJSON(): HitboxJSONMapping[HitboxType.Rect] {
+        return {
+            type: this.type,
+            min: Vec2.clone(this.min),
+            max: Vec2.clone(this.max)
+        };
+    }
+
     /**
      * Creates a new rectangle hitbox from the bounds of a circle
      */
@@ -191,6 +235,24 @@ export class RectHitbox extends BaseHitbox {
         return new RectHitbox(
             Vec2.new(position.x - radius, position.y - radius),
             Vec2.new(position.x + radius, position.y + radius));
+    }
+
+    override transform(position: Vector, rotation = 0, scale = 1) {
+        const e = Vec2.mul(Vec2.sub(this.max, this.min), 0.5);
+        const c = Vec2.add(this.min, e);
+        const pts = [Vec2.new(c.x - e.x, c.y - e.y), Vec2.new(c.x - e.x, c.y + e.y), Vec2.new(c.x + e.x, c.y - e.y), Vec2.new(c.x + e.x, c.y + e.y)];
+        const min = Vec2.new(Number.MAX_VALUE, Number.MAX_VALUE);
+        const max = Vec2.new(-Number.MAX_VALUE, -Number.MAX_VALUE);
+
+        for (let i = 0; i < pts.length; i++) {
+            const p = Vec2.add(Vec2.rotate(Vec2.mul(pts[i], scale), rotation), position);
+            min.x = Math.min(min.x, p.x);
+            min.y = Math.min(min.y, p.y);
+            max.x = Math.max(max.x, p.x);
+            max.y = Math.max(max.y, p.y);
+        }
+
+        return new RectHitbox(min, max);
     }
 
     override collidesWith(that: Hitbox): boolean {

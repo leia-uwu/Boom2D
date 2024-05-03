@@ -16,7 +16,7 @@ export class Obstacle extends ServerEntity {
         super(game, position);
         this.obstacleType = type;
         const def = ObstacleDefs.typeToDef(type);
-        this.hitbox = BaseHitbox.fromJSON(def.hitbox);
+        this.hitbox = BaseHitbox.fromJSON(def.hitbox).transform(this.position);
     }
 
     tick() {}
@@ -24,7 +24,8 @@ export class Obstacle extends ServerEntity {
     get data(): Required<EntitiesNetData[EntityType.Obstacle]> {
         return {
             full: {
-                position: this.position
+                position: this.position,
+                obstacleType: this.obstacleType
             }
         };
     }
