@@ -39,6 +39,7 @@ export class ClientBullet extends BaseBullet {
 
         this.trailSprite.anchor.set(1, 0.5);
         this.trailSprite.rotation = Math.atan2(this.direction.y, this.direction.x);
+        this.trailSprite.position = Camera.vecToScreen(this.position);
         game.camera.addObject(this.trailSprite);
     }
 
