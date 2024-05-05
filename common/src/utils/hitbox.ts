@@ -5,7 +5,8 @@ import { Vec2, type Vector } from "./vector";
 
 export enum HitboxType {
     Circle,
-    Rect
+    Rect,
+    Polygon
 }
 
 export interface HitboxJSONMapping {
@@ -19,11 +20,16 @@ export interface HitboxJSONMapping {
         readonly min: Vector
         readonly max: Vector
     }
+    [HitboxType.Polygon]: {
+        readonly type: HitboxType.Polygon
+        readonly center: Vector
+        readonly points: Vector[]
+    }
 }
 
 export type HitboxJSON = HitboxJSONMapping[HitboxType];
 
-export type Hitbox = CircleHitbox | RectHitbox;
+export type Hitbox = CircleHitbox | RectHitbox | PolygonHitbox;
 
 export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
     abstract type: HitboxType;
@@ -36,6 +42,8 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
                 return new CircleHitbox(data.radius, data.position);
             case HitboxType.Rect:
                 return new RectHitbox(data.min, data.max);
+            case HitboxType.Polygon:
+                return new PolygonHitbox(data.points, data.center);
         }
     }
 
@@ -53,6 +61,11 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
                 stream.writePosition(hitbox.max);
                 break;
             }
+            case HitboxType.Polygon: {
+                stream.writeArray(hitbox.points, 16, point => {
+                    stream.writePosition(point);
+                });
+            }
         }
     }
 
@@ -69,6 +82,13 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
                 const min = stream.readPosition();
                 const max = stream.readPosition();
                 return new RectHitbox(min, max);
+            }
+            case HitboxType.Polygon: {
+                const points: Vector[] = [];
+                stream.readArray(points, 16, () => {
+                    return stream.readPosition();
+                });
+                return new PolygonHitbox(points);
             }
         }
     }
@@ -151,6 +171,7 @@ export class CircleHitbox extends BaseHitbox {
             case HitboxType.Rect:
                 return Collision.checkRectCircle(that.min, that.max, this.position, this.radius);
         }
+        return false;
     }
 
     override getIntersection(that: Hitbox) {
@@ -159,7 +180,10 @@ export class CircleHitbox extends BaseHitbox {
                 return Collision.circleCircleIntersection(this.position, this.radius, that.position, that.radius);
             case HitboxType.Rect:
                 return Collision.rectCircleIntersection(that.min, that.max, this.position, this.radius);
+            case HitboxType.Polygon:
+                return Collision.circlePolygonIntersection(this.position, this.radius, that.center, that.points);
         }
+        return null;
     }
 
     override clone(): CircleHitbox {
@@ -262,6 +286,7 @@ export class RectHitbox extends BaseHitbox {
             case HitboxType.Rect:
                 return Collision.checkRectRect(that.min, that.max, this.min, this.max);
         }
+        return false;
     }
 
     override getIntersection(that: Hitbox) {
@@ -271,6 +296,7 @@ export class RectHitbox extends BaseHitbox {
             case HitboxType.Rect:
                 return Collision.rectRectIntersection(this.min, this.max, that.min, that.max);
         }
+        return null;
     }
 
     override clone(): RectHitbox {
@@ -295,5 +321,88 @@ export class RectHitbox extends BaseHitbox {
 
     override isPointInside(point: Vector): boolean {
         return point.x > this.min.x && point.y > this.min.y && point.x < this.max.x && point.y < this.max.y;
+    }
+}
+
+export class PolygonHitbox extends BaseHitbox {
+    override readonly type = HitboxType.Polygon;
+    points: Vector[];
+    constructor(points: Vector[], public center = Vec2.new(0, 0)) {
+        super();
+        if (points.length < 3) {
+            throw new Error("Polygons must have at least 3 points");
+        }
+        this.points = points.map(p => Vec2.clone(p));
+    }
+
+    override toJSON(): HitboxJSONMapping[HitboxType.Polygon] {
+        return {
+            type: this.type,
+            points: this.points.map(point => Vec2.clone(point)),
+            center: Vec2.clone(this.center)
+        };
+    }
+
+    getIntersection(_that: Hitbox): CollisionResponse {
+        // TODO
+        return null;
+    }
+
+    override collidesWith(_that: Hitbox): boolean {
+        // TODO
+        return false;
+    }
+
+    override clone(): PolygonHitbox {
+        return new PolygonHitbox(this.points);
+    }
+
+    override transform(position: Vector, scale = 1, rotation = 0): PolygonHitbox {
+        // TODO: scale polygon
+        const points = this.points.map(p => Vec2.add(position, p));
+        const center = Vec2.add(this.center, Vec2.rotate(position, rotation));
+        return new PolygonHitbox(points, center);
+    }
+
+    override scale(scale: number): void {
+        for (let i = 0, length = this.points.length; i < length; i++) {
+            this.points[i] = Vec2.mul(this.points[i], scale);
+        }
+    }
+
+    override intersectsLine(a: Vector, b: Vector): LineIntersection {
+        return Collision.lineIntersectsPolygon(a, b, this.points);
+    }
+
+    override toRectangle(): RectHitbox {
+        const min = Vec2.new(Number.MAX_VALUE, Number.MAX_VALUE);
+        const max = Vec2.new(0, 0);
+        for (const point of this.points) {
+            min.x = Math.min(min.x, point.x);
+            min.y = Math.min(min.y, point.y);
+            max.x = Math.max(max.x, point.x);
+            max.y = Math.max(max.y, point.y);
+        }
+
+        return new RectHitbox(min, max);
+    }
+
+    override isPointInside(point: Vector): boolean {
+        const { x, y } = point;
+        let inside = false;
+        const count = this.points.length;
+        // take first and last
+        // then take second and second last
+        // so on
+        for (let i = 0, j = count - 1; i < count; j = i++) {
+            const { x: xi, y: yi } = this.points[i];
+            const { x: xj, y: yj } = this.points[j];
+
+            if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) {
+                inside = !inside;
+            }
+        }
+
+        return inside;
     }
 }

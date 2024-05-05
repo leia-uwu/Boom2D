@@ -194,6 +194,9 @@ export const Vec2 = {
     dot(a: Vector, b: Vector): number {
         return a.x * b.x + a.y * b.y;
     },
+    neg(vec: Vector): Vector {
+        return { x: -vec.x, y: -vec.y };
+    },
     perp(a: Vector): Vector {
         return { x: -a.y, y: a.x };
     },

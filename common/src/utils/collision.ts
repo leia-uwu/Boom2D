@@ -180,6 +180,47 @@ export const Collision = {
     },
 
     /**
+     * Checks if a line intersects a polygon
+     * @param s0 The start of the line
+     * @param s1 The end of the line
+     * @param vertices The polygon vertices
+     * @return An intersection response with the intersection position and normal Vectors, returns null if they don't intersect
+    */
+    lineIntersectsPolygon(a: Vector, b: Vector, vertices: Vector[]): LineIntersection {
+        let closestDist = Number.MAX_VALUE;
+        let normal: Vector | undefined = undefined;
+        let point: Vector | undefined = undefined;
+
+        for (let i = 0; i < vertices.length; i++) {
+            const va = vertices[i];
+            const vb = vertices[(i + 1) % vertices.length];
+
+            const intersection = Collision.lineIntersectsLine(a, b, va, vb);
+
+            if (intersection) {
+                const newDist = Vec2.distanceSqrt(intersection, a);
+
+                if (newDist < closestDist) {
+                    closestDist = newDist;
+                    normal = Vec2.normalize(
+                        Vec2.perp(Vec2.sub(va, vb))
+                    );
+                    point = intersection;
+                }
+            }
+        }
+
+        if (point && normal) {
+            return {
+                point,
+                normal
+            };
+        }
+
+        return null;
+    },
+
+    /**
      * Checks if circle intersects another circle
      * @param pos0 The position of the first circle
      * @param rad0 The radius of the first circle
@@ -278,5 +319,128 @@ export const Collision = {
             }
         }
         return null;
+    },
+    /**
+    * Checks if a circle intersects a polygon
+    * @param circleCenter The center of the circle
+    * @param circleRadius The radius of the circle
+    * @param polygonCenter The center of the polygon
+    * @param vertices The polygon vertices
+    * @link https://www.youtube.com/watch?v=V2JI_P9bvik
+    * @return An intersection response with the intersection direction and pen, returns null if they don't intersect
+    */
+    circlePolygonIntersection(
+        circleCenter: Vector,
+        circleRadius: number,
+        polygonCenter: Vector,
+        vertices: Vector[]
+    ): CollisionResponse {
+        let dir = Vec2.new(0, 0);
+        let pen = Number.MAX_VALUE;
+
+        let axis = Vec2.new(0, 0);
+        let axisDepth = 0;
+
+        for (let i = 0; i < vertices.length; i++) {
+            const va = vertices[i];
+            const vb = vertices[(i + 1) % vertices.length];
+
+            const edge = Vec2.sub(vb, va);
+            axis = Vec2.new(-edge.y, edge.x);
+            axis = Vec2.normalize(axis);
+
+            const { min: minA, max: maxA } = Collision.projectVertices(vertices, axis);
+            const { min: minB, max: maxB } = Collision.projectCircle(circleCenter, circleRadius, axis);
+
+            if (minA >= maxB || minB >= maxA) {
+                return null;
+            }
+
+            axisDepth = Math.min(maxB - minA, maxA - minB);
+
+            if (axisDepth < pen) {
+                pen = axisDepth;
+                dir = axis;
+            }
+        }
+
+        const cpIndex = Collision.findClosestPointOnPolygon(circleCenter, vertices);
+        const cp = vertices[cpIndex];
+
+        axis = Vec2.sub(cp, circleCenter);
+        axis = Vec2.normalize(axis);
+
+        const { min: minA, max: maxA } = Collision.projectVertices(vertices, axis);
+        const { min: minB, max: maxB } = Collision.projectCircle(circleCenter, circleRadius, axis);
+
+        if (minA >= maxB || minB >= maxA) {
+            return null;
+        }
+
+        axisDepth = Math.min(maxB - minA, maxA - minB);
+
+        if (axisDepth < pen) {
+            pen = axisDepth;
+            dir = axis;
+        }
+
+        const direction = Vec2.sub(polygonCenter, circleCenter);
+
+        if (Vec2.dot(direction, dir) < 0) {
+            dir = Vec2.neg(dir);
+        }
+
+        return {
+            pen,
+            dir
+        };
+    },
+    findClosestPointOnPolygon(circleCenter: Vector, vertices: Vector[]) {
+        let result = -1;
+        let minDistance = Number.MAX_VALUE;
+
+        for (let i = 0; i < vertices.length; i++) {
+            const v = vertices[i];
+            const distance = Vec2.distance(v, circleCenter);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                result = i;
+            }
+        }
+
+        return result;
+    },
+    projectCircle(center: Vector, radius: number, axis: Vector) {
+        const direction = Vec2.normalize(axis);
+        const directionAndRadius = Vec2.mul(direction, radius);
+
+        const p1 = Vec2.add(center, directionAndRadius);
+        const p2 = Vec2.sub(center, directionAndRadius);
+
+        let min = Vec2.dot(p1, axis);
+        let max = Vec2.dot(p2, axis);
+
+        if (min > max) {
+            // swap the min and max values.
+            const t = min;
+            min = max;
+            max = t;
+        }
+        return { min, max };
+    },
+    projectVertices(vertices: Vector[], axis: Vector) {
+        let min = Number.MAX_VALUE;
+        let max = Number.MIN_VALUE;
+
+        for (let i = 0; i < vertices.length; i++) {
+            const v = vertices[i];
+            const proj = Vec2.dot(v, axis);
+
+            if (proj < min) { min = proj; }
+            if (proj > max) { max = proj; }
+        }
+        return { min, max };
     }
+
 };
