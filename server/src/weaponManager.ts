@@ -4,6 +4,7 @@ import { MathUtils } from "../../common/src/utils/math";
 import { Random } from "../../common/src/utils/random";
 import { Vec2 } from "../../common/src/utils/vector";
 import { Player } from "./entities/player";
+import { Projectile } from "./entities/projectile";
 
 enum WeaponState {
     Idle,
@@ -39,7 +40,7 @@ export class WeaponManager {
         let dist = Vec2.distanceSqrt(gunStartPos, gunEndPos);
 
         for (const entity of entities) {
-            if (entity.type !== EntityType.Obstacle) continue;
+            if (entity.__type !== EntityType.Obstacle) continue;
             const intersection = entity.hitbox.intersectsLine(gunStartPos, gunEndPos);
             if (intersection) {
                 const intersectionDist = Vec2.distanceSqrt(gunStartPos, intersection.point);
@@ -73,6 +74,11 @@ export class WeaponManager {
                     shooterId: this.player.id
                 });
             }
+        }
+
+        if (weaponDef.projectileType) {
+            const projectile = new Projectile(game, weaponDef.projectileType, finalGunPos, dir, this.player);
+            game.grid.addEntity(projectile);
         }
 
         game.shots.push({

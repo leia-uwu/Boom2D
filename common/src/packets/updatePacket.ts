@@ -1,6 +1,7 @@
 import { BaseBullet, BulletParams } from "../baseBullet";
 import { EntityType, GameConstants } from "../constants";
 import { ObstacleDefKey, ObstacleDefs } from "../defs/obstacleDefs";
+import { ProjectileDefKey, ProjectileDefs } from "../defs/projectileDefs";
 import { WeaponDefKey, WeaponDefs } from "../defs/weaponDefs";
 import { type GameBitStream, type Packet } from "../net";
 import { type Vector } from "../utils/vector";
@@ -19,14 +20,14 @@ export interface EntitiesNetData {
     [EntityType.Projectile]: {
         position: Vector
         full?: {
-            direction: Vector
+            type: ProjectileDefKey
             shooterId: number
         }
     }
     [EntityType.Obstacle]: {
         full?: {
             position: Vector
-            obstacleType: ObstacleDefKey
+            type: ObstacleDefKey
         }
     }
 }
@@ -65,13 +66,13 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         }
     },
     [EntityType.Projectile]: {
-        partialSize: 6,
-        fullSize: 6,
+        partialSize: 7,
+        fullSize: 7,
         serializePartial(stream, data) {
             stream.writePosition(data.position);
         },
         serializeFull(stream, data) {
-            stream.writeUnit(data.direction, 16);
+            ProjectileDefs.write(stream, data.type);
             stream.writeUint16(data.shooterId);
         },
         deserializePartial(stream) {
@@ -81,7 +82,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         },
         deserializeFull(stream) {
             return {
-                direction: stream.readUnit(16),
+                type: ProjectileDefs.read(stream),
                 shooterId: stream.readUint16()
             };
         }
@@ -93,7 +94,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         },
         serializeFull(stream, data) {
             stream.writePosition(data.position);
-            ObstacleDefs.write(stream, data.obstacleType);
+            ObstacleDefs.write(stream, data.type);
         },
         deserializePartial(_stream) {
             return {};
@@ -101,16 +102,16 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         deserializeFull(stream) {
             return {
                 position: stream.readPosition(),
-                obstacleType: ObstacleDefs.read(stream)
+                type: ObstacleDefs.read(stream)
             };
         }
     }
 };
 
 interface Entity {
+    __type: EntityType
     id: number
-    type: EntityType
-    data: EntitiesNetData[Entity["type"]]
+    data: EntitiesNetData[Entity["__type"]]
 }
 
 export interface Explosion {
@@ -204,7 +205,7 @@ enum UpdateFlags {
 export class UpdatePacket implements Packet {
     deletedEntities: number[] = [];
     partialEntities: Entity[] = [];
-    fullEntities: Array<Entity & { data: Required<EntitiesNetData[Entity["type"]]> }> = [];
+    fullEntities: Array<Entity & { data: Required<EntitiesNetData[Entity["__type"]]> }> = [];
 
     newPlayers: Array<{
         name: string
@@ -349,7 +350,7 @@ export class UpdatePacket implements Packet {
                 stream.readAlignToNextByte();
                 return {
                     id,
-                    type: entityType,
+                    __type: entityType,
                     data
                 };
             });
@@ -363,7 +364,7 @@ export class UpdatePacket implements Packet {
                 stream.readAlignToNextByte();
                 return {
                     id,
-                    type: entityType,
+                    __type: entityType,
                     data
                 };
             });

@@ -7,10 +7,10 @@ import { type Game } from "../game";
 import { Hitbox } from "../../../../common/src/utils/hitbox";
 
 export abstract class ClientEntity<T extends EntityType = EntityType> {
-    abstract type: T;
+    abstract __type: T;
+    id: number;
     abstract hitbox: Hitbox;
     game: Game;
-    id: number;
     position = Vec2.new(0, 0);
 
     container = new Container();

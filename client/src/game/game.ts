@@ -202,7 +202,7 @@ export class Game {
 
             if (!entity) {
                 isNew = true;
-                entity = new Game.typeToEntity[entityData.type](this, entityData.id);
+                entity = new Game.typeToEntity[entityData.__type](this, entityData.id);
                 this.entities.add(entity);
             }
             entity.updateFromData(entityData.data, isNew);

@@ -12,7 +12,7 @@ export interface BulletParams {
 }
 
 interface GameEntity {
-    type: EntityType
+    __type: EntityType
     hitbox: Hitbox
     id: number
 }

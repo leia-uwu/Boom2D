@@ -5,21 +5,25 @@ import { type EntitiesNetData } from "../../../../common/src/packets/updatePacke
 import { Vec2 } from "../../../../common/src/utils/vector";
 import { Camera } from "../camera";
 import { EntityType } from "../../../../common/src/constants";
+import { CircleHitbox } from "../../../../common/src/utils/hitbox";
+import { ProjectileDefKey, ProjectileDefs } from "../../../../common/src/defs/projectileDefs";
+import { spriteFromDef } from "../../utils";
+import { Random } from "../../../../common/src/utils/random";
 
 export class Projectile extends ClientEntity {
-    readonly type = EntityType.Projectile;
+    readonly __type = EntityType.Projectile;
+    hitbox!: CircleHitbox;
+    sprite = new Sprite();
 
-    trail = Sprite.from("projectile.svg");
-
-    direction = Vec2.new(0, 0);
-
+    type!: ProjectileDefKey;
     initialPosition = Vec2.new(0, 0);
 
     constructor(game: Game, id: number) {
         super(game, id);
 
-        this.container.addChild(this.trail);
-        this.trail.anchor.set(1, 0.5);
+        this.container.addChild(this.sprite);
+        this.sprite.anchor.set(0.5, 0.5);
+        this.container.rotation = Random.float(0, Math.PI * 2);
     }
 
     override updateFromData(data: EntitiesNetData[EntityType.Projectile], isNew: boolean): void {
@@ -33,9 +37,13 @@ export class Projectile extends ClientEntity {
         this.position = data.position;
 
         if (data.full) {
-            this.direction = data.full.direction;
-            this.container.rotation = Math.atan2(this.direction.y, this.direction.x);
+            this.type = data.full.type;
+
+            const def = ProjectileDefs.typeToDef(this.type);
+            this.hitbox = new CircleHitbox(def.radius);
+            spriteFromDef(this.sprite, def.img);
         }
+        this.hitbox.position = data.position;
     }
 
     override render(dt: number): void {
@@ -43,6 +51,7 @@ export class Projectile extends ClientEntity {
         const pos = Camera.vecToScreen(
             Vec2.lerp(this.oldPosition, this.position, this.interpolationFactor)
         );
+        this.container.rotation += dt;
 
         this.container.position = pos;
     }

@@ -7,7 +7,7 @@ import { Game } from "../game";
 import { ServerEntity } from "./entity";
 
 export class Obstacle extends ServerEntity {
-    override readonly type = EntityType.Obstacle;
+    override readonly __type = EntityType.Obstacle;
 
     obstacleType: ObstacleDefKey;
     override hitbox: Hitbox;
@@ -25,7 +25,7 @@ export class Obstacle extends ServerEntity {
         return {
             full: {
                 position: this.position,
-                obstacleType: this.obstacleType
+                type: this.obstacleType
             }
         };
     }

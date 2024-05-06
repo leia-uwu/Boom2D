@@ -9,9 +9,9 @@ import { ObstacleDefKey, ObstacleDefs } from "../../../../common/src/defs/obstac
 import { spriteFromDef } from "../../utils";
 
 export class Obstacle extends ClientEntity {
-    readonly type = EntityType.Obstacle;
+    readonly __type = EntityType.Obstacle;
     hitbox!: Hitbox;
-    obstacleType = "" as ObstacleDefKey;
+    type = "" as ObstacleDefKey;
     sprite = new Sprite();
 
     constructor(game: Game, id: number) {
@@ -26,8 +26,8 @@ export class Obstacle extends ClientEntity {
 
         if (data.full) {
             this.position = data.full.position;
-            this.obstacleType = data.full.obstacleType;
-            const def = ObstacleDefs.typeToDef(this.obstacleType);
+            this.type = data.full.type;
+            const def = ObstacleDefs.typeToDef(this.type);
 
             this.hitbox = BaseHitbox.fromJSON(def.hitbox).transform(this.position, 0, 1);
 

@@ -48,7 +48,7 @@ export class Grid {
     addEntity(entity: ServerEntity): void {
         this.entities.set(entity.id, entity);
         entity.init();
-        (this.byCategory[entity.type] as Set<typeof entity>).add(entity);
+        (this.byCategory[entity.__type] as Set<typeof entity>).add(entity);
         this.updateEntity(entity);
     }
 
@@ -82,7 +82,7 @@ export class Grid {
         this.entities.delete(entity.id);
         this.removeFromGrid(entity);
         entity.game.idAllocator.give(entity.id);
-        (this.byCategory[entity.type] as Set<typeof entity>).delete(entity);
+        (this.byCategory[entity.__type] as Set<typeof entity>).delete(entity);
     }
 
     /**

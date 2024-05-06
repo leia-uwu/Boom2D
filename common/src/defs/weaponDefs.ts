@@ -1,12 +1,14 @@
 import { DefinitionList, ImgDefinition } from "../utils/definitionList";
 import { Vec2, Vector } from "../utils/vector";
 import { type BulletDefKey } from "./bulletDefs";
+import { ProjectileDefKey } from "./projectileDefs";
 
 export interface GunDef {
     type: "gun"
     key: string
     fireDelay: number
     switchDelay: number
+    projectileType?: ProjectileDefKey
     bulletType?: BulletDefKey
     jitterRadius?: number
     bulletCount: number
@@ -35,13 +37,13 @@ export const WeaponDefs = new DefinitionList({
             src: "./game/img/weapons/pistol.svg"
         },
         worldImg: {
-            src: "./game/img/weapons/pistol_world.svg",
+            src: "./game/img/weapons/pistol-world.svg",
             rotation: Math.PI / 2,
             position: Vec2.new(90, 0),
             zIndex: -1
         },
         sfx: {
-            shoot: "pistol_fire.mp3"
+            shoot: "pistol-fire.mp3"
         },
         leftFistPos: Vec2.new(0, 0)
     },
@@ -60,13 +62,13 @@ export const WeaponDefs = new DefinitionList({
             src: "./game/img/weapons/shotgun.svg"
         },
         worldImg: {
-            src: "./game/img/weapons/shotgun_world.svg",
+            src: "./game/img/weapons/shotgun-world.svg",
             rotation: Math.PI / 2,
             position: Vec2.new(90, 0),
             zIndex: -1
         },
         sfx: {
-            shoot: "shotgun_fire.mp3"
+            shoot: "shotgun-fire.mp3"
         },
         leftFistPos: Vec2.new(100, 5)
     },
@@ -84,15 +86,39 @@ export const WeaponDefs = new DefinitionList({
             src: "./game/img/weapons/ak.svg"
         },
         worldImg: {
-            src: "./game/img/weapons/ak_world.svg",
+            src: "./game/img/weapons/ak-world.svg",
             rotation: Math.PI / 2,
             position: Vec2.new(90, 0),
             zIndex: -1
         },
         sfx: {
-            shoot: "ak_fire.mp3"
+            shoot: "ak-fire.mp3"
         },
         leftFistPos: Vec2.new(130, 5)
+    },
+    plasma_rifle: {
+        type: "gun",
+        key: "5",
+        fireDelay: 0.08,
+        switchDelay: 0.5,
+        projectileType: "plasma",
+        bulletCount: 1,
+        spread: 0,
+        barrelLength: 3.4,
+        barrelOffset: 0,
+        inventoryImg: {
+            src: "./game/img/weapons/plasma-rifle.svg"
+        },
+        worldImg: {
+            src: "./game/img/weapons/plasma-rifle-world.svg",
+            rotation: Math.PI / 2,
+            position: Vec2.new(90, 0),
+            zIndex: -1
+        },
+        sfx: {
+            shoot: "plasma-fire.mp3"
+        },
+        leftFistPos: Vec2.new(160, 8)
     }
 } satisfies Record<string, GunDef>);
 

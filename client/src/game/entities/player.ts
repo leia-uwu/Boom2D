@@ -10,7 +10,7 @@ import { CircleHitbox } from "../../../../common/src/utils/hitbox";
 import { spriteFromDef } from "../../utils";
 
 export class Player extends ClientEntity {
-    readonly type = EntityType.Player;
+    readonly __type = EntityType.Player;
 
     readonly hitbox = new CircleHitbox(GameConstants.player.radius);
 

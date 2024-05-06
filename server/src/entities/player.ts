@@ -17,7 +17,7 @@ import { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
 import { WeaponManager } from "../weaponManager";
 
 export class Player extends ServerEntity {
-    readonly type = EntityType.Player;
+    readonly __type = EntityType.Player;
     readonly hitbox = new CircleHitbox(GameConstants.player.radius);
 
     socket: WebSocket<PlayerData>;
@@ -61,7 +61,8 @@ export class Player extends ServerEntity {
     weapons: Record<WeaponDefKey, boolean> = {
         pistol: true,
         shotgun: true,
-        ak: true
+        ak: true,
+        plasma_rifle: true
     };
 
     activeWeapon: WeaponDefKey = "pistol";
