@@ -5,6 +5,7 @@ export interface ExplosionDef {
     damage: number
     img: ImgDefinition & {
         animDuration: number
+        animScale: number
     }
     particles?: {
         amount: number
@@ -22,10 +23,11 @@ export interface ExplosionDef {
 
 export const ExplosionDefs = new DefinitionList({
     rocket: {
-        radius: 10,
+        radius: 6,
         damage: 80,
         img: {
             animDuration: 0.5,
+            animScale: 2,
             src: "glow-particle.svg",
             tint: 0xff0000
         },
@@ -43,10 +45,11 @@ export const ExplosionDefs = new DefinitionList({
         sound: "rocket_explosion.mp3"
     },
     plasma: {
-        radius: 4,
+        radius: 3,
         damage: 5,
         img: {
-            animDuration: 0.5,
+            animDuration: 0.3,
+            animScale: 1.5,
             src: "glow-particle.svg",
             tint: 0x00ffff
         },

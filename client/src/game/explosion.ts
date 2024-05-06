@@ -66,7 +66,7 @@ class Explosion {
     constructor(readonly type: ExplosionDefKey, readonly position: Vector) {
         const def = ExplosionDefs.typeToDef(this.type);
         spriteFromDef(this.sprite, def.img);
-        this.targetScale = Camera.unitToScreen(def.radius + 2);
+        this.targetScale = Camera.unitToScreen(def.radius * def.img.animScale);
 
         this.sprite.scale.set(0);
         this.sprite.anchor.set(0.5);
