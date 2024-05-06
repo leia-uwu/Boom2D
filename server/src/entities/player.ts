@@ -62,6 +62,7 @@ export class Player extends ServerEntity {
         pistol: true,
         shotgun: true,
         ak: true,
+        rocket_launcher: true,
         plasma_rifle: true
     };
 
@@ -167,11 +168,6 @@ export class Player extends ServerEntity {
             const gameOverPacket = new GameOverPacket();
             gameOverPacket.kills = this.kills;
             this.sendPacket(gameOverPacket);
-
-            this.game.explosions.push({
-                position: this.position,
-                radius: 25
-            });
         }
     }
 
@@ -227,8 +223,8 @@ export class Player extends ServerEntity {
             }
         }
 
-        for (const explosion of this.game.explosions) {
-            if (rect.isPointInside(explosion.position)) {
+        for (const explosion of this.game.explosionManager.explosions) {
+            if (rect.isPointInside(explosion.position) || rect.collidesWith(explosion.hitbox)) {
                 updatePacket.explosions.push(explosion);
             }
         }

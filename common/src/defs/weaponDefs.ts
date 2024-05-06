@@ -96,6 +96,30 @@ export const WeaponDefs = new DefinitionList({
         },
         leftFistPos: Vec2.new(130, 5)
     },
+    rocket_launcher: {
+        type: "gun",
+        key: "4",
+        fireDelay: 0.5,
+        switchDelay: 0.5,
+        bulletCount: 1,
+        projectileType: "rocket",
+        barrelLength: 3.4,
+        spread: 0,
+        barrelOffset: 0,
+        inventoryImg: {
+            src: "./game/img/weapons/rocket-launcher.svg"
+        },
+        worldImg: {
+            src: "./game/img/weapons/rocket-launcher-world.svg",
+            rotation: Math.PI / 2,
+            position: Vec2.new(90, 0),
+            zIndex: -1
+        },
+        sfx: {
+            shoot: "rocket-launcher-fire.mp3"
+        },
+        leftFistPos: Vec2.new(160, 8)
+    },
     plasma_rifle: {
         type: "gun",
         key: "5",

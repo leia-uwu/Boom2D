@@ -1,5 +1,5 @@
 import { EntityType } from "../../../common/src/constants";
-import { ProjectileDefKey, ProjectileDefs } from "../../../common/src/defs/projectileDefs";
+import { ProjectileDef, ProjectileDefKey, ProjectileDefs } from "../../../common/src/defs/projectileDefs";
 import { type EntitiesNetData } from "../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../common/src/utils/math";
@@ -79,6 +79,10 @@ export class Projectile extends ServerEntity {
     }
 
     destroy() {
+        const def = ProjectileDefs.typeToDef(this.type) as ProjectileDef;
+        if (def.explosion) {
+            this.game.explosionManager.addExplosion(def.explosion, this.position, this.source);
+        }
         this.game.grid.remove(this);
     }
 
@@ -87,7 +91,7 @@ export class Projectile extends ServerEntity {
             position: this.position,
             full: {
                 type: this.type,
-                shooterId: this.source.id
+                direction: this.direction
             }
         };
     }

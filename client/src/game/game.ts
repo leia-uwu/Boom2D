@@ -13,8 +13,6 @@ import { type App } from "../main";
 import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { GameUi } from "./gameUi";
 import { ParticleManager } from "./particle";
-import { Random } from "../../../common/src/utils/random";
-import { EasinFunctions } from "../../../common/src/utils/math";
 import { AudioManager } from "./audioManager";
 import { EntityType } from "../../../common/src/constants";
 import { Obstacle } from "./entities/obstacle";
@@ -22,6 +20,7 @@ import { BulletManager } from "./bullet";
 import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
 import { MapPacket } from "../../../common/src/packets/mapPacke";
 import { GameMap } from "./map";
+import { ExplosionManager } from "./explosion";
 
 export class Game {
     app: App;
@@ -47,6 +46,7 @@ export class Game {
     audioManager = new AudioManager(this);
     particleManager = new ParticleManager(this);
     bulletManager = new BulletManager(this);
+    explosionManager = new ExplosionManager(this);
 
     constructor(app: App) {
         this.app = app;
@@ -225,20 +225,7 @@ export class Game {
         }
 
         for (const explosion of packet.explosions) {
-            this.particleManager.spawnParticles(explosion.radius * 10, () => {
-                return {
-                    position: explosion.position,
-                    lifeTime: { min: 0.5, max: 1.5 },
-                    blendMode: "add",
-                    tint: new Color(`hsl(${Random.int(0, 25)}, 100%, 50%)`),
-                    sprite: "particle.svg",
-                    rotation: { value: 0 },
-                    alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
-                    scale: { start: 2, end: 0 },
-                    speed: { min: 5, max: 10 },
-                    direction: { value: Random.float(-Math.PI, Math.PI) }
-                };
-            });
+            this.explosionManager.addExplosion(explosion.type, explosion.position);
         }
 
         for (const shot of packet.shots) {
@@ -279,6 +266,7 @@ export class Game {
         this.bulletManager.tick(dt);
 
         this.particleManager.render(dt);
+        this.explosionManager.render(dt);
 
         if (this.activePlayer) {
             this.camera.position = this.activePlayer.container.position;

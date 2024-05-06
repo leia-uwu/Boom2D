@@ -1,5 +1,6 @@
 import { BaseBullet, BulletParams } from "../baseBullet";
 import { EntityType, GameConstants } from "../constants";
+import { ExplosionDefKey, ExplosionDefs } from "../defs/explosionDefs";
 import { ObstacleDefKey, ObstacleDefs } from "../defs/obstacleDefs";
 import { ProjectileDefKey, ProjectileDefs } from "../defs/projectileDefs";
 import { WeaponDefKey, WeaponDefs } from "../defs/weaponDefs";
@@ -21,7 +22,7 @@ export interface EntitiesNetData {
         position: Vector
         full?: {
             type: ProjectileDefKey
-            shooterId: number
+            direction: Vector
         }
     }
     [EntityType.Obstacle]: {
@@ -73,7 +74,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         },
         serializeFull(stream, data) {
             ProjectileDefs.write(stream, data.type);
-            stream.writeUint16(data.shooterId);
+            stream.writeUnit(data.direction, 16);
         },
         deserializePartial(stream) {
             return {
@@ -83,7 +84,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         deserializeFull(stream) {
             return {
                 type: ProjectileDefs.read(stream),
-                shooterId: stream.readUint16()
+                direction: stream.readUnit(16)
             };
         }
     },
@@ -116,7 +117,7 @@ interface Entity {
 
 export interface Explosion {
     position: Vector
-    radius: number
+    type: ExplosionDefKey
 }
 
 export interface Shot {
@@ -310,6 +311,7 @@ export class UpdatePacket implements Packet {
         if (this.explosions.length) {
             stream.writeArray(this.explosions, 8, explosion => {
                 stream.writePosition(explosion.position);
+                ExplosionDefs.write(stream, explosion.type);
             });
 
             flags |= UpdateFlags.Explosions;
@@ -398,7 +400,8 @@ export class UpdatePacket implements Packet {
         if (flags & UpdateFlags.Explosions) {
             stream.readArray(this.explosions, 8, () => {
                 return {
-                    position: stream.readPosition()
+                    position: stream.readPosition(),
+                    type: ExplosionDefs.read(stream)
                 };
             });
         }

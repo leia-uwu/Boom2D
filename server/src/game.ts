@@ -7,10 +7,11 @@ import { EntityPool } from "../../common/src/utils/entityPool";
 import { GameConstants } from "../../common/src/constants";
 import NanoTimer from "nanotimer";
 import { type ServerConfig } from "./config";
-import { Shot, type Explosion } from "../../common/src/packets/updatePacket";
+import { Shot } from "../../common/src/packets/updatePacket";
 import { IDAllocator } from "./idAllocator";
 import { BulletManager } from "./bullet";
 import { GameMap } from "./map";
+import { ExplosionManager } from "./explosion";
 
 export class Game {
     players = new EntityPool<Player>();
@@ -22,7 +23,7 @@ export class Game {
     fullDirtyEntities = new Set<ServerEntity>();
 
     bulletManager = new BulletManager(this);
-    explosions: Explosion[] = [];
+    explosionManager = new ExplosionManager(this);
     shots: Shot[] = [];
 
     grid = new Grid(GameConstants.maxPosition, GameConstants.maxPosition);
@@ -66,6 +67,7 @@ export class Game {
         }
 
         this.bulletManager.tick(dt);
+        this.explosionManager.tick(dt);
 
         // Cache entity serializations
         for (const entity of this.partialDirtyEntities) {
@@ -97,7 +99,7 @@ export class Game {
         this.newPlayers.length = 0;
         this.deletedPlayers.length = 0;
         this.bulletManager.newBullets.length = 0;
-        this.explosions.length = 0;
+        this.explosionManager.explosions.length = 0;
         this.shots.length = 0;
         this.mapDirty = false;
     }
