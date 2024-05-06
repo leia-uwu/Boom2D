@@ -1,6 +1,7 @@
 import { GameConstants } from "../constants";
 import { GameBitStream } from "../net";
 import { Collision, type CollisionResponse, type LineIntersection } from "./collision";
+import { MathUtils } from "./math";
 import { Vec2, type Vector } from "./vector";
 
 export enum HitboxType {
@@ -23,7 +24,7 @@ export interface HitboxJSONMapping {
     [HitboxType.Polygon]: {
         readonly type: HitboxType.Polygon
         readonly center: Vector
-        readonly points: Vector[]
+        readonly verts: Vector[]
     }
 }
 
@@ -43,7 +44,7 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
             case HitboxType.Rect:
                 return new RectHitbox(data.min, data.max);
             case HitboxType.Polygon:
-                return new PolygonHitbox(data.points, data.center);
+                return new PolygonHitbox(data.verts, data.center);
         }
     }
 
@@ -62,7 +63,7 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
                 break;
             }
             case HitboxType.Polygon: {
-                stream.writeArray(hitbox.points, 16, point => {
+                stream.writeArray(hitbox.verts, 16, point => {
                     stream.writePosition(point);
                 });
             }
@@ -181,9 +182,8 @@ export class CircleHitbox extends BaseHitbox {
             case HitboxType.Rect:
                 return Collision.rectCircleIntersection(that.min, that.max, this.position, this.radius);
             case HitboxType.Polygon:
-                return Collision.circlePolygonIntersection(this.position, this.radius, that.center, that.points);
+                return Collision.circlePolygonIntersection(this.position, this.radius, that.center, that.verts);
         }
-        return null;
     }
 
     override clone(): CircleHitbox {
@@ -326,25 +326,27 @@ export class RectHitbox extends BaseHitbox {
 
 export class PolygonHitbox extends BaseHitbox {
     override readonly type = HitboxType.Polygon;
-    points: Vector[];
-    constructor(points: Vector[], public center = Vec2.new(0, 0)) {
+    verts: Vector[];
+    constructor(verts: Vector[], public center = Vec2.new(0, 0)) {
         super();
-        if (points.length < 3) {
+        if (verts.length < 3) {
             throw new Error("Polygons must have at least 3 points");
         }
-        this.points = points.map(p => Vec2.clone(p));
+        this.verts = verts.map(p => Vec2.clone(p));
     }
 
     override toJSON(): HitboxJSONMapping[HitboxType.Polygon] {
         return {
             type: this.type,
-            points: this.points.map(point => Vec2.clone(point)),
+            verts: this.verts.map(point => Vec2.clone(point)),
             center: Vec2.clone(this.center)
         };
     }
 
-    getIntersection(_that: Hitbox): CollisionResponse {
-        // TODO
+    getIntersection(that: Hitbox): CollisionResponse {
+        if (that instanceof CircleHitbox) {
+            return Collision.circlePolygonIntersection(that.position, that.radius, this.center, this.verts);
+        }
         return null;
     }
 
@@ -354,30 +356,41 @@ export class PolygonHitbox extends BaseHitbox {
     }
 
     override clone(): PolygonHitbox {
-        return new PolygonHitbox(this.points);
+        return new PolygonHitbox(this.verts);
     }
 
     override transform(position: Vector, scale = 1, rotation = 0): PolygonHitbox {
-        // TODO: scale polygon
-        const points = this.points.map(p => Vec2.add(position, p));
-        const center = Vec2.add(this.center, Vec2.rotate(position, rotation));
+        const points: Vector[] = [];
+
+        const center = Vec2.add(this.center, position);
+
+        for (let i = 0; i < this.verts.length; i++) {
+            const pt = this.verts[i];
+            const dist = Vec2.distance(pt, this.center) * scale;
+            const rot = MathUtils.angleBetweenPoints(pt, this.center) + rotation;
+            points.push(Vec2.add(center, Vec2.rotate(Vec2.new(dist, 0), rot)));
+        }
+
         return new PolygonHitbox(points, center);
     }
 
     override scale(scale: number): void {
-        for (let i = 0, length = this.points.length; i < length; i++) {
-            this.points[i] = Vec2.mul(this.points[i], scale);
+        for (let i = 0; i < this.verts.length; i++) {
+            const pt = this.verts[i];
+            const dist = Vec2.distance(pt, this.center) * scale;
+            const rot = MathUtils.angleBetweenPoints(pt, this.center);
+            this.verts[i] = Vec2.add(this.center, Vec2.rotate(Vec2.new(dist, 0), rot));
         }
     }
 
     override intersectsLine(a: Vector, b: Vector): LineIntersection {
-        return Collision.lineIntersectsPolygon(a, b, this.points);
+        return Collision.lineIntersectsPolygon(a, b, this.verts);
     }
 
     override toRectangle(): RectHitbox {
         const min = Vec2.new(Number.MAX_VALUE, Number.MAX_VALUE);
         const max = Vec2.new(0, 0);
-        for (const point of this.points) {
+        for (const point of this.verts) {
             min.x = Math.min(min.x, point.x);
             min.y = Math.min(min.y, point.y);
             max.x = Math.max(max.x, point.x);
@@ -390,13 +403,13 @@ export class PolygonHitbox extends BaseHitbox {
     override isPointInside(point: Vector): boolean {
         const { x, y } = point;
         let inside = false;
-        const count = this.points.length;
+        const count = this.verts.length;
         // take first and last
         // then take second and second last
         // so on
         for (let i = 0, j = count - 1; i < count; j = i++) {
-            const { x: xi, y: yi } = this.points[i];
-            const { x: xj, y: yj } = this.points[j];
+            const { x: xi, y: yi } = this.verts[i];
+            const { x: xj, y: yj } = this.verts[j];
 
             if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) {
                 inside = !inside;
