@@ -157,6 +157,7 @@ export class Player extends ServerEntity {
     }
 
     damage(amount: number, source: Player) {
+        amount = Math.round(amount);
         this.health -= amount;
 
         if (this.health <= 0) {
