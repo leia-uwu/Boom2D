@@ -1,5 +1,5 @@
 import { GameBitStream, type Packet, PacketStream } from "../../../common/src/net";
-import { type Application, Assets, Color } from "pixi.js";
+import { type Application, Assets } from "pixi.js";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
 import { EntityPool } from "../../../common/src/utils/entityPool";
 import { type ClientEntity } from "./entities/entity";

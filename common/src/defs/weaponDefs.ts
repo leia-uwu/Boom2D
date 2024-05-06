@@ -38,7 +38,7 @@ export const WeaponDefs = new DefinitionList({
         },
         worldImg: {
             src: "./game/img/weapons/pistol-world.svg",
-            position: Vec2.new(90, 0),
+            position: Vec2.new(90, 0)
         },
         sfx: {
             shoot: "pistol-fire.mp3"
@@ -61,7 +61,7 @@ export const WeaponDefs = new DefinitionList({
         },
         worldImg: {
             src: "./game/img/weapons/shotgun-world.svg",
-            position: Vec2.new(90, 0),
+            position: Vec2.new(90, 0)
         },
         sfx: {
             shoot: "shotgun-fire.mp3"
@@ -83,7 +83,7 @@ export const WeaponDefs = new DefinitionList({
         },
         worldImg: {
             src: "./game/img/weapons/ak-world.svg",
-            position: Vec2.new(90, 0),
+            position: Vec2.new(90, 0)
         },
         sfx: {
             shoot: "ak-fire.mp3"
@@ -105,7 +105,7 @@ export const WeaponDefs = new DefinitionList({
         },
         worldImg: {
             src: "./game/img/weapons/rocket-launcher-world.svg",
-            position: Vec2.new(70, 0),
+            position: Vec2.new(70, 0)
         },
         sfx: {
             shoot: "rocket-launcher-fire.mp3"
@@ -127,7 +127,7 @@ export const WeaponDefs = new DefinitionList({
         },
         worldImg: {
             src: "./game/img/weapons/plasma-rifle-world.svg",
-            position: Vec2.new(90, 0),
+            position: Vec2.new(90, 0)
         },
         sfx: {
             shoot: "plasma-fire.mp3"

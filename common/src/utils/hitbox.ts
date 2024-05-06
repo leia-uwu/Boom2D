@@ -171,8 +171,9 @@ export class CircleHitbox extends BaseHitbox {
                 return Collision.checkCircleCircle(that.position, that.radius, this.position, this.radius);
             case HitboxType.Rect:
                 return Collision.checkRectCircle(that.min, that.max, this.position, this.radius);
+            case HitboxType.Polygon:
+                return Collision.checkCirclePolygon(this.position, this.radius, that.verts);
         }
-        return false;
     }
 
     override getIntersection(that: Hitbox) {

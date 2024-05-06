@@ -10,6 +10,19 @@ export interface ProjectileDef {
     }
     explosion?: ExplosionDefKey
     img: ImgDefinition & { spin?: boolean }
+    particles?: {
+        spawnDelay: number
+        spawnOffset: number
+        amount: number
+        hue: {
+            min: number
+            max: number
+        }
+        speed: {
+            min: number
+            max: number
+        }
+    }
 }
 
 export const ProjectileDefs = new DefinitionList({
@@ -37,6 +50,19 @@ export const ProjectileDefs = new DefinitionList({
         explosion: "rocket",
         img: {
             src: "rocket-projectile.svg"
+        },
+        particles: {
+            spawnDelay: 0.01,
+            amount: 10,
+            spawnOffset: 1.5,
+            hue: {
+                min: 0,
+                max: 25
+            },
+            speed: {
+                min: 2,
+                max: 5
+            }
         }
     }
 } satisfies Record<string, ProjectileDef>);

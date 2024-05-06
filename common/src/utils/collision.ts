@@ -50,7 +50,44 @@ export const Collision = {
     checkRectRect(min1: Vector, max1: Vector, min2: Vector, max2: Vector): boolean {
         return min2.x < max1.x && min2.y < max1.y && min1.x < max2.x && min1.y < max2.y;
     },
+    checkCirclePolygon(
+        circleCenter: Vector,
+        circleRadius: number,
+        vertices: Vector[]
+    ): boolean {
+        let axis = Vec2.new(0, 0);
 
+        for (let i = 0; i < vertices.length; i++) {
+            const va = vertices[i];
+            const vb = vertices[(i + 1) % vertices.length];
+
+            const edge = Vec2.sub(vb, va);
+            axis = Vec2.new(-edge.y, edge.x);
+            axis = Vec2.normalize(axis);
+
+            const { min: minA, max: maxA } = Collision.projectVertices(vertices, axis);
+            const { min: minB, max: maxB } = Collision.projectCircle(circleCenter, circleRadius, axis);
+
+            if (minA >= maxB || minB >= maxA) {
+                return false;
+            }
+        }
+
+        const cpIndex = Collision.findClosestPointOnPolygon(circleCenter, vertices);
+        const cp = vertices[cpIndex];
+
+        axis = Vec2.sub(cp, circleCenter);
+        axis = Vec2.normalize(axis);
+
+        const { min: minA, max: maxA } = Collision.projectVertices(vertices, axis);
+        const { min: minB, max: maxB } = Collision.projectCircle(circleCenter, circleRadius, axis);
+
+        if (minA >= maxB || minB >= maxA) {
+            return false;
+        }
+
+        return true;
+    },
     /**
      * Checks if a line intersects another line
      * @param a0 The start of the first line
