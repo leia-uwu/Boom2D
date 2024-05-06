@@ -1,4 +1,4 @@
-import { Sprite, vertexGlTemplate } from "pixi.js";
+import { Sprite } from "pixi.js";
 import { BaseBullet, BulletParams } from "../../../common/src/baseBullet";
 import { Game } from "./game";
 import { Camera } from "./camera";
