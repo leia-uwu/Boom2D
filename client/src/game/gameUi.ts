@@ -53,14 +53,13 @@ export class GameUi {
         const activeWeapon = this.game.activePlayer?.activeWeapon;
 
         for (const weapon in this.weapons) {
-            if (!this.weapons[weapon]) return;
+            if (!this.weapons[weapon as WeaponDefKey]) return;
             const def = WeaponDefs.typeToDef(weapon);
 
             this.weaponsContainer.innerHTML += `
             <div class="inventory-weapon${activeWeapon === weapon ? " active" : ""}">
                 ${def.key}
-                <img src="${def.inventoryImg.src}" height="50"></img>
-                ${weapon}
+                <img src="${def.inventoryImg.src}"></img>
             </div>
             `;
         }

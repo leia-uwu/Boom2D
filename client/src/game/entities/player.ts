@@ -78,7 +78,11 @@ export class Player extends ClientEntity {
         if (data.full) {
             this.activeWeapon = data.full.activeWeapon;
             const weaponDef = WeaponDefs.typeToDef(this.activeWeapon);
-            spriteFromDef(this.images.weapon, weaponDef.worldImg);
+            spriteFromDef(this.images.weapon, {
+                zIndex: -1,
+                rotation: Math.PI / 2,
+                ...weaponDef.worldImg
+            });
 
             if (weaponDef.type === "gun") {
                 this.images.rightFist.position.y = this.images.weapon.position.y;

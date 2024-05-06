@@ -38,9 +38,7 @@ export const WeaponDefs = new DefinitionList({
         },
         worldImg: {
             src: "./game/img/weapons/pistol-world.svg",
-            rotation: Math.PI / 2,
             position: Vec2.new(90, 0),
-            zIndex: -1
         },
         sfx: {
             shoot: "pistol-fire.mp3"
@@ -63,9 +61,7 @@ export const WeaponDefs = new DefinitionList({
         },
         worldImg: {
             src: "./game/img/weapons/shotgun-world.svg",
-            rotation: Math.PI / 2,
             position: Vec2.new(90, 0),
-            zIndex: -1
         },
         sfx: {
             shoot: "shotgun-fire.mp3"
@@ -87,9 +83,7 @@ export const WeaponDefs = new DefinitionList({
         },
         worldImg: {
             src: "./game/img/weapons/ak-world.svg",
-            rotation: Math.PI / 2,
             position: Vec2.new(90, 0),
-            zIndex: -1
         },
         sfx: {
             shoot: "ak-fire.mp3"
@@ -111,14 +105,12 @@ export const WeaponDefs = new DefinitionList({
         },
         worldImg: {
             src: "./game/img/weapons/rocket-launcher-world.svg",
-            rotation: Math.PI / 2,
-            position: Vec2.new(90, 0),
-            zIndex: -1
+            position: Vec2.new(70, 0),
         },
         sfx: {
             shoot: "rocket-launcher-fire.mp3"
         },
-        leftFistPos: Vec2.new(160, 8)
+        leftFistPos: Vec2.new(120, 8)
     },
     plasma_rifle: {
         type: "gun",
@@ -135,9 +127,7 @@ export const WeaponDefs = new DefinitionList({
         },
         worldImg: {
             src: "./game/img/weapons/plasma-rifle-world.svg",
-            rotation: Math.PI / 2,
             position: Vec2.new(90, 0),
-            zIndex: -1
         },
         sfx: {
             shoot: "plasma-fire.mp3"
