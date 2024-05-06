@@ -26,7 +26,6 @@ export class Game {
     app: App;
     socket?: WebSocket;
     pixi: Application;
-    ui = new GameUi(this);
 
     running = false;
 
@@ -40,6 +39,7 @@ export class Game {
 
     playerNames = new Map<number, string>();
 
+    ui = new GameUi(this);
     camera = new Camera(this);
     map = new GameMap(this);
     inputManager = new InputManager(this);
