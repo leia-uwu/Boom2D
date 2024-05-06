@@ -31,4 +31,6 @@ export class App {
 
 const app = new App();
 
-await app.init();
+(async() => {
+    await app.init();
+})();

@@ -4,7 +4,7 @@
     "description": "2D DeathMatch game inspired by surviv.io and Doom",
     "scripts": {
         "lint": "eslint . --fix",
-        "lint:ci": "eslint . --max-warnings 0 --ext .js,.ts",
+        "lint:ci": "eslint . --max-warnings 0",
         "dev": "pnpm -r dev",
         "build": "pnpm -r build",
         "dev:client": "cd client && pnpm dev",

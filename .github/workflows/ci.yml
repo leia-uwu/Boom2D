@@ -83,8 +83,7 @@ jobs:
           cache-dependency-path: '**/pnpm-lock.yaml'
 
       - name: Install Packages
-        working-directory: ./tests
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm test
+        run: pnpm lint:ci

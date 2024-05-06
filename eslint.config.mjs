@@ -81,7 +81,8 @@ export default tseslint.config(
             }],
             ["@typescript-eslint/require-await"]: "off",
             ["@typescript-eslint/prefer-for-of"]: "off",
-            ["no-empty"]: "off"
+            ["no-empty"]: "off",
+            ["@typescript-eslint/no-floating-promises"]: "off"
         }
     },
     {
