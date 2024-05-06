@@ -1,3 +1,4 @@
+import { EntityType } from "../../common/src/constants";
 import { GunDef, WeaponDefKey, WeaponDefs } from "../../common/src/defs/weaponDefs";
 import { MathUtils } from "../../common/src/utils/math";
 import { Random } from "../../common/src/utils/random";
@@ -27,7 +28,27 @@ export class WeaponManager {
 
         const dir = this.player.direction;
 
-        const gunPos = Vec2.add(this.player.position, Vec2.mul(Vec2.perp(dir), weaponDef.barrelOffset));
+        const gunStartPos = this.player.position;
+        const gunEndPos = Vec2.add(
+            Vec2.add(gunStartPos, Vec2.mul(Vec2.perp(dir), weaponDef.barrelOffset)),
+            Vec2.mul(dir, weaponDef.barrelLength));
+
+        const entities = this.player.game.grid.intersectLineSegment(gunStartPos, gunEndPos);
+
+        let finalGunPos = Vec2.clone(gunEndPos);
+        let dist = Vec2.distanceSqrt(gunStartPos, gunEndPos);
+
+        for (const entity of entities) {
+            if (entity.type !== EntityType.Obstacle) continue;
+            const intersection = entity.hitbox.intersectsLine(gunStartPos, gunEndPos);
+            if (intersection) {
+                const intersectionDist = Vec2.distanceSqrt(gunStartPos, intersection.point);
+                if (intersectionDist < dist) {
+                    finalGunPos = intersection.point;
+                    dist = intersectionDist;
+                }
+            }
+        }
 
         if (weaponDef.bulletType) {
             const jitter = weaponDef.jitterRadius ?? 0;
@@ -37,7 +58,7 @@ export class WeaponManager {
 
                 const shotDir = Vec2.rotate(dir, MathUtils.degreesToRadians(deviation));
 
-                let bulletPos = Vec2.add(gunPos, Vec2.mul(dir, weaponDef.barrelLength));
+                let bulletPos = Vec2.clone(finalGunPos);
 
                 // Add shotgun jitter
                 if (jitter > 0) {
