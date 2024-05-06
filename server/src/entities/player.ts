@@ -163,7 +163,9 @@ export class Player extends ServerEntity {
             this.dead = true;
             this.game.grid.remove(this);
 
-            source.kills++;
+            if (source !== this) {
+                source.kills++;
+            }
 
             const gameOverPacket = new GameOverPacket();
             gameOverPacket.kills = this.kills;
