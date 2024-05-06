@@ -64,7 +64,6 @@ export default tseslint.config(
             ["@typescript-eslint/use-unknown-in-catch-callback-variable"]: "off",
 
             // Type-safety rules disabled as the codebase contains unsafe code.
-            ["@typescript-eslint/no-explicit-any"]: "off",
             ["@typescript-eslint/no-non-null-assertion"]: "off",
             ["@typescript-eslint/no-unsafe-argument"]: "off",
             ["@typescript-eslint/no-unsafe-assignment"]: "off",
@@ -72,12 +71,14 @@ export default tseslint.config(
             ["@typescript-eslint/no-unsafe-member-access"]: "off",
             ["@typescript-eslint/no-unsafe-return"]: "off",
 
-            // Suroi developers specifically cannot write safe code.
             ["@typescript-eslint/no-empty-function"]: "off",
             ["@typescript-eslint/no-redundant-type-constituents"]: "off",
             ["@typescript-eslint/no-unnecessary-condition"]: "off",
             ["@typescript-eslint/no-unsafe-enum-comparison"]: "off",
-            ["@typescript-eslint/no-unused-vars"]: "off",
+            ["@typescript-eslint/no-unused-vars"]: ["error", {
+                vars: "all",
+                args: "none"
+            }],
             ["@typescript-eslint/require-await"]: "off",
             ["@typescript-eslint/prefer-for-of"]: "off",
             ["no-empty"]: "off"
