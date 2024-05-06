@@ -1,5 +1,5 @@
 import { MathUtils } from "./math";
-import { Vec2, type Vector } from "./vector";
+import { type Vector } from "./vector";
 
 export const Random = {
     /**
@@ -43,22 +43,17 @@ export const Random = {
 
     /**
     * Generate a random point inside of a circle.
-    * @link https://stackoverflow.com/a/51727716/5905216
     * @param position The center of the circle.
     * @param radius The radius of the circle.
     * @returns A random point inside the circle radius.
     */
-    pointInsideCircle(position: Vector, radius: number): Vector {
-        let x: number,
-            y: number;
-
-        do {
-            x = 2 * Math.random() - 1.0; // range [-1, +1)
-            y = 2 * Math.random() - 1.0;
-        } while ((x * x + y * y) >= 1); // check unit circle
-
-        // scale and translate the points
-        return Vec2.new(x * radius + position.x, y * radius + position.y);
+    pointInsideCircle(position: Vector, maxRadius: number, minRadius = 0): Vector {
+        const angle = Random.float(0, Math.PI * 2);
+        const length = Random.float(minRadius, maxRadius);
+        return {
+            x: position.x + (Math.cos(angle) * length),
+            y: position.y + (Math.sin(angle) * length)
+        };
     },
 
     /**
