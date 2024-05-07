@@ -70,7 +70,7 @@ export class Game {
         // new Sprite("./game/img/player.svg")
 
         const promises: Array<ReturnType<typeof Assets["load"]>> = [];
-        const imgs = import.meta.glob("/public/game/img//**/*.svg");
+        const imgs = import.meta.glob("/public/game/img/**/*.svg");
 
         for (const file in imgs) {
             const path = file.split("/");
