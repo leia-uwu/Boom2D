@@ -1,3 +1,4 @@
+import { GameConstants } from "../../../common/src/constants";
 import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
 import { type GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
@@ -15,10 +16,15 @@ export class GameUi {
 
     weapons = {} as Record<WeaponDefKey, boolean>;
     weaponsContainer = getElem("#weapons-container");
+    weaponsContainers = {} as Record<WeaponDefKey, HTMLDivElement>;
 
     playAgainButton = getElem("#play-again-btn");
     gameOverScreen = getElem("#game-over-screen");
     gameOverKills = getElem("#game-over-kill-count");
+
+    ammo = {} as Record<typeof GameConstants["ammoTypes"][number], number>;
+    ammoContainer = getElem("#ammo-container");
+    ammoContainers = {} as Record<typeof GameConstants["ammoTypes"][number], HTMLDivElement>;
 
     setupUi() {
         this.playAgainButton.addEventListener("click", () => {
@@ -29,6 +35,42 @@ export class GameUi {
         getElem("#game-ui").addEventListener("contextmenu", e => {
             e.preventDefault();
         });
+
+        // setup weapon containers
+        for (const weapon of WeaponDefs) {
+            const container = document.createElement("div");
+            container.classList.add("inventory-weapon");
+
+            const def = WeaponDefs.typeToDef(weapon);
+            container.innerHTML += def.key;
+
+            const img = document.createElement("img");
+
+            img.src = def.inventoryImg.src;
+
+            container.appendChild(img);
+            this.weaponsContainers[weapon] = container;
+            this.weaponsContainer.appendChild(container);
+        }
+
+        // setup ammo containers
+        for (const ammo of GameConstants.ammoTypes) {
+            const container = document.createElement("div");
+            container.classList.add("ammo");
+
+            const nameDiv = document.createElement("div");
+            nameDiv.classList.add("ammo-name");
+            nameDiv.innerText = `${ammo.charAt(0).toUpperCase() + ammo.slice(1, ammo.length)}: `;
+
+            const amountDiv = document.createElement("div");
+            amountDiv.classList.add("ammo-amount");
+
+            this.ammoContainers[ammo] = amountDiv;
+
+            container.appendChild(nameDiv);
+            container.appendChild(amountDiv);
+            this.ammoContainer.appendChild(container);
+        }
     }
 
     updateUi(data: UpdatePacket["playerData"], dirty: UpdatePacket["playerDataDirty"]): void {
@@ -45,23 +87,26 @@ export class GameUi {
             this.weapons = data.weapons;
             this.updateWeaponsUi();
         }
+
+        if (dirty.ammo) {
+            this.ammo = data.ammo;
+            this.updateAmmoUi();
+        }
     }
 
     updateWeaponsUi(): void {
-        this.weaponsContainer.innerHTML = "";
-
         const activeWeapon = this.game.activePlayer?.activeWeapon;
 
-        for (const weapon in this.weapons) {
-            if (!this.weapons[weapon as WeaponDefKey]) return;
-            const def = WeaponDefs.typeToDef(weapon);
+        for (const weapon of WeaponDefs) {
+            const container = this.weaponsContainers[weapon];
+            container.classList.toggle("active", weapon === activeWeapon);
+            container.style.display = this.weapons[weapon] ? "block" : "none";
+        }
+    }
 
-            this.weaponsContainer.innerHTML += `
-            <div class="inventory-weapon${activeWeapon === weapon ? " active" : ""}">
-                ${def.key}
-                <img src="${def.inventoryImg.src}"></img>
-            </div>
-            `;
+    updateAmmoUi(): void {
+        for (const ammo of GameConstants.ammoTypes) {
+            this.ammoContainers[ammo].innerText = this.ammo[ammo].toString();
         }
     }
 

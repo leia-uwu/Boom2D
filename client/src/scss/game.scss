@@ -12,11 +12,16 @@
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-#player-stats {
+#game-ui-bottom {
     position: absolute;
-    left: 0%;
+    display: flex;
     bottom: 0;
+    width: 100vw;
+}
+
+#player-stats {
     margin: 5px;
+    margin-top: auto;
 
     div {
         font-size: 1.5em;
@@ -25,11 +30,7 @@
 
 #weapons-container {
     display: flex;
-
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translate(-50%, 0%);
+    margin-left: auto;
 
     .inventory-weapon {
         display: flex;
@@ -43,6 +44,7 @@
         background-color: rgba(255, 255, 255, 0.5);
 
         border: 5px solid transparent;
+
         &.active {
             border: 5px solid black;
         }
@@ -52,10 +54,30 @@
         }
 
         img {
-            margin: 10px;
+            margin: 5px;
             width: 80px;
             height: 48px;
             transform: rotate(-35deg)
+        }
+    }
+}
+
+#ammo-container {
+    margin: 5px;
+    margin-top: auto;
+    margin-left: auto;
+
+    div {
+        font-size: 1.1em;
+    }
+
+    .ammo {
+        display: flex;
+        width: 120px;
+
+        .ammo-amount {
+            text-align: right;
+            margin-left: auto;
         }
     }
 }

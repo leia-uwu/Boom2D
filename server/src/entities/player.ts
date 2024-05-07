@@ -32,7 +32,7 @@ export class Player extends ServerEntity {
     moveUp = false;
     moveDown = false;
 
-    private _health = GameConstants.player.defaultHealth;
+    private _health: number = GameConstants.player.defaultHealth;
 
     get health(): number {
         return this._health;
@@ -44,7 +44,7 @@ export class Player extends ServerEntity {
         this.dirty.health = true;
     }
 
-    private _armor = GameConstants.player.defaultArmor;
+    private _armor: number = GameConstants.player.defaultArmor;
 
     get armor(): number {
         return this._armor;
@@ -66,6 +66,13 @@ export class Player extends ServerEntity {
         plasma_rifle: true
     };
 
+    ammo: Record<typeof GameConstants["ammoTypes"][number], number> = {
+        bullet: 200,
+        shell: 50,
+        rocket: 50,
+        cell: 300
+    };
+
     activeWeapon: WeaponDefKey = "pistol";
 
     dead = false;
@@ -85,10 +92,11 @@ export class Player extends ServerEntity {
         zoom: true,
         health: true,
         armor: true,
-        weapons: true
+        weapons: true,
+        ammo: true
     };
 
-    private _zoom = GameConstants.player.defaultZoom;
+    private _zoom: number = GameConstants.player.defaultZoom;
 
     get zoom(): number {
         return this._zoom;

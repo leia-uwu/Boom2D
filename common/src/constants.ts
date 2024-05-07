@@ -18,5 +18,6 @@ export const GameConstants = {
         defaultHealth: 100,
         maxArmor: 200,
         defaultArmor: 0
-    }
-};
+    },
+    ammoTypes: ["bullet", "shell", "rocket", "cell"]
+} as const;

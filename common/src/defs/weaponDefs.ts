@@ -1,3 +1,4 @@
+import { GameConstants } from "../constants";
 import { DefinitionList, ImgDefinition } from "../utils/definitionList";
 import { Vec2, Vector } from "../utils/vector";
 import { type BulletDefKey } from "./bulletDefs";
@@ -6,6 +7,8 @@ import { ProjectileDefKey } from "./projectileDefs";
 export interface GunDef {
     type: "gun"
     key: string
+    ammo: typeof GameConstants["ammoTypes"][number]
+    ammoPerShot: number
     fireDelay: number
     switchDelay: number
     projectileType?: ProjectileDefKey
@@ -26,6 +29,8 @@ export const WeaponDefs = new DefinitionList({
     pistol: {
         type: "gun",
         key: "1",
+        ammo: "bullet",
+        ammoPerShot: 1,
         fireDelay: 0.25,
         switchDelay: 0.5,
         bulletType: "pistol_bullet",
@@ -48,6 +53,8 @@ export const WeaponDefs = new DefinitionList({
     shotgun: {
         type: "gun",
         key: "2",
+        ammo: "shell",
+        ammoPerShot: 1,
         fireDelay: 0.9,
         switchDelay: 1,
         bulletType: "shotgun_bullet",
@@ -71,6 +78,8 @@ export const WeaponDefs = new DefinitionList({
     ak: {
         type: "gun",
         key: "3",
+        ammo: "bullet",
+        ammoPerShot: 1,
         fireDelay: 0.035,
         switchDelay: 0.5,
         bulletType: "pistol_bullet",
@@ -93,6 +102,8 @@ export const WeaponDefs = new DefinitionList({
     rocket_launcher: {
         type: "gun",
         key: "4",
+        ammo: "rocket",
+        ammoPerShot: 1,
         fireDelay: 0.5,
         switchDelay: 0.5,
         bulletCount: 1,
@@ -115,6 +126,8 @@ export const WeaponDefs = new DefinitionList({
     plasma_rifle: {
         type: "gun",
         key: "5",
+        ammo: "cell",
+        ammoPerShot: 1,
         fireDelay: 0.08,
         switchDelay: 0.5,
         projectileType: "plasma",

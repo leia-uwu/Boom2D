@@ -24,6 +24,12 @@ export class WeaponManager {
     fireGun() {
         const game = this.player.game;
         const weaponDef = this.getCurrentWeapDef();
+
+        if (this.player.ammo[weaponDef.ammo] < weaponDef.ammoPerShot) return;
+
+        this.player.ammo[weaponDef.ammo] -= weaponDef.ammoPerShot;
+        this.player.dirty.ammo = true;
+
         this.stateTicker = weaponDef.fireDelay;
         this.state = WeaponState.Firing;
 

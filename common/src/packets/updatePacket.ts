@@ -157,6 +157,13 @@ function serializeActivePlayerData(stream: GameBitStream, data: UpdatePacket["pl
         }
     }
 
+    stream.writeBoolean(dirty.ammo);
+    if (dirty.ammo) {
+        for (const ammo of GameConstants.ammoTypes) {
+            stream.writeBits(data.ammo[ammo], 10);
+        }
+    }
+
     stream.writeAlignToNextByte();
 }
 
@@ -185,6 +192,13 @@ function deserializePlayerData(stream: GameBitStream, data: UpdatePacket["player
         dirty.weapons = true;
         for (const weapon in WeaponDefs.definitions) {
             data.weapons[weapon as WeaponDefKey] = stream.readBoolean();
+        }
+    }
+
+    if (stream.readBoolean()) {
+        dirty.ammo = true;
+        for (const ammo of GameConstants.ammoTypes) {
+            data.ammo[ammo] = stream.readBits(10);
         }
     }
 
@@ -220,7 +234,8 @@ export class UpdatePacket implements Packet {
         zoom: false,
         health: false,
         armor: false,
-        weapons: false
+        weapons: false,
+        ammo: false
     };
 
     playerData = {
@@ -228,7 +243,8 @@ export class UpdatePacket implements Packet {
         zoom: 0,
         health: 0,
         armor: 0,
-        weapons: {} as Record<WeaponDefKey, boolean>
+        weapons: {} as Record<WeaponDefKey, boolean>,
+        ammo: {} as Record<typeof GameConstants["ammoTypes"][number], number>
     };
 
     bullets: BulletParams[] = [];
