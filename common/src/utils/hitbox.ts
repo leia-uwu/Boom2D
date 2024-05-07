@@ -226,12 +226,12 @@ export class RectHitbox extends BaseHitbox {
     static fromLine(a: Vector, b: Vector): RectHitbox {
         return new RectHitbox(
             Vec2.new(
-                Math.min(a.x, b.x),
-                Math.min(a.y, b.y)
+                MathUtils.min(a.x, b.x),
+                MathUtils.min(a.y, b.y)
             ),
             Vec2.new(
-                Math.max(a.x, b.x),
-                Math.max(a.y, b.y)
+                MathUtils.max(a.x, b.x),
+                MathUtils.max(a.y, b.y)
             )
         );
     }
@@ -271,10 +271,10 @@ export class RectHitbox extends BaseHitbox {
 
         for (let i = 0; i < pts.length; i++) {
             const p = Vec2.add(Vec2.rotate(Vec2.mul(pts[i], scale), rotation), position);
-            min.x = Math.min(min.x, p.x);
-            min.y = Math.min(min.y, p.y);
-            max.x = Math.max(max.x, p.x);
-            max.y = Math.max(max.y, p.y);
+            min.x = MathUtils.min(min.x, p.x);
+            min.y = MathUtils.min(min.y, p.y);
+            max.x = MathUtils.max(max.x, p.x);
+            max.y = MathUtils.max(max.y, p.y);
         }
 
         return new RectHitbox(min, max);
@@ -392,10 +392,10 @@ export class PolygonHitbox extends BaseHitbox {
         const min = Vec2.new(Number.MAX_VALUE, Number.MAX_VALUE);
         const max = Vec2.new(0, 0);
         for (const point of this.verts) {
-            min.x = Math.min(min.x, point.x);
-            min.y = Math.min(min.y, point.y);
-            max.x = Math.max(max.x, point.x);
-            max.y = Math.max(max.y, point.y);
+            min.x = MathUtils.min(min.x, point.x);
+            min.y = MathUtils.min(min.y, point.y);
+            max.x = MathUtils.max(max.x, point.x);
+            max.y = MathUtils.max(max.y, point.y);
         }
 
         return new RectHitbox(min, max);

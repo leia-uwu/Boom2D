@@ -120,7 +120,7 @@ export const Collision = {
     */
     lineIntersectsCircle(s0: Vector, s1: Vector, pos: Vector, rad: number): LineIntersection {
         let d = Vec2.sub(s1, s0);
-        const len = Math.max(Vec2.length(d), 0.000001);
+        const len = MathUtils.max(Vec2.length(d), 0.000001);
         d = Vec2.div(d, len);
         const m = Vec2.sub(s0, pos);
         const b = Vec2.dot(m, d);
@@ -179,8 +179,8 @@ export const Collision = {
         if (absDx > eps) {
             const tx1 = (min.x - r.x) / d.x;
             const tx2 = (max.x - r.x) / d.x;
-            tmin = Math.max(tmin, Math.min(tx1, tx2));
-            tmax = Math.min(tmax, Math.max(tx1, tx2));
+            tmin = MathUtils.max(tmin, MathUtils.min(tx1, tx2));
+            tmax = MathUtils.min(tmax, MathUtils.max(tx1, tx2));
             if (tmin > tmax) {
                 return null;
             }
@@ -188,8 +188,8 @@ export const Collision = {
         if (absDy > eps) {
             const ty1 = (min.y - r.y) / d.y;
             const ty2 = (max.y - r.y) / d.y;
-            tmin = Math.max(tmin, Math.min(ty1, ty2));
-            tmax = Math.min(tmax, Math.max(ty1, ty2));
+            tmin = MathUtils.max(tmin, MathUtils.min(ty1, ty2));
+            tmax = MathUtils.min(tmax, MathUtils.max(ty1, ty2));
             if (tmin > tmax) {
                 return null;
             }
@@ -393,7 +393,7 @@ export const Collision = {
                 return null;
             }
 
-            axisDepth = Math.min(maxB - minA, maxA - minB);
+            axisDepth = MathUtils.min(maxB - minA, maxA - minB);
 
             if (axisDepth < pen) {
                 pen = axisDepth;
@@ -414,7 +414,7 @@ export const Collision = {
             return null;
         }
 
-        axisDepth = Math.min(maxB - minA, maxA - minB);
+        axisDepth = MathUtils.min(maxB - minA, maxA - minB);
 
         if (axisDepth < pen) {
             pen = axisDepth;

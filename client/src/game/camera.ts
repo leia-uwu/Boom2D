@@ -2,6 +2,7 @@ import { Container } from "pixi.js";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { type Game } from "./game";
 import { GameConstants } from "../../../common/src/constants";
+import { MathUtils } from "../../../common/src/utils/math";
 
 export class Camera {
     readonly container = new Container({
@@ -16,7 +17,7 @@ export class Camera {
     width = 1;
     height = 1;
 
-    private _zoom = GameConstants.player.defaultZoom;
+    private _zoom: number = GameConstants.player.defaultZoom;
 
     /**
      * How many pixels each game unit is
@@ -52,9 +53,9 @@ export class Camera {
         this.width = this.game.pixi.screen.width;
         this.height = this.game.pixi.screen.height;
 
-        const minDim = Math.min(this.width, this.height);
-        const maxDim = Math.max(this.width, this.height);
-        const maxScreenDim = Math.max(minDim * (16 / 9), maxDim);
+        const minDim = MathUtils.min(this.width, this.height);
+        const maxDim = MathUtils.max(this.width, this.height);
+        const maxScreenDim = MathUtils.max(minDim * (16 / 9), maxDim);
 
         this.container.scale.set((maxScreenDim * 0.5) / (this._zoom * Camera.scale));
         this.render();

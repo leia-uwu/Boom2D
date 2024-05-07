@@ -64,7 +64,14 @@ export const MathUtils = {
     clamp(a: number, min: number, max: number): number {
         return a < max ? a > min ? a : min : max;
     },
-
+    // like built in MathUtils.min and max but with better performance
+    // since builtin functions can handle more than 2 arguments
+    min(a: number, b: number) {
+        return a < b ? a : b;
+    },
+    max(a: number, b: number) {
+        return a > b ? a : b;
+    },
     signedAreaTri(a: Vector, b: Vector, c: Vector): number {
         return (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x);
     }

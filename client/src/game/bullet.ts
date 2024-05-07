@@ -4,6 +4,7 @@ import { Game } from "./game";
 import { Camera } from "./camera";
 import { Vec2 } from "../../../common/src/utils/vector";
 import { BulletDefs } from "../../../common/src/defs/bulletDefs";
+import { MathUtils } from "../../../common/src/utils/math";
 
 export class BulletManager {
     readonly bullets: ClientBullet[] = [];
@@ -69,8 +70,8 @@ export class ClientBullet extends BaseBullet {
             this.position = Vec2.clone(this.finalPosition);
         }
 
-        const length = Math.min(
-            Math.min(
+        const length = MathUtils.min(
+            MathUtils.min(
                 def.speed * this.trailTicks,
                 Vec2.distance(this.initialPosition, this.position)
             ),
