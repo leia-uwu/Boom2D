@@ -36,4 +36,19 @@ export class InputPacket implements Packet {
 
         this.weaponToSwitch = WeaponDefs.read(stream);
     }
+
+    static readonly fieldsToCompare = ["moveLeft", "moveRight", "moveUp", "moveDown", "mouseDown", "weaponToSwitch"] as const;
+    /**
+     * Compare two input packets to test if they need to be resent
+     * @param that The previous input packet
+     */
+    didChange(that: InputPacket): boolean {
+        for (const key of InputPacket.fieldsToCompare) {
+            if (this[key] !== that[key]) return true;
+        }
+
+        if (!Vec2.equals(this.direction, that.direction)) return true;
+
+        return false;
+    }
 }

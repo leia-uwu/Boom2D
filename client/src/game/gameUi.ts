@@ -40,12 +40,16 @@ export class GameUi {
         for (const weapon of WeaponDefs) {
             const container = document.createElement("div");
             container.classList.add("inventory-weapon");
+            container.addEventListener("pointerdown", e => {
+                this.game.inputManager.weaponToSwitch = weapon;
+                e.stopPropagation();
+            });
 
             const def = WeaponDefs.typeToDef(weapon);
             container.innerHTML += def.key;
 
             const img = document.createElement("img");
-
+            img.draggable = false;
             img.src = def.inventoryImg.src;
 
             container.appendChild(img);
@@ -76,11 +80,11 @@ export class GameUi {
     updateUi(data: UpdatePacket["playerData"], dirty: UpdatePacket["playerDataDirty"]): void {
         if (dirty.health) {
             this.health = data.health;
-            this.healthDisplay.innerText = `Health: ${this.health}%`;
+            this.healthDisplay.innerText = `${this.health}%`;
         }
         if (dirty.armor) {
             this.armor = data.armor;
-            this.armorDisplay.innerText = `Armor: ${this.armor}%`;
+            this.armorDisplay.innerText = `${this.armor}%`;
         }
 
         if (dirty.weapons) {

@@ -1,3 +1,5 @@
+import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
+import { InputPacket } from "../../../common/src/packets/inputPacket";
 import { Vec2 } from "../../../common/src/utils/vector";
 import { type Game } from "./game";
 
@@ -15,6 +17,8 @@ export class InputManager {
      * The distance between the mouse pointer and the screen center
      */
     mouseDistance = 0;
+
+    weaponToSwitch = "" as WeaponDefKey;
 
     /**
      * Gets if an input is down
@@ -44,6 +48,40 @@ export class InputManager {
                 -Math.cos(rotation)
             );
         });
+    }
+
+    inputPacket = new InputPacket();
+    ticker = 0;
+
+    update(dt: number): void {
+        this.ticker += dt;
+        const inputPacket = new InputPacket();
+        inputPacket.moveLeft = this.isInputDown("A");
+        inputPacket.moveRight = this.isInputDown("D");
+        inputPacket.moveDown = this.isInputDown("S");
+        inputPacket.moveUp = this.isInputDown("W");
+
+        inputPacket.mouseDown = this.isInputDown("Mouse0");
+
+        inputPacket.weaponToSwitch = this.weaponToSwitch;
+
+        for (const weapon of WeaponDefs) {
+            const def = WeaponDefs.typeToDef(weapon);
+            if (this.isInputDown(def.key) && weapon !== this.game.activePlayer?.activeWeapon) {
+                inputPacket.weaponToSwitch = weapon;
+                break;
+            }
+        }
+
+        inputPacket.direction = this.mouseDir;
+
+        if (inputPacket.didChange(this.inputPacket) || this.ticker > 0) {
+            this.ticker = 0;
+            this.game.sendPacket(inputPacket);
+        }
+
+        this.inputPacket = inputPacket;
+        this.weaponToSwitch = "" as WeaponDefKey;
     }
 
     private _mWheelStopTimer: number | undefined;

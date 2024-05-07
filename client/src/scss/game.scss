@@ -17,14 +17,25 @@
     display: flex;
     bottom: 0;
     width: 100vw;
+    background-color: rgba(255, 255, 255, 0.5);
+
 }
 
 #player-stats {
     margin: 5px;
     margin-top: auto;
+    width: 150px;
 
-    div {
-        font-size: 1.5em;
+    .stat-container {
+        display: flex;
+
+        div {
+            font-size: 1.5em;
+        }
+
+        .stat-value {
+            margin-left: auto;
+        }
     }
 }
 
@@ -41,7 +52,6 @@
         padding: 5px;
         height: 80px;
         width: 80px;
-        background-color: rgba(255, 255, 255, 0.5);
 
         border: 5px solid transparent;
 
@@ -49,15 +59,11 @@
             border: 5px solid black;
         }
 
-        .weapon-idx {
-            margin-left: 0
-        }
-
         img {
             margin: 5px;
             width: 80px;
             height: 48px;
-            transform: rotate(-35deg)
+            transform: rotate(-35deg);
         }
     }
 }
