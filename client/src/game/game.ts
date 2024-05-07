@@ -70,7 +70,9 @@ export class Game {
         // new Sprite("./game/img/player.svg")
 
         const promises: Array<ReturnType<typeof Assets["load"]>> = [];
-        const imgs = import.meta.glob("/public/game/img/**/*.svg");
+        const imgs: Record<string, { default: string }> = import.meta.glob("/public/game/img/**/*.svg", {
+            eager: true
+        });
 
         for (const file in imgs) {
             const path = file.split("/");
@@ -78,8 +80,8 @@ export class Game {
             const src = `.${file.replace("/public", "")}`;
 
             const promise = Assets.load({
-                alias: name,
-                src
+                alias: [name, src],
+                src: imgs[file].default.replace("/public", "")
             });
             promises.push(promise);
         }
