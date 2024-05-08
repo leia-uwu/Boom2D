@@ -109,7 +109,6 @@ export class AudioManager {
     position = Vec2.new(0, 0);
 
     constructor(public game: Game) {
-        this.loadSounds();
     }
 
     play(name: string, options?: Partial<SoundOptions>): GameSound {
@@ -145,7 +144,7 @@ export class AudioManager {
         // Load all mp3s from the sounds folder
         // and sets an alias with the file name
         // similar to how svgs are loaded
-        const sounds: Record<string, { default: string }> = import.meta.glob("/public/game/sounds/**/*.mp3", {
+        const sounds: Record<string, { default: string }> = import.meta.glob("/assets/sounds/**/*.mp3", {
             eager: true
         });
 
@@ -154,7 +153,7 @@ export class AudioManager {
         for (const sound in sounds) {
             const path = sound.split("/");
             const name = path[path.length - 1];
-            soundsToLoad[name] = sounds[sound].default.replace("/public", "");
+            soundsToLoad[name] = sounds[sound].default;
         }
         PixiSound.sound.add(soundsToLoad);
     }

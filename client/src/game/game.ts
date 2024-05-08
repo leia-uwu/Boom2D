@@ -20,6 +20,7 @@ import { WeaponDefs } from "../../../common/src/defs/weaponDefs";
 import { MapPacket } from "../../../common/src/packets/mapPacke";
 import { GameMap } from "./map";
 import { ExplosionManager } from "./explosion";
+import { ResourceManager } from "./resourceManager";
 
 export class Game {
     app: App;
@@ -38,6 +39,7 @@ export class Game {
 
     playerNames = new Map<number, string>();
 
+    resourceManager = new ResourceManager();
     ui = new GameUi(this);
     camera = new Camera(this);
     map = new GameMap(this);
@@ -50,11 +52,11 @@ export class Game {
     constructor(app: App) {
         this.app = app;
         this.pixi = app.pixi;
-        this.ui.setupUi();
     }
 
     async init(): Promise<void> {
         await this.loadAssets();
+        this.ui.setupUi();
         this.pixi.ticker.add(this.render.bind(this));
         this.pixi.renderer.on("resize", this.resize.bind(this));
         this.pixi.stage.addChild(this.camera.container);
@@ -62,31 +64,8 @@ export class Game {
     }
 
     async loadAssets(): Promise<void> {
-        // imports all svg assets from public dir
-        // and sets an alias with the file name
-        // so for example you can just do:
-        // new Sprite("player.svg")
-        // instead of:
-        // new Sprite("./game/img/player.svg")
-
-        const promises: Array<ReturnType<typeof Assets["load"]>> = [];
-        const imgs: Record<string, { default: string }> = import.meta.glob("/public/game/img/**/*.svg", {
-            eager: true
-        });
-
-        for (const file in imgs) {
-            const path = file.split("/");
-            const name = path[path.length - 1];
-            const src = `.${file.replace("/public", "")}`;
-
-            const promise = Assets.load({
-                alias: [name, src],
-                src: imgs[file].default.replace("/public", "")
-            });
-            promises.push(promise);
-        }
-
-        await Promise.all(promises);
+        this.audioManager.loadSounds();
+        await this.resourceManager.loadAssets();
     }
 
     connect(address: string): void {

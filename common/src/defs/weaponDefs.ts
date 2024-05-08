@@ -39,10 +39,10 @@ export const WeaponDefs = new DefinitionList({
         barrelLength: 2,
         barrelOffset: 0,
         inventoryImg: {
-            src: "./game/img/weapons/pistol.svg"
+            src: "pistol.svg"
         },
         worldImg: {
-            src: "./game/img/weapons/pistol-world.svg",
+            src: "pistol-world.svg",
             position: Vec2.new(90, 0)
         },
         sfx: {
@@ -64,10 +64,10 @@ export const WeaponDefs = new DefinitionList({
         barrelLength: 2.5,
         barrelOffset: 0,
         inventoryImg: {
-            src: "./game/img/weapons/shotgun.svg"
+            src: "shotgun.svg"
         },
         worldImg: {
-            src: "./game/img/weapons/shotgun-world.svg",
+            src: "shotgun-world.svg",
             position: Vec2.new(90, 0)
         },
         sfx: {
@@ -88,10 +88,10 @@ export const WeaponDefs = new DefinitionList({
         barrelLength: 3,
         barrelOffset: 0,
         inventoryImg: {
-            src: "./game/img/weapons/ak.svg"
+            src: "ak.svg"
         },
         worldImg: {
-            src: "./game/img/weapons/ak-world.svg",
+            src: "ak-world.svg",
             position: Vec2.new(90, 0)
         },
         sfx: {
@@ -112,10 +112,10 @@ export const WeaponDefs = new DefinitionList({
         spread: 0,
         barrelOffset: 0,
         inventoryImg: {
-            src: "./game/img/weapons/rocket-launcher.svg"
+            src: "rocket-launcher.svg"
         },
         worldImg: {
-            src: "./game/img/weapons/rocket-launcher-world.svg",
+            src: "rocket-launcher-world.svg",
             position: Vec2.new(70, 0)
         },
         sfx: {
@@ -136,10 +136,10 @@ export const WeaponDefs = new DefinitionList({
         barrelLength: 3.4,
         barrelOffset: 0,
         inventoryImg: {
-            src: "./game/img/weapons/plasma-rifle.svg"
+            src: "plasma-rifle.svg"
         },
         worldImg: {
-            src: "./game/img/weapons/plasma-rifle-world.svg",
+            src: "plasma-rifle-world.svg",
             position: Vec2.new(90, 0)
         },
         sfx: {

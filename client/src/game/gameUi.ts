@@ -50,7 +50,7 @@ export class GameUi {
 
             const img = document.createElement("img");
             img.draggable = false;
-            img.src = def.inventoryImg.src;
+            img.src = this.game.resourceManager.getImage(def.inventoryImg.src);
 
             container.appendChild(img);
             this.weaponsContainers[weapon] = container;
