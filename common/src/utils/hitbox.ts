@@ -1,5 +1,3 @@
-import { GameConstants } from "../constants";
-import { GameBitStream } from "../net";
 import { Collision, type CollisionResponse, type LineIntersection } from "./collision";
 import { MathUtils } from "./math";
 import { Vec2, type Vector } from "./vector";
@@ -45,52 +43,6 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
                 return new RectHitbox(data.min, data.max);
             case HitboxType.Polygon:
                 return new PolygonHitbox(data.verts, data.center);
-        }
-    }
-
-    static serialize(stream: GameBitStream, hitbox: Hitbox) {
-        stream.writeBits(hitbox.type, 2);
-
-        switch (hitbox.type) {
-            case HitboxType.Circle: {
-                stream.writeFloat(hitbox.radius, 0, GameConstants.maxPosition, 16);
-                stream.writePosition(hitbox.position);
-                break;
-            }
-            case HitboxType.Rect: {
-                stream.writePosition(hitbox.min);
-                stream.writePosition(hitbox.max);
-                break;
-            }
-            case HitboxType.Polygon: {
-                stream.writeArray(hitbox.verts, 16, point => {
-                    stream.writePosition(point);
-                });
-            }
-        }
-    }
-
-    static deserialize(stream: GameBitStream): Hitbox {
-        const type = stream.readBits(2) as HitboxType;
-
-        switch (type) {
-            case HitboxType.Circle: {
-                const radius = stream.readFloat(0, GameConstants.maxPosition, 16);
-                const position = stream.readPosition();
-                return new CircleHitbox(radius, position);
-            }
-            case HitboxType.Rect: {
-                const min = stream.readPosition();
-                const max = stream.readPosition();
-                return new RectHitbox(min, max);
-            }
-            case HitboxType.Polygon: {
-                const points: Vector[] = [];
-                stream.readArray(points, 16, () => {
-                    return stream.readPosition();
-                });
-                return new PolygonHitbox(points);
-            }
         }
     }
 

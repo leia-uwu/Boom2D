@@ -7,6 +7,7 @@ import { InputPacket } from "./packets/inputPacket";
 import { UpdatePacket } from "./packets/updatePacket";
 import { GameOverPacket } from "./packets/gameOverPacket";
 import { MapPacket } from "./packets/mapPacke";
+import { CircleHitbox, Hitbox, HitboxJSON, HitboxType, PolygonHitbox, RectHitbox } from "./utils/hitbox";
 
 export class GameBitStream extends BitStream {
     static alloc(size: number): GameBitStream {
@@ -221,6 +222,52 @@ export class GameBitStream extends BitStream {
     readAlignToNextByte(): void {
         const offset = 8 - this.index % 8;
         if (offset < 8) this.readBits(offset);
+    }
+
+    serializeHitbox(hitbox: Hitbox) {
+        this.writeUint8(hitbox.type);
+
+        switch (hitbox.type) {
+            case HitboxType.Circle: {
+                this.writeFloat(hitbox.radius, 0, GameConstants.maxPosition, 16);
+                this.writePosition(hitbox.position);
+                break;
+            }
+            case HitboxType.Rect: {
+                this.writePosition(hitbox.min);
+                this.writePosition(hitbox.max);
+                break;
+            }
+            case HitboxType.Polygon: {
+                this.writeArray(hitbox.verts, 16, point => {
+                    this.writePosition(point);
+                });
+            }
+        }
+    }
+
+    deserializeHitbox(): HitboxJSON {
+        const type = this.readUint8() as HitboxType;
+
+        switch (type) {
+            case HitboxType.Circle: {
+                const radius = this.readFloat(0, GameConstants.maxPosition, 16);
+                const position = this.readPosition();
+                return new CircleHitbox(radius, position).toJSON();
+            }
+            case HitboxType.Rect: {
+                const min = this.readPosition();
+                const max = this.readPosition();
+                return new RectHitbox(min, max).toJSON();
+            }
+            case HitboxType.Polygon: {
+                const points: Vector[] = [];
+                this.readArray(points, 16, () => {
+                    return this.readPosition();
+                });
+                return new PolygonHitbox(points).toJSON();
+            }
+        }
     }
 }
 

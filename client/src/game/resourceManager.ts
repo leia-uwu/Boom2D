@@ -1,7 +1,6 @@
 import { Assets } from "pixi.js";
 
 export class ResourceManager {
-
     private readonly _pathToSrc: Record<string, string> = {};
 
     getImage(path: string): string {
