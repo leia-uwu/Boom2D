@@ -54,7 +54,13 @@ export class GameMap extends BaseGameMap {
         for (const wall of this.walls) {
             wallCtx.beginPath();
             Helpers.drawHitbox(wallCtx, wall.hitbox);
-            wallCtx.fill("red");
+            wallCtx.fill("gray");
+            wallCtx.stroke({
+                color: 0,
+                width: 8,
+                cap: "round",
+                join: "round"
+            })
         }
     }
 }

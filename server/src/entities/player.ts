@@ -249,8 +249,8 @@ export class Player extends ServerEntity {
             }
         }
         for (const shot of this.game.shots) {
-            const player = this.game.grid.getById(shot.id)!;
-            if (rect.isPointInside(player.position)) {
+            const player = this.game.grid.getById(shot.id);
+            if (player && rect.isPointInside(player.position)) {
                 updatePacket.shots.push(shot);
             }
         }

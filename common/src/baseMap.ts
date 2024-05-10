@@ -20,6 +20,9 @@ interface GridCell {
     walls: Wall[]
 }
 
+/**
+ * This class manages map walls and floors
+ */
 export class BaseGameMap {
     width = 0;
     height = 0;
@@ -119,8 +122,8 @@ export class BaseGameMap {
      */
     private _roundToCells(vector: Vector): Vector {
         return {
-            x: MathUtils.clamp(Math.floor(vector.x / this.cellSize), 0, this.width),
-            y: MathUtils.clamp(Math.floor(vector.y / this.cellSize), 0, this.height)
+            x: MathUtils.clamp(Math.floor(vector.x / this.cellSize), 0, this.gridWidth),
+            y: MathUtils.clamp(Math.floor(vector.y / this.cellSize), 0, this.gridHeight)
         };
     }
 }
