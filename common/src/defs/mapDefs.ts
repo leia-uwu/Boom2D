@@ -1,14 +1,27 @@
+import { BaseWall } from "../baseMap";
 import { DefinitionList } from "../utils/definitionList";
+import { CircleHitbox, PolygonHitbox, RectHitbox } from "../utils/hitbox";
+import { Vec2 } from "../utils/vector";
 
 export interface MapDef {
     width: number
-    height: number
+    height: number,
+    walls: BaseWall[]
 }
 
 export const MapDefs = new DefinitionList({
     main: {
-        width: 80,
-        height: 80
+        width: 128,
+        height: 128,
+        walls: [
+            {
+                hitbox: new PolygonHitbox([
+                    Vec2.new(-10, -10),
+                    Vec2.new(10, 10),
+                    Vec2.new(11, 30),
+                ]).transform(Vec2.new(10, 10))
+            }
+        ]
     }
 } satisfies Record<string, MapDef>);
 

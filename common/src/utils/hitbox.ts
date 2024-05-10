@@ -297,14 +297,16 @@ export class PolygonHitbox extends BaseHitbox {
     }
 
     getIntersection(that: Hitbox): CollisionResponse {
-        if (that instanceof CircleHitbox) {
+        if (that.type === HitboxType.Circle) {
             return Collision.circlePolygonIntersection(that.position, that.radius, this.center, this.verts);
         }
         return null;
     }
 
-    override collidesWith(_that: Hitbox): boolean {
-        // TODO
+    override collidesWith(that: Hitbox): boolean {
+        if (that.type === HitboxType.Circle) {
+            return Collision.checkCirclePolygon(that.position, that.radius, this.verts);
+        }
         return false;
     }
 

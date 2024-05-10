@@ -436,7 +436,7 @@ export const Collision = {
 
         for (let i = 0; i < vertices.length; i++) {
             const v = vertices[i];
-            const distance = Vec2.distance(v, circleCenter);
+            const distance = Vec2.distanceSqrt(v, circleCenter);
 
             if (distance < minDistance) {
                 minDistance = distance;

@@ -79,7 +79,7 @@ export class BaseGameMap {
         this.gridHeight = Math.ceil(height / this.cellSize);
 
         this._resetGrid();
-
+        this.walls = [];
         for (const baseWall of walls) {
             const wall = new Wall(baseWall.hitbox);
             this.walls.push(wall);
