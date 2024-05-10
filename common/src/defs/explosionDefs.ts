@@ -1,4 +1,5 @@
 import { DefinitionList, ImgDefinition } from "../utils/definitionList";
+import { type ParticleDefKey } from "../../../client/src/game/particle";
 
 export interface ExplosionDef {
     radius: number
@@ -8,15 +9,8 @@ export interface ExplosionDef {
         animScale: number
     }
     particles?: {
+        type: ParticleDefKey
         amount: number
-        hue: {
-            min: number
-            max: number
-        }
-        speed: {
-            min: number
-            max: number
-        }
     }
     sound?: string
 }
@@ -32,15 +26,8 @@ export const ExplosionDefs = new DefinitionList({
             tint: 0xff0000
         },
         particles: {
+            type: "rocket_explosion",
             amount: 50,
-            hue: {
-                min: 0,
-                max: 25
-            },
-            speed: {
-                min: 5,
-                max: 10
-            }
         },
         sound: "rocket_explosion.mp3"
     },
@@ -54,15 +41,8 @@ export const ExplosionDefs = new DefinitionList({
             tint: 0x00ffff
         },
         particles: {
-            amount: 4,
-            hue: {
-                min: 160,
-                max: 200
-            },
-            speed: {
-                min: 2,
-                max: 5
-            }
+            type: "plasma_explosion",
+            amount: 4
         }
     }
 } satisfies Record<string, ExplosionDef>);

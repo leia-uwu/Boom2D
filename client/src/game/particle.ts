@@ -1,4 +1,4 @@
-import { type BLEND_MODES, Sprite, type TextureSourceLike, type ColorSource } from "pixi.js";
+import { type BLEND_MODES, Sprite, type TextureSourceLike, type ColorSource, Color } from "pixi.js";
 import { EasinFunctions, MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
@@ -10,17 +10,13 @@ export class ParticleManager {
 
     constructor(public game: Game) { }
 
-    spawnParticle(options: ParticleOptions): Particle {
-        const particle = new Particle(options);
+    addParticle(position: Vector, rotation: Vector, type: keyof typeof ParticleDefs) {
+        const def = ParticleDefs[type];
+
+        const particle = new Particle(position, rotation, def);
         this.game.camera.addObject(particle.sprite);
         this.particles.push(particle);
         return particle;
-    }
-
-    spawnParticles(amount: number, options: () => ParticleOptions) {
-        for (let i = 0; i < amount; i++) {
-            this.spawnParticle(options());
-        }
     }
 
     render(dt: number) {
@@ -56,9 +52,7 @@ type ParticleOption = (MinMax | {
     easing?: (t: number) => number
 };
 
-interface ParticleOptions {
-    /** Particle initial position */
-    position: Vector
+interface ParticleDef {
     /** Particle frame id */
     sprite: TextureSourceLike
     /** Particle sprite zIndex */
@@ -67,14 +61,14 @@ interface ParticleOptions {
     blendMode?: BLEND_MODES
     /** Particle Sprite tint */
     tint?: ColorSource
+    /** How many Particles to spawn */
+    amount: MinMax | number
     /** Particle life time in seconds */
     lifeTime: MinMax | number
     /** Particle rotation */
     rotation: ParticleOption
     /** Particle speed */
     speed: ParticleOption
-    /** Direction particle will move to */
-    direction: ParticleOption
     /** Particle scale */
     scale: ParticleOption
     /** Particle alpha */
@@ -101,13 +95,14 @@ function getMinMax(option: ParticleOption) {
     };
 }
 
-type ParticleInterpData = Omit<ParticleOptions, "position" | "sprite" | "lifeTime">;
+type ParticleInterpData = Omit<ParticleDef, | "sprite" | "lifeTime" | "amount">;
 
 class Particle {
     dead = false;
     tick = 0;
     end: number;
     position: Vector;
+    direction: Vector
 
     sprite: Sprite;
 
@@ -120,34 +115,35 @@ class Particle {
         }
     };
 
-    constructor(options: ParticleOptions) {
-        this.position = options.position;
+    constructor(position: Vector, direction: Vector, def: ParticleDef) {
+        this.position = position;
+        this.direction = direction;
 
-        this.sprite = Sprite.from(options.sprite);
+        this.sprite = Sprite.from(def.sprite);
         this.sprite.anchor.set(0.5);
 
-        if (options.zIndex) {
-            this.sprite.zIndex = options.zIndex;
+
+        if (def.zIndex) {
+            this.sprite.zIndex = def.zIndex;
         }
-        if (options.blendMode) {
-            this.sprite.blendMode = options.blendMode;
+        if (def.blendMode) {
+            this.sprite.blendMode = def.blendMode;
         }
-        if (options.tint) {
-            this.sprite.tint = options.tint;
+        if (def.tint) {
+            this.sprite.tint = def.tint;
         }
 
-        if (typeof options.lifeTime === "number") {
-            this.end = options.lifeTime;
+        if (typeof def.lifeTime === "number") {
+            this.end = def.lifeTime;
         } else {
-            this.end = Random.float(options.lifeTime.min, options.lifeTime.max);
+            this.end = Random.float(def.lifeTime.min, def.lifeTime.max);
         }
 
         this.data = {
-            rotation: getMinMax(options.rotation),
-            speed: getMinMax(options.speed),
-            direction: getMinMax(options.direction),
-            scale: getMinMax(options.scale),
-            alpha: getMinMax(options.alpha)
+            rotation: getMinMax(def.rotation),
+            speed: getMinMax(def.speed),
+            scale: getMinMax(def.scale),
+            alpha: getMinMax(def.alpha)
         };
     }
 
@@ -170,7 +166,7 @@ class Particle {
 
         this.position = Vec2.add(
             this.position,
-            Vec2.fromPolar(this.data.direction.value, this.data.speed.value * dt)
+            Vec2.mul(this.direction, this.data.speed.value * dt)
         );
         this.sprite.position = Camera.vecToScreen(this.position);
     }
@@ -179,3 +175,50 @@ class Particle {
         this.sprite.destroy();
     }
 }
+
+const ParticleDefs = {
+    rocket_trail: {
+        amount: 50,
+        lifeTime: { min: 0.5, max: 1 },
+        blendMode: "add",
+        zIndex: -1,
+        get tint() {
+            return new Color(`hsl(${Random.int(0, 25)}, 100%, 50%)`);
+        },
+        sprite: "glow-particle.svg",
+        rotation: { value: 0 },
+        alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
+        scale: { start: 2, end: 0 },
+        speed: { min: 2, max: 5 },
+    },
+    rocket_explosion: {
+        amount: 50,
+        lifeTime: { min: 0.5, max: 1 },
+        blendMode: "add",
+        zIndex: -1,
+        get tint() {
+            return new Color(`hsl(${Random.int(0, 25)}, 100%, 50%)`);
+        },
+        sprite: "glow-particle.svg",
+        rotation: { value: 0 },
+        alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
+        scale: { start: 2, end: 0 },
+        speed: { min: 5, max: 10 },
+    },
+    plasma_explosion: {
+        amount: { min: 3, max: 5 },
+        lifeTime: { min: 0.5, max: 1 },
+        blendMode: "add",
+        zIndex: -1,
+        get tint() {
+            return new Color(`hsl(${Random.int(160, 200)}, 100%, 50%)`);
+        },
+        sprite: "glow-particle.svg",
+        rotation: { value: 0 },
+        alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
+        scale: { start: 2, end: 0 },
+        speed: { min: 2, max: 5 },
+    }
+} satisfies Record<string, ParticleDef>;
+
+export type ParticleDefKey = keyof typeof ParticleDefs;

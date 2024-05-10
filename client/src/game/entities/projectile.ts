@@ -77,21 +77,14 @@ export class Projectile extends ClientEntity {
                 this.particleTicker = 0;
 
                 const rot = this.container.rotation - Math.PI;
-                this.game.particleManager.spawnParticles(particles.amount, () => {
-                    return {
-                        position: Vec2.add(this.position, Vec2.rotate(Vec2.new(particles.spawnOffset, 0), rot)),
-                        lifeTime: { min: 0.5, max: 1 },
-                        blendMode: "add",
-                        zIndex: -1,
-                        tint: new Color(`hsl(${Random.int(particles.hue.min, particles.hue.max)}, 100%, 50%)`),
-                        sprite: "glow-particle.svg",
-                        rotation: { value: 0 },
-                        alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
-                        scale: { start: 2, end: 0 },
-                        speed: particles.speed,
-                        direction: { min: rot - 0.2, max: rot + 0.2 }
-                    };
-                });
+
+                for (let i = 0; i < def.particles.amount; i++) {
+                    this.game.particleManager.addParticle(
+                        Vec2.add(this.position, Vec2.rotate(Vec2.new(particles.spawnOffset, 0), rot)),
+                        Vec2.fromPolar(Random.float(rot - 0.2, rot + 0.2)),
+                        def.particles.type
+                    );
+                }
             }
         }
 

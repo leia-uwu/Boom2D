@@ -1,5 +1,6 @@
 import { DefinitionList, ImgDefinition } from "../utils/definitionList";
 import { ExplosionDefKey } from "./explosionDefs";
+import { type ParticleDefKey } from "../../../client/src/game/particle";
 
 export interface ProjectileDef {
     radius: number
@@ -14,14 +15,7 @@ export interface ProjectileDef {
         spawnDelay: number
         spawnOffset: number
         amount: number
-        hue: {
-            min: number
-            max: number
-        }
-        speed: {
-            min: number
-            max: number
-        }
+        type: ParticleDefKey
     }
 }
 
@@ -53,16 +47,9 @@ export const ProjectileDefs = new DefinitionList({
         },
         particles: {
             spawnDelay: 0.01,
-            amount: 10,
             spawnOffset: 1.5,
-            hue: {
-                min: 0,
-                max: 25
-            },
-            speed: {
-                min: 2,
-                max: 5
-            }
+            amount: 10,
+            type: "rocket_trail"
         }
     }
 } satisfies Record<string, ProjectileDef>);

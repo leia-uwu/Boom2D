@@ -3,7 +3,6 @@ import { Game } from "./game/game";
 import { UiManager } from "./ui";
 import { Application } from "pixi.js";
 import { Helpers } from "./helpers";
-import * as PIXI from "pixi.js";
 
 export class App {
     uiManager = new UiManager(this);
@@ -31,8 +30,3 @@ const app = new App();
 (async() => {
     await app.init();
 })();
-
-window.__PIXI_DEVTOOLS__ = {
-    pixi: PIXI,
-    app: app.pixi
-};

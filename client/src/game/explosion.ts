@@ -1,8 +1,8 @@
-import { Color, Sprite } from "pixi.js";
+import { Sprite } from "pixi.js";
 import { ExplosionDef, ExplosionDefKey, ExplosionDefs } from "../../../common/src/defs/explosionDefs";
 import { Vector } from "../../../common/src/utils/vector";
 import { Game } from "./game";
-import { EasinFunctions, MathUtils } from "../../../common/src/utils/math";
+import { MathUtils } from "../../../common/src/utils/math";
 import { Camera } from "./camera";
 import { Random } from "../../../common/src/utils/random";
 import { Helpers } from "../helpers";
@@ -20,21 +20,9 @@ export class ExplosionManager {
         // spawn particles
         const def = ExplosionDefs.typeToDef(type) as ExplosionDef;
         if (def.particles) {
-            const p = def.particles;
-            this.game.particleManager.spawnParticles(p.amount, () => {
-                return {
-                    position: explosion.position,
-                    lifeTime: { min: 0.5, max: 1.5 },
-                    blendMode: "add",
-                    tint: new Color(`hsl(${Random.int(p.hue.min, p.hue.max)}, 100%, 50%)`),
-                    sprite: "glow-particle.svg",
-                    rotation: { value: 0 },
-                    alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
-                    scale: { start: 2, end: 0 },
-                    speed: p.speed,
-                    direction: { value: Random.float(-Math.PI, Math.PI) }
-                };
-            });
+            for (let i = 0; i < def.particles.amount; i++) {
+                this.game.particleManager.addParticle(position, Random.vector(-1, 1, -1, 1), def.particles.type);
+            }
         }
 
         if (def.sound) {
