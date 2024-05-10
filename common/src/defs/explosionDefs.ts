@@ -27,7 +27,7 @@ export const ExplosionDefs = new DefinitionList({
         },
         particles: {
             type: "rocket_explosion",
-            amount: 50,
+            amount: 50
         },
         sound: "rocket_explosion.mp3"
     },

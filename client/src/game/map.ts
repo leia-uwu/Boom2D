@@ -60,7 +60,7 @@ export class GameMap extends BaseGameMap {
                 width: 8,
                 cap: "round",
                 join: "round"
-            })
+            });
         }
     }
 }

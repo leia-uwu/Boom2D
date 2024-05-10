@@ -1,4 +1,4 @@
-import { Color, Sprite } from "pixi.js";
+import { Sprite } from "pixi.js";
 import { type Game } from "../game";
 import { ClientEntity } from "./entity";
 import { type EntitiesNetData } from "../../../../common/src/packets/updatePacket";
@@ -8,7 +8,6 @@ import { EntityType } from "../../../../common/src/constants";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
 import { ProjectileDef, ProjectileDefKey, ProjectileDefs } from "../../../../common/src/defs/projectileDefs";
 import { Random } from "../../../../common/src/utils/random";
-import { EasinFunctions } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
 
 export class Projectile extends ClientEntity {

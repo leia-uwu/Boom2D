@@ -102,7 +102,7 @@ class Particle {
     tick = 0;
     end: number;
     position: Vector;
-    direction: Vector
+    direction: Vector;
 
     sprite: Sprite;
 
@@ -121,7 +121,6 @@ class Particle {
 
         this.sprite = Sprite.from(def.sprite);
         this.sprite.anchor.set(0.5);
-
 
         if (def.zIndex) {
             this.sprite.zIndex = def.zIndex;
@@ -189,7 +188,7 @@ const ParticleDefs = {
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 2, end: 0 },
-        speed: { min: 2, max: 5 },
+        speed: { min: 2, max: 5 }
     },
     rocket_explosion: {
         amount: 50,
@@ -203,7 +202,7 @@ const ParticleDefs = {
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 2, end: 0 },
-        speed: { min: 5, max: 10 },
+        speed: { min: 5, max: 10 }
     },
     plasma_explosion: {
         amount: { min: 3, max: 5 },
@@ -217,7 +216,7 @@ const ParticleDefs = {
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 2, end: 0 },
-        speed: { min: 2, max: 5 },
+        speed: { min: 2, max: 5 }
     }
 } satisfies Record<string, ParticleDef>;
 
