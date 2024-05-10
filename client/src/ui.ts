@@ -1,15 +1,15 @@
 import { GameConstants } from "../../common/src/constants";
 import { ClientConfig } from "./config";
+import { Helpers } from "./helpers";
 import { type App } from "./main";
 import { settings } from "./settings";
-import { getElem } from "./utils";
 
 export class UiManager {
-    playButton = getElem<HTMLButtonElement>("#play-btn");
-    nameInput = getElem<HTMLInputElement>("#name-input");
-    serverSelect = getElem<HTMLSelectElement>("#server-selector");
-    homeDiv = getElem<HTMLDivElement>("#home");
-    gameDiv = getElem<HTMLDivElement>("#game");
+    playButton = Helpers.getElem<HTMLButtonElement>("#play-btn");
+    nameInput = Helpers.getElem<HTMLInputElement>("#name-input");
+    serverSelect = Helpers.getElem<HTMLSelectElement>("#server-selector");
+    homeDiv = Helpers.getElem<HTMLDivElement>("#home");
+    gameDiv = Helpers.getElem<HTMLDivElement>("#game");
 
     constructor(readonly app: App) {
         this.setupMainMenu();

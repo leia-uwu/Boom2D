@@ -6,7 +6,7 @@ import { Camera } from "../camera";
 import { EntityType } from "../../../../common/src/constants";
 import { BaseHitbox, Hitbox } from "../../../../common/src/utils/hitbox";
 import { ObstacleDefKey, ObstacleDefs } from "../../../../common/src/defs/obstacleDefs";
-import { spriteFromDef } from "../../utils";
+import { Helpers } from "../../helpers";
 
 export class Obstacle extends ClientEntity {
     readonly __type = EntityType.Obstacle;
@@ -31,7 +31,7 @@ export class Obstacle extends ClientEntity {
 
             this.hitbox = BaseHitbox.fromJSON(def.hitbox).transform(this.position, 0, 1);
 
-            spriteFromDef(this.sprite, def.img);
+            Helpers.spriteFromDef(this.sprite, def.img);
         }
     }
 

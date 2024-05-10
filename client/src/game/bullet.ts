@@ -47,7 +47,7 @@ export class ClientBullet extends BaseBullet {
     override tick(dt: number) {
         if (!this.dead) {
             super.tick(dt);
-            const collisions = this.checkCollisions(this.game.entities);
+            const collisions = this.checkCollisions(this.game.entities, this.game.map);
 
             for (const collision of collisions) {
                 this.dead = true;

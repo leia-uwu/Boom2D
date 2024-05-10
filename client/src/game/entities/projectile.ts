@@ -7,9 +7,9 @@ import { Camera } from "../camera";
 import { EntityType } from "../../../../common/src/constants";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
 import { ProjectileDef, ProjectileDefKey, ProjectileDefs } from "../../../../common/src/defs/projectileDefs";
-import { spriteFromDef } from "../../utils";
 import { Random } from "../../../../common/src/utils/random";
 import { EasinFunctions } from "../../../../common/src/utils/math";
+import { Helpers } from "../../helpers";
 
 export class Projectile extends ClientEntity {
     readonly __type = EntityType.Projectile;
@@ -53,7 +53,7 @@ export class Projectile extends ClientEntity {
             }
 
             this.hitbox = new CircleHitbox(def.radius);
-            spriteFromDef(this.sprite, def.img);
+            Helpers.spriteFromDef(this.sprite, def.img);
         }
         this.hitbox.position = data.position;
     }

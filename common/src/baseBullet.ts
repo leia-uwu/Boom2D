@@ -1,3 +1,4 @@
+import { BaseGameMap, Wall } from "./baseMap";
 import { EntityType } from "./constants";
 import { BulletDefKey, BulletDefs } from "./defs/bulletDefs";
 import { GameBitStream } from "./net";
@@ -59,13 +60,20 @@ export class BaseBullet implements BulletParams {
         }
     }
 
-    protected checkCollisions<T extends GameEntity>(entities: Iterable<T>) {
+    protected checkCollisions<T extends GameEntity>(entities: Iterable<T>, gameMap: BaseGameMap) {
         const collisions: Array<{
-            entity: T
+            entity?: T
+            wall?: Wall
             position: Vector
             normal: Vector
             distSquared: number
         }> = [];
+
+        if (this.position.x < 0 || this.position.y < 0
+            || this.position.x > gameMap.width || this.position.y > gameMap.height
+        ) {
+            return collisions;
+        }
 
         for (const entity of entities) {
             if (entity.id === this.shooterId) continue;
@@ -75,6 +83,20 @@ export class BaseBullet implements BulletParams {
             if (intersection) {
                 collisions.push({
                     entity,
+                    position: intersection.point,
+                    normal: intersection.normal,
+                    distSquared: Vec2.distanceSqrt(this.lastPosition, intersection.point)
+                });
+            }
+        }
+
+        const { walls } = gameMap.intersectLineSegment(this.lastPosition, this.position);
+
+        for (const wall of walls) {
+            const intersection = wall.hitbox.intersectsLine(this.lastPosition, this.position);
+            if (intersection) {
+                collisions.push({
+                    wall,
                     position: intersection.point,
                     normal: intersection.normal,
                     distSquared: Vec2.distanceSqrt(this.lastPosition, intersection.point)

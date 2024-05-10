@@ -67,6 +67,15 @@ export class Projectile extends ServerEntity {
                     (entity as Player).damage(Random.int(def.damage.min, def.damage.max), this.source);
                 }
                 this.dead = true;
+                break;
+            }
+        }
+
+        const { walls } = this.game.map.intersectsHitbox(this.hitbox);
+        for (const wall of walls) {
+            if (wall.hitbox.collidesWith(this.hitbox)) {
+                this.dead = true;
+                break;
             }
         }
 

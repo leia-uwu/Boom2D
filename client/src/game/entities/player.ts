@@ -7,7 +7,7 @@ import { Camera } from "../camera";
 import { EntityType, GameConstants } from "../../../../common/src/constants";
 import { WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
-import { spriteFromDef } from "../../utils";
+import { Helpers } from "../../helpers";
 
 export class Player extends ClientEntity {
     readonly __type = EntityType.Player;
@@ -78,7 +78,7 @@ export class Player extends ClientEntity {
         if (data.full) {
             this.activeWeapon = data.full.activeWeapon;
             const weaponDef = WeaponDefs.typeToDef(this.activeWeapon);
-            spriteFromDef(this.images.weapon, {
+            Helpers.spriteFromDef(this.images.weapon, {
                 zIndex: -1,
                 rotation: Math.PI / 2,
                 ...weaponDef.worldImg

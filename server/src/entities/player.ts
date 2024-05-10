@@ -152,6 +152,15 @@ export class Player extends ServerEntity {
             }
         }
 
+        const wallsAndFloors = this.game.map.intersectsHitbox(this.hitbox);
+
+        for (const wall of wallsAndFloors.walls) {
+            const collision = this.hitbox.getIntersection(wall.hitbox);
+            if (collision) {
+                this.position = Vec2.sub(this.position, Vec2.mul(collision.dir, collision.pen));
+            }
+        }
+
         const rad = this.hitbox.radius;
         this.position.x = MathUtils.clamp(this.position.x, rad, this.game.map.width - rad);
         this.position.y = MathUtils.clamp(this.position.y, rad, this.game.map.height - rad);

@@ -2,28 +2,28 @@ import { GameConstants } from "../../../common/src/constants";
 import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
 import { type GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
-import { getElem } from "../utils";
+import { Helpers } from "../helpers";
 import { type Game } from "./game";
 
 export class GameUi {
     constructor(public game: Game) { }
 
     health = 0;
-    healthDisplay = getElem("#player-health");
+    healthDisplay = Helpers.getElem("#player-health");
 
     armor = 0;
-    armorDisplay = getElem("#player-armor");
+    armorDisplay = Helpers.getElem("#player-armor");
 
     weapons = {} as Record<WeaponDefKey, boolean>;
-    weaponsContainer = getElem("#weapons-container");
+    weaponsContainer = Helpers.getElem("#weapons-container");
     weaponsContainers = {} as Record<WeaponDefKey, HTMLDivElement>;
 
-    playAgainButton = getElem("#play-again-btn");
-    gameOverScreen = getElem("#game-over-screen");
-    gameOverKills = getElem("#game-over-kill-count");
+    playAgainButton = Helpers.getElem("#play-again-btn");
+    gameOverScreen = Helpers.getElem("#game-over-screen");
+    gameOverKills = Helpers.getElem("#game-over-kill-count");
 
     ammo = {} as Record<typeof GameConstants["ammoTypes"][number], number>;
-    ammoContainer = getElem("#ammo-container");
+    ammoContainer = Helpers.getElem("#ammo-container");
     ammoContainers = {} as Record<typeof GameConstants["ammoTypes"][number], HTMLDivElement>;
 
     setupUi() {
@@ -32,7 +32,7 @@ export class GameUi {
             this.gameOverScreen.style.display = "none";
         });
 
-        getElem("#game-ui").addEventListener("contextmenu", e => {
+        Helpers.getElem("#game-ui").addEventListener("contextmenu", e => {
             e.preventDefault();
         });
 

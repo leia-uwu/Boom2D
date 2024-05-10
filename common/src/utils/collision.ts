@@ -307,11 +307,9 @@ export const Collision = {
         }
         const cpt = Vec2.new(
             MathUtils.clamp(pos.x, min.x, max.x),
-            MathUtils.clamp(pos.y, min.y, max.y)
-        );
-        let dir = Vec2.sub(pos, cpt);
+            MathUtils.clamp(pos.y, min.y, max.y));
 
-        dir = Vec2.sub(pos, cpt);
+        const dir = Vec2.sub(cpt, pos);
 
         const dstSqr = Vec2.lengthSqr(dir);
         if (dstSqr < radius * radius) {

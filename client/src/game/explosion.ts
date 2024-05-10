@@ -2,10 +2,10 @@ import { Color, Sprite } from "pixi.js";
 import { ExplosionDef, ExplosionDefKey, ExplosionDefs } from "../../../common/src/defs/explosionDefs";
 import { Vector } from "../../../common/src/utils/vector";
 import { Game } from "./game";
-import { spriteFromDef } from "../utils";
 import { EasinFunctions, MathUtils } from "../../../common/src/utils/math";
 import { Camera } from "./camera";
 import { Random } from "../../../common/src/utils/random";
+import { Helpers } from "../helpers";
 
 export class ExplosionManager {
     explosions: Explosion[] = [];
@@ -65,7 +65,7 @@ class Explosion {
 
     constructor(readonly type: ExplosionDefKey, readonly position: Vector) {
         const def = ExplosionDefs.typeToDef(this.type);
-        spriteFromDef(this.sprite, def.img);
+        Helpers.spriteFromDef(this.sprite, def.img);
         this.targetScale = Camera.unitToScreen(def.radius * def.img.animScale);
 
         this.sprite.scale.set(0);

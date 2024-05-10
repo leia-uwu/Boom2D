@@ -2,20 +2,24 @@ import { Graphics } from "pixi.js";
 import { Game } from "./game";
 import { Camera } from "./camera";
 import { MapPacket } from "../../../common/src/packets/mapPacke";
+import { BaseGameMap } from "../../../common/src/baseMap";
+import { Helpers } from "../helpers";
 
-export class GameMap {
+export class GameMap extends BaseGameMap {
     mapGraphics = new Graphics({
         zIndex: -99
     });
 
-    width = 0;
-    height = 0;
+    wallGraphics = new Graphics({
+        zIndex: 50
+    });
 
-    constructor(readonly game: Game) { }
+    constructor(readonly game: Game) {
+        super();
+    }
 
     updateFromPacket(packet: MapPacket) {
-        this.width = packet.width;
-        this.height = packet.height;
+        this.init(packet.width, packet.height, packet.walls);
         this.drawMap();
     }
 
@@ -42,5 +46,15 @@ export class GameMap {
             alpha: 0.1,
             width: 2
         });
+
+        const wallCtx = this.wallGraphics;
+        wallCtx.clear();
+        this.game.camera.addObject(wallCtx);
+
+        for (const wall of this.walls) {
+            wallCtx.beginPath();
+            Helpers.drawHitbox(wallCtx, wall.hitbox);
+            wallCtx.fill("red");
+        }
     }
 }

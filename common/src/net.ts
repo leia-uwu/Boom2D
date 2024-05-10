@@ -7,7 +7,7 @@ import { InputPacket } from "./packets/inputPacket";
 import { UpdatePacket } from "./packets/updatePacket";
 import { GameOverPacket } from "./packets/gameOverPacket";
 import { MapPacket } from "./packets/mapPacke";
-import { CircleHitbox, Hitbox, HitboxJSON, HitboxType, PolygonHitbox, RectHitbox } from "./utils/hitbox";
+import { CircleHitbox, HitboxJSON, HitboxType, PolygonHitbox, RectHitbox } from "./utils/hitbox";
 
 export class GameBitStream extends BitStream {
     static alloc(size: number): GameBitStream {
@@ -224,8 +224,8 @@ export class GameBitStream extends BitStream {
         if (offset < 8) this.readBits(offset);
     }
 
-    serializeHitbox(hitbox: Hitbox) {
-        this.writeUint8(hitbox.type);
+    writeHitbox(hitbox: HitboxJSON) {
+        this.writeBits(hitbox.type, 2);
 
         switch (hitbox.type) {
             case HitboxType.Circle: {
@@ -246,8 +246,8 @@ export class GameBitStream extends BitStream {
         }
     }
 
-    deserializeHitbox(): HitboxJSON {
-        const type = this.readUint8() as HitboxType;
+    readHitbox(): HitboxJSON {
+        const type = this.readBits(2) as HitboxType;
 
         switch (type) {
             case HitboxType.Circle: {

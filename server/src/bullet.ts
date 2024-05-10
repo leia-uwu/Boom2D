@@ -40,11 +40,18 @@ export class ServerBullet extends BaseBullet {
     override tick(dt: number) {
         super.tick(dt);
 
+        if (this.position.x < 0 || this.position.y < 0
+            || this.position.x > this.game.map.width || this.position.y > this.game.map.height
+        ) {
+            this.dead = true;
+            return;
+        }
+
         const def = BulletDefs.typeToDef(this.type);
 
         const objs = this.game.grid.intersectLineSegment(this.lastPosition, this.position);
 
-        const collisions = this.checkCollisions(objs);
+        const collisions = this.checkCollisions(objs, this.game.map);
 
         for (const collision of collisions) {
             const { entity, position } = collision;

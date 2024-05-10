@@ -57,6 +57,19 @@ export class WeaponManager {
             }
         }
 
+        const { walls } = game.map.intersectLineSegment(gunStartPos, gunEndPos);
+
+        for (const wall of walls) {
+            const intersection = wall.hitbox.intersectsLine(gunStartPos, gunEndPos);
+            if (intersection) {
+                const intersectionDist = Vec2.distanceSqrt(gunStartPos, intersection.point);
+                if (intersectionDist < dist) {
+                    finalGunPos = intersection.point;
+                    dist = intersectionDist;
+                }
+            }
+        }
+
         if (weaponDef.bulletType) {
             const jitter = weaponDef.jitterRadius ?? 0;
 

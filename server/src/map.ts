@@ -1,28 +1,33 @@
+import { BaseGameMap, BaseWall } from "../../common/src/baseMap";
 import { MapDefKey, MapDefs } from "../../common/src/defs/mapDefs";
 import { PacketStream } from "../../common/src/net";
 import { MapPacket } from "../../common/src/packets/mapPacke";
-import { Random } from "../../common/src/utils/random";
-import { Obstacle } from "./entities/obstacle";
+import { CircleHitbox, RectHitbox } from "../../common/src/utils/hitbox";
+import { Vec2 } from "../../common/src/utils/vector";
 import { Game } from "./game";
 
-export class GameMap {
-    readonly width: number;
-    readonly height: number;
+export class GameMap extends BaseGameMap {
     serializedData = new PacketStream(new ArrayBuffer(1 << 14));
 
     constructor(readonly game: Game, readonly name: MapDefKey) {
+        super();
         const def = MapDefs.typeToDef(name);
-        this.width = def.width;
-        this.height = def.height;
 
-        for (let i = 0; i < 100; i++) {
-            const obstacle = new Obstacle(this.game, Random.vector(0, this.width, 0, this.height), "barrel");
-            this.game.grid.addEntity(obstacle);
-        }
+        const walls: BaseWall[] = [
+            {
+                hitbox: new CircleHitbox(5, Vec2.new(50, 50))
+            },
+            {
+                hitbox: RectHitbox.fromRect(10, 10, Vec2.new(10, 10))
+            }
+        ];
+
+        this.init(def.width, def.height, walls);
 
         const packet = new MapPacket();
         packet.width = this.width;
         packet.height = this.height;
+        packet.walls = walls;
 
         this.serializedData.serializeServerPacket(packet);
     }
