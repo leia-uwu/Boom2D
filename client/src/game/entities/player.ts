@@ -1,4 +1,4 @@
-import { Container, Sprite, Text } from "pixi.js";
+import { Container, Sprite, Text, Texture } from "pixi.js";
 import { type Game } from "../game";
 import { ClientEntity } from "./entity";
 import { type EntitiesNetData } from "../../../../common/src/packets/updatePacket";
@@ -8,6 +8,8 @@ import { EntityType, GameConstants } from "../../../../common/src/constants";
 import { WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
 import { Helpers } from "../../helpers";
+import { Random } from "../../../../common/src/utils/random";
+import { MathUtils } from "../../../../common/src/utils/math";
 
 export class Player extends ClientEntity {
     readonly __type = EntityType.Player;
@@ -20,7 +22,8 @@ export class Player extends ClientEntity {
         base: Sprite.from("player-base.svg"),
         leftFist: Sprite.from("player-fist.svg"),
         rightFist: Sprite.from("player-fist.svg"),
-        weapon: new Sprite()
+        weapon: new Sprite(),
+        muzzle: new Sprite()
     };
 
     // container for stuff that doesn't rotate
@@ -38,6 +41,8 @@ export class Player extends ClientEntity {
     direction = Vec2.new(0, 0);
     oldDirection = Vec2.new(0, 0);
 
+    muzzleTicker = 0;
+
     constructor(game: Game, id: number) {
         super(game, id);
 
@@ -50,7 +55,12 @@ export class Player extends ClientEntity {
         this.images.leftFist.position.set(48, 48);
         this.images.rightFist.position.set(48, -48);
 
+        this.images.muzzle.rotation = Math.PI / 2;
+        this.images.muzzle.zIndex = -2;
+        this.images.muzzle.anchor.y = 1;
+
         this.container.zIndex = 2;
+
         this.nameText.anchor.set(0.5);
 
         this.staticContainer.zIndex = 3;
@@ -105,6 +115,23 @@ export class Player extends ClientEntity {
 
         const direction = Vec2.lerp(this.oldDirection, this.direction, this.interpolationFactor);
         this.container.rotation = Math.atan2(direction.y, direction.x);
+
+        this.muzzleTicker -= dt;
+        this.images.muzzle.alpha = MathUtils.lerp(0, 1, this.muzzleTicker / 0.2);
+    }
+
+    shootEffect(weapon: WeaponDefKey): void {
+        const def = WeaponDefs.typeToDef(weapon);
+
+        this.game.audioManager.play(def.sfx.shoot, {
+            position: this.position,
+            maxRange: 96
+        });
+        const pos = Vec2.new(def.barrelLength, 0);
+        const muzzle = this.images.muzzle;
+        this.muzzleTicker = 0.2;
+        muzzle.texture = Texture.from(def.muzzleImgs[Random.int(0, def.muzzleImgs.length - 1)]);
+        muzzle.position = Camera.vecToScreen(pos);
     }
 
     override destroy(): void {

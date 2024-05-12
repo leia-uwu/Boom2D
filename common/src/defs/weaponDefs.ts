@@ -18,6 +18,7 @@ export interface GunDef {
     spread: number
     inventoryImg: ImgDefinition
     worldImg: ImgDefinition
+    muzzleImgs: string[]
     leftFistPos: Vector
     barrelLength: number
     barrelOffset: number
@@ -36,7 +37,7 @@ export const WeaponDefs = new DefinitionList({
         bulletType: "pistol_bullet",
         bulletCount: 1,
         spread: 6,
-        barrelLength: 2,
+        barrelLength: 2.2,
         barrelOffset: 0,
         inventoryImg: {
             src: "pistol.svg"
@@ -45,6 +46,7 @@ export const WeaponDefs = new DefinitionList({
             src: "pistol-world.svg",
             position: Vec2.new(90, 0)
         },
+        muzzleImgs: ["muzzle-01.svg", "muzzle-02.svg"],
         sfx: {
             shoot: "pistol-fire.mp3"
         },
@@ -61,7 +63,7 @@ export const WeaponDefs = new DefinitionList({
         bulletCount: 7,
         jitterRadius: 0.3,
         spread: 10,
-        barrelLength: 2.5,
+        barrelLength: 2.6,
         barrelOffset: 0,
         inventoryImg: {
             src: "shotgun.svg"
@@ -70,6 +72,7 @@ export const WeaponDefs = new DefinitionList({
             src: "shotgun-world.svg",
             position: Vec2.new(90, 0)
         },
+        muzzleImgs: ["muzzle-01.svg", "muzzle-02.svg"],
         sfx: {
             shoot: "shotgun-fire.mp3"
         },
@@ -94,6 +97,7 @@ export const WeaponDefs = new DefinitionList({
             src: "ak-world.svg",
             position: Vec2.new(90, 0)
         },
+        muzzleImgs: ["muzzle-01.svg", "muzzle-02.svg"],
         sfx: {
             shoot: "ak-fire.mp3"
         },
@@ -108,7 +112,7 @@ export const WeaponDefs = new DefinitionList({
         switchDelay: 0.5,
         bulletCount: 1,
         projectileType: "rocket",
-        barrelLength: 3.4,
+        barrelLength: 2.8,
         spread: 0,
         barrelOffset: 0,
         inventoryImg: {
@@ -118,6 +122,7 @@ export const WeaponDefs = new DefinitionList({
             src: "rocket-launcher-world.svg",
             position: Vec2.new(70, 0)
         },
+        muzzleImgs: ["muzzle-02.svg"],
         sfx: {
             shoot: "rocket-launcher-fire.mp3"
         },
@@ -133,7 +138,7 @@ export const WeaponDefs = new DefinitionList({
         projectileType: "plasma",
         bulletCount: 1,
         spread: 0,
-        barrelLength: 3.4,
+        barrelLength: 3.1,
         barrelOffset: 0,
         inventoryImg: {
             src: "plasma-rifle.svg"
@@ -142,6 +147,7 @@ export const WeaponDefs = new DefinitionList({
             src: "plasma-rifle-world.svg",
             position: Vec2.new(90, 0)
         },
+        muzzleImgs: ["muzzle-01.svg", "muzzle-02.svg"],
         sfx: {
             shoot: "plasma-fire.mp3"
         },

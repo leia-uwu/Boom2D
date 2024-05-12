@@ -4,14 +4,17 @@ import { Vector } from "./utils/vector";
 
 export interface BaseWall {
     hitbox: HitboxJSON
+    color: number
 }
 
 export class Wall {
     hitbox: Hitbox;
+    color: number;
     // cache rectangle bounds
     rect: RectHitbox;
-    constructor(hitbox: HitboxJSON) {
-        this.hitbox = BaseHitbox.fromJSON(hitbox);
+    constructor(wall: BaseWall) {
+        this.hitbox = BaseHitbox.fromJSON(wall.hitbox);
+        this.color = wall.color;
         this.rect = this.hitbox.toRectangle();
     }
 }
@@ -84,7 +87,7 @@ export class BaseGameMap {
         this._resetGrid();
         this.walls = [];
         for (const baseWall of walls) {
-            const wall = new Wall(baseWall.hitbox);
+            const wall = new Wall(baseWall);
             this.walls.push(wall);
             this._addWall(wall);
         }

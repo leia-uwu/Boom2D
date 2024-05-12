@@ -16,7 +16,6 @@ import { AudioManager } from "./audioManager";
 import { EntityType } from "../../../common/src/constants";
 import { Obstacle } from "./entities/obstacle";
 import { BulletManager } from "./bullet";
-import { WeaponDefs } from "../../../common/src/defs/weaponDefs";
 import { MapPacket } from "../../../common/src/packets/mapPacke";
 import { GameMap } from "./map";
 import { ExplosionManager } from "./explosion";
@@ -210,12 +209,8 @@ export class Game {
 
         for (const shot of packet.shots) {
             const player = this.entities.get(shot.id);
-            if (!player) continue;
-            const def = WeaponDefs.typeToDef(shot.weapon);
-            this.audioManager.play(def.sfx.shoot, {
-                position: player.position,
-                maxRange: 96
-            });
+            if (!(player instanceof Player)) continue;
+            player.shootEffect(shot.weapon);
         }
     }
 

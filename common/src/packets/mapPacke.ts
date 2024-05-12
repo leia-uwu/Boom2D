@@ -12,6 +12,7 @@ export class MapPacket implements Packet {
 
         stream.writeArray(this.walls, 16, wall => {
             stream.writeHitbox(wall.hitbox);
+            stream.writeBits(wall.color, 24);
         });
     }
 
@@ -21,7 +22,8 @@ export class MapPacket implements Packet {
 
         stream.readArray(this.walls, 16, () => {
             return {
-                hitbox: stream.readHitbox()
+                hitbox: stream.readHitbox(),
+                color: stream.readBits(24)
             };
         });
     }

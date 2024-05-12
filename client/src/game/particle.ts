@@ -61,8 +61,6 @@ interface ParticleDef {
     blendMode?: BLEND_MODES
     /** Particle Sprite tint */
     tint?: ColorSource
-    /** How many Particles to spawn */
-    amount: MinMax | number
     /** Particle life time in seconds */
     lifeTime: MinMax | number
     /** Particle rotation */
@@ -95,7 +93,7 @@ function getMinMax(option: ParticleOption) {
     };
 }
 
-type ParticleInterpData = Omit<ParticleDef, | "sprite" | "lifeTime" | "amount">;
+type ParticleInterpData = Omit<ParticleDef, | "sprite" | "lifeTime">;
 
 class Particle {
     dead = false;
@@ -177,7 +175,6 @@ class Particle {
 
 const ParticleDefs = {
     rocket_trail: {
-        amount: 50,
         lifeTime: { min: 0.5, max: 1 },
         blendMode: "add",
         zIndex: -1,
@@ -191,7 +188,6 @@ const ParticleDefs = {
         speed: { min: 2, max: 5 }
     },
     rocket_explosion: {
-        amount: 50,
         lifeTime: { min: 0.5, max: 1 },
         blendMode: "add",
         zIndex: -1,
@@ -201,11 +197,10 @@ const ParticleDefs = {
         sprite: "glow-particle.svg",
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
-        scale: { start: 2, end: 0 },
+        scale: { start: 6, end: 0 },
         speed: { min: 5, max: 10 }
     },
     plasma_explosion: {
-        amount: { min: 3, max: 5 },
         lifeTime: { min: 0.5, max: 1 },
         blendMode: "add",
         zIndex: -1,

@@ -1,6 +1,6 @@
 import { BaseWall } from "../baseMap";
 import { DefinitionList } from "../utils/definitionList";
-import { PolygonHitbox } from "../utils/hitbox";
+import { CircleHitbox, PolygonHitbox } from "../utils/hitbox";
 import { Vec2 } from "../utils/vector";
 
 export interface MapDef {
@@ -18,8 +18,13 @@ export const MapDefs = new DefinitionList({
                 hitbox: new PolygonHitbox([
                     Vec2.new(-10, -10),
                     Vec2.new(10, 10),
-                    Vec2.new(11, 30)
-                ]).transform(Vec2.new(10, 10))
+                    Vec2.new(10, 30)
+                ]).transform(Vec2.new(11, 11)),
+                color: 0x474747
+            },
+            {
+                hitbox: new CircleHitbox(5, Vec2.new(50, 50)),
+                color: 0xff0000
             }
         ]
     }
