@@ -30,9 +30,6 @@ export class WeaponManager {
         this.player.ammo[weaponDef.ammo] -= weaponDef.ammoPerShot;
         this.player.dirty.ammo = true;
 
-        this.stateTicker = weaponDef.fireDelay;
-        this.state = WeaponState.Firing;
-
         const dir = this.player.direction;
 
         const gunStartPos = this.player.position;
@@ -109,7 +106,9 @@ export class WeaponManager {
     tick(dt: number) {
         if (this.stateTicker > 0) {
             this.stateTicker -= dt;
-        } else {
+        }
+
+        if (this.stateTicker <= 0) {
             this.state = WeaponState.Idle;
         }
 
@@ -124,6 +123,8 @@ export class WeaponManager {
         }
 
         if (this.player.mouseDown && this.state === WeaponState.Idle) {
+            this.stateTicker = this.getCurrentWeapDef().fireDelay;
+            this.state = WeaponState.Firing;
             this.fireGun();
         }
     }

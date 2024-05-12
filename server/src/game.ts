@@ -29,8 +29,6 @@ export class Game {
 
     map: GameMap;
 
-    mapDirty = false;
-
     idAllocator = new IDAllocator(16);
 
     now = Date.now();
@@ -99,6 +97,5 @@ export class Game {
         this.bulletManager.newBullets.length = 0;
         this.explosionManager.explosions.length = 0;
         this.shots.length = 0;
-        this.mapDirty = false;
     }
 }
