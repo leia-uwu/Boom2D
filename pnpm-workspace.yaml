@@ -1,5 +1,0 @@
-packages:
-  - 'server/'
-  - 'common/'
-  - 'client/'
-  - '!**dist/**'

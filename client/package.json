@@ -1,4 +1,5 @@
 {
+    "name": "Boom2D Client",
     "private": true,
     "type": "module",
     "scripts": {
