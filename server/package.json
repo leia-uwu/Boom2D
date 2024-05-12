@@ -3,19 +3,14 @@
     "main": "src/server.ts",
     "scripts": {
         "build": "tsc",
-        "start": "node dist/server/src/server.js",
-        "dev": "node -r ts-node/register --watch --watch-path=./src --watch-path=../common src/server.ts"
+        "start": "bun src/server.ts",
+        "dev": "bun --watch src/server.ts"
     },
     "devDependencies": {
-        "@types/nanotimer": "^0.3.2",
-        "@types/node": "^20.12.7",
-        "@types/ws": "^8.5.10",
-        "ts-node": "^10.9.2",
+        "@types/bun": "^1.1.1",
         "typescript": "^5.4.5"
     },
     "dependencies": {
-        "bit-buffer": "^0.2.5",
-        "nanotimer": "^0.3.15",
-        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.32.0"
+        "bit-buffer": "^0.2.5"
     }
 }

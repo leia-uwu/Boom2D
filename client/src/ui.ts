@@ -1,3 +1,4 @@
+import { ServerInfo } from "../../common/src/apiTypings";
 import { GameConstants } from "../../common/src/constants";
 import { ClientConfig } from "./config";
 import { Helpers } from "./helpers";
@@ -52,7 +53,7 @@ export class UiManager {
             option.innerText = server.name;
 
             fetch(`http${server.https ? "s" : ""}://${server.address}/server_info`).then(async res => {
-                const data = await res.json();
+                const data = await res.json() as ServerInfo;
                 option.innerText = `${server.name} - ${data.playerCount} Players`;
             }).catch(err => {
                 console.error(`Failed to fetch server info for region ${server.name}: ${err}`);

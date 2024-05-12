@@ -1,11 +1,10 @@
-import { type WebSocket } from "uWebSockets.js";
+import { ServerWebSocket } from "bun";
 import { Player } from "./entities/player";
 import { type PlayerData } from "./server";
 import { type ServerEntity } from "./entities/entity";
 import { Grid } from "./grid";
 import { EntityPool } from "../../common/src/utils/entityPool";
 import { GameConstants } from "../../common/src/constants";
-import NanoTimer from "nanotimer";
 import { type ServerConfig } from "./config";
 import { Shot } from "../../common/src/packets/updatePacket";
 import { IDAllocator } from "./idAllocator";
@@ -36,16 +35,15 @@ export class Game {
 
     now = Date.now();
 
-    timer = new NanoTimer();
+    timer: Timer;
 
     constructor(config: ServerConfig) {
         this.map = new GameMap(this, config.map);
-        this.timer.setInterval(this.tick.bind(this), "", `${1000 / config.tps}m`);
+        this.timer = setInterval(this.tick.bind(this), 1000 / config.tps);
     }
 
-    addPlayer(socket: WebSocket<PlayerData>): Player {
+    addPlayer(socket: ServerWebSocket<PlayerData>): Player {
         const player = new Player(this, socket);
-        this.newPlayers.push(player);
         return player;
     }
 

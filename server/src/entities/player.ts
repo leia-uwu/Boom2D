@@ -1,4 +1,4 @@
-import { type WebSocket } from "uWebSockets.js";
+import { ServerWebSocket } from "bun";
 import { ServerEntity } from "./entity";
 import { type PlayerData } from "../server";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
@@ -20,7 +20,7 @@ export class Player extends ServerEntity {
     readonly __type = EntityType.Player;
     readonly hitbox = new CircleHitbox(GameConstants.player.radius);
 
-    socket: WebSocket<PlayerData>;
+    socket: ServerWebSocket<PlayerData>;
     name = "";
 
     direction = Vec2.new(0, 0);
@@ -117,7 +117,7 @@ export class Player extends ServerEntity {
         this._position = pos;
     }
 
-    constructor(game: Game, socket: WebSocket<PlayerData>) {
+    constructor(game: Game, socket: ServerWebSocket<PlayerData>) {
         const pos = Random.vector(0, game.map.width, 0, game.map.height);
         super(game, pos);
         this.position = pos;
@@ -283,7 +283,7 @@ export class Player extends ServerEntity {
 
     sendData(data: ArrayBuffer): void {
         try {
-            this.socket.send(data, true, false);
+            this.socket.sendBinary(data);
         } catch (error) {
             console.error("Error sending data:", error);
         }
@@ -293,7 +293,6 @@ export class Player extends ServerEntity {
         const packetStream = new PacketStream(message);
 
         const packet = packetStream.deserializeClientPacket();
-
         if (packet === undefined) return;
 
         switch (true) {
@@ -311,9 +310,10 @@ export class Player extends ServerEntity {
     join(packet: JoinPacket): void {
         this.name = packet.name.trim();
         if (!this.name) this.name = GameConstants.player.defaultName;
+        this.socket.data.joined = true;
 
-        this.socket.getUserData().joined = true;
         this.game.players.add(this);
+        this.game.newPlayers.push(this);
         this.game.grid.addEntity(this);
 
         console.log(`"${this.name}" joined the game`);
