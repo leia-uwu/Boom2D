@@ -1,13 +1,14 @@
 @font-face {
-    font-family: "Russo One";
+    font-family: "Rubik Mono One";
     font-display: swap;
-    src: url("../../fonts/RussoOne-Regular.ttf") format("truetype");
+    src: url("../../fonts/RubikMonoOne-Regular.ttf") format("truetype");
 }
+
 
 @import "./home.scss";
 @import "./game.scss";
 
 * {
-    font-family: "Russo One";
+    font-family: "Rubik Mono One";
     font-size: 1rem;
 }

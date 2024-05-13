@@ -24,13 +24,13 @@
 #player-stats {
     margin: 5px;
     margin-top: auto;
-    width: 150px;
+    width: 180px;
 
     .stat-container {
         display: flex;
 
         div {
-            font-size: 1.5em;
+            font-size: 1.2em;
         }
 
         .stat-value {
@@ -74,12 +74,12 @@
     margin-left: auto;
 
     div {
-        font-size: 1.1em;
+        font-size: 1em;
     }
 
     .ammo {
         display: flex;
-        width: 120px;
+        width: 150px;
 
         .ammo-amount {
             text-align: right;

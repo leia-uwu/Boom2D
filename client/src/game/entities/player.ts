@@ -33,8 +33,8 @@ export class Player extends ClientEntity {
         style: {
             align: "center",
             fill: "white",
-            fontFamily: "Russo One",
-            fontSize: 40
+            fontFamily: "Rubik Mono One",
+            fontSize: 36
         }
     });
 
