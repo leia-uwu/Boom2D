@@ -8,7 +8,7 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "strict": true,
+    "strict": true
   },
   "include": [
     "common/src/**/*.ts",

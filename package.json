@@ -1,26 +1,30 @@
 {
-    "name": "Boom2D",
-    "version": "0.0.1",
-    "description": "2D DeathMatch game inspired by surviv.io and Doom",
-    "scripts": {
-        "lint": "eslint . --fix",
-        "lint:ci": "eslint . --max-warnings 0",
-        "dev:client": "cd client && bun dev",
-        "dev:server": "cd server && bun dev"
-    },
-    "workspaces": ["common", "client", "server"],
-    "keywords": [],
-    "author": {
-        "name": "Leia",
-        "email": "leia@tutamail.com"
-    },
-    "license": "GPL-3.0",
-    "devDependencies": {
-        "@eslint/js": "^9.2.0",
-        "@stylistic/eslint-plugin": "^1.8.1",
-        "@types/node": "^20.12.11",
-        "eslint": "^9.2.0",
-        "typescript": "^5.4.5",
-        "typescript-eslint": "^7.8.0"
-    }
+  "name": "Boom2D",
+  "version": "0.0.1",
+  "description": "2D DeathMatch game inspired by surviv.io and Doom",
+  "scripts": {
+    "lint": "eslint . --fix",
+    "lint:ci": "eslint . --max-warnings 0",
+    "dev:client": "cd client && bun dev",
+    "dev:server": "cd server && bun dev"
+  },
+  "workspaces": [
+    "common",
+    "client",
+    "server"
+  ],
+  "keywords": [],
+  "author": {
+    "name": "Leia",
+    "email": "leia@tutamail.com"
+  },
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@eslint/js": "^9.2.0",
+    "@stylistic/eslint-plugin": "^1.8.1",
+    "@types/node": "^20.12.11",
+    "eslint": "^9.2.0",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.8.0"
+  }
 }

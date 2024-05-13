@@ -1,17 +1,17 @@
 {
-    "name": "Boom2D Server",
-    "private": true,
-    "main": "src/server.ts",
-    "scripts": {
-        "build": "bun build src/server.ts --minify --minify-syntax --minify-whitespace --minify-identifiers --outdir=dist --outfile=server.js",
-        "start": "bun dist/server.js",
-        "dev": "bun --watch src/server.ts"
-    },
-    "devDependencies": {
-        "@types/bun": "^1.1.1",
-        "typescript": "^5.4.5"
-    },
-    "dependencies": {
-        "bit-buffer": "^0.2.5"
-    }
+  "name": "Boom2D Server",
+  "private": true,
+  "main": "src/server.ts",
+  "scripts": {
+    "build": "bun build src/server.ts --minify --minify-syntax --minify-whitespace --minify-identifiers --outdir=dist --outfile=server.js",
+    "start": "bun dist/server.js",
+    "dev": "bun --watch src/server.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.1",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "bit-buffer": "^0.2.5"
+  }
 }

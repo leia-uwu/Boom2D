@@ -1,27 +1,19 @@
 {
-    "compilerOptions": {
-        "lib": [
-            "DOM",
-            "ESNext"
-        ],
-        "target": "ESNext",
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
-        "outDir": "./dist",
-        "newLine": "lf",
-        "allowSyntheticDefaultImports": true,
-        "useDefineForClassFields": true,
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "allowJs": true,
-        "checkJs": true,
-        "strict": true,
-        "types": [
-            "vite/client"
-        ]
-    },
-    "include": [
-        "src",
-        "../common/src"
-    ]
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "outDir": "./dist",
+    "newLine": "lf",
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "../common/src"]
 }
