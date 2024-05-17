@@ -2,7 +2,7 @@ export const ClientConfig: ClientConfigType = {
     servers: {
         local: {
             name: "Local",
-            address: "localhost:8000",
+            address: "127.0.0.1:8000",
             https: false
         }
     },

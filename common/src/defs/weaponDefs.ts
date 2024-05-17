@@ -1,13 +1,14 @@
-import { GameConstants } from "../constants";
+import { type AmmoType } from "../constants";
 import { DefinitionList, ImgDefinition } from "../utils/definitionList";
 import { Vec2, Vector } from "../utils/vector";
 import { type BulletDefKey } from "./bulletDefs";
+import { type BaseLootDef } from "./lootDefs";
 import { ProjectileDefKey } from "./projectileDefs";
 
-export interface GunDef {
+export interface GunDef extends BaseLootDef {
     type: "gun"
     key: string
-    ammo: typeof GameConstants["ammoTypes"][number]
+    ammo: AmmoType
     ammoPerShot: number
     fireDelay: number
     switchDelay: number
@@ -16,7 +17,7 @@ export interface GunDef {
     jitterRadius?: number
     bulletCount: number
     spread: number
-    inventoryImg: ImgDefinition
+    lootImg: ImgDefinition
     worldImg: ImgDefinition
     muzzleImgs: string[]
     leftFistPos: Vector
@@ -30,6 +31,7 @@ export const WeaponDefs = new DefinitionList({
     pistol: {
         type: "gun",
         key: "1",
+        respawnTime: 0,
         ammo: "bullet",
         ammoPerShot: 1,
         fireDelay: 0.3,
@@ -39,7 +41,7 @@ export const WeaponDefs = new DefinitionList({
         spread: 6,
         barrelLength: 2.2,
         barrelOffset: 0,
-        inventoryImg: {
+        lootImg: {
             src: "pistol.svg"
         },
         worldImg: {
@@ -55,6 +57,7 @@ export const WeaponDefs = new DefinitionList({
     shotgun: {
         type: "gun",
         key: "2",
+        respawnTime: 10,
         ammo: "shell",
         ammoPerShot: 1,
         fireDelay: 0.9,
@@ -65,8 +68,9 @@ export const WeaponDefs = new DefinitionList({
         spread: 10,
         barrelLength: 2.6,
         barrelOffset: 0,
-        inventoryImg: {
-            src: "shotgun.svg"
+        lootImg: {
+            src: "shotgun.svg",
+            scale: 0.8
         },
         worldImg: {
             src: "shotgun-world.svg",
@@ -81,6 +85,7 @@ export const WeaponDefs = new DefinitionList({
     ak: {
         type: "gun",
         key: "3",
+        respawnTime: 10,
         ammo: "bullet",
         ammoPerShot: 1,
         fireDelay: 0.06,
@@ -90,8 +95,9 @@ export const WeaponDefs = new DefinitionList({
         spread: 6,
         barrelLength: 3,
         barrelOffset: 0,
-        inventoryImg: {
-            src: "ak.svg"
+        lootImg: {
+            src: "ak.svg",
+            scale: 0.8
         },
         worldImg: {
             src: "ak-world.svg",
@@ -106,6 +112,7 @@ export const WeaponDefs = new DefinitionList({
     rocket_launcher: {
         type: "gun",
         key: "4",
+        respawnTime: 15,
         ammo: "rocket",
         ammoPerShot: 1,
         fireDelay: 0.5,
@@ -115,8 +122,9 @@ export const WeaponDefs = new DefinitionList({
         barrelLength: 2.8,
         spread: 0,
         barrelOffset: 0,
-        inventoryImg: {
-            src: "rocket-launcher.svg"
+        lootImg: {
+            src: "rocket-launcher.svg",
+            scale: 0.8
         },
         worldImg: {
             src: "rocket-launcher-world.svg",
@@ -131,6 +139,7 @@ export const WeaponDefs = new DefinitionList({
     plasma_rifle: {
         type: "gun",
         key: "5",
+        respawnTime: 15,
         ammo: "cell",
         ammoPerShot: 1,
         fireDelay: 0.1,
@@ -140,8 +149,9 @@ export const WeaponDefs = new DefinitionList({
         spread: 0,
         barrelLength: 3.1,
         barrelOffset: 0,
-        inventoryImg: {
-            src: "plasma-rifle.svg"
+        lootImg: {
+            src: "plasma-rifle.svg",
+            scale: 0.8
         },
         worldImg: {
             src: "plasma-rifle-world.svg",

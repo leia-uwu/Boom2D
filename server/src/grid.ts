@@ -5,7 +5,8 @@ import { Vec2, type Vector } from "../../common/src/utils/vector";
 import { type Obstacle } from "./entities/obstacle";
 import { type ServerEntity } from "./entities/entity";
 import { type Player } from "./entities/player";
-import { Projectile } from "./entities/projectile";
+import { type Loot } from "./entities/loot";
+import { type Projectile } from "./entities/projectile";
 
 /**
  * A Grid to filter collision detection of game entities
@@ -28,7 +29,8 @@ export class Grid {
     readonly byCategory = {
         [EntityType.Player]: new Set<Player>(),
         [EntityType.Projectile]: new Set<Projectile>(),
-        [EntityType.Obstacle]: new Set<Obstacle>()
+        [EntityType.Obstacle]: new Set<Obstacle>(),
+        [EntityType.Loot]: new Set<Loot>()
     };
 
     constructor(width: number, height: number) {

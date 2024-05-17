@@ -1,4 +1,4 @@
-import { GameConstants } from "../../../common/src/constants";
+import { AmmoType, GameConstants } from "../../../common/src/constants";
 import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
 import { type GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
@@ -22,9 +22,9 @@ export class GameUi {
     gameOverScreen = Helpers.getElem("#game-over-screen");
     gameOverKills = Helpers.getElem("#game-over-kill-count");
 
-    ammo = {} as Record<typeof GameConstants["ammoTypes"][number], number>;
+    ammo = {} as Record<AmmoType, number>;
     ammoContainer = Helpers.getElem("#ammo-container");
-    ammoContainers = {} as Record<typeof GameConstants["ammoTypes"][number], HTMLDivElement>;
+    ammoContainers = {} as Record<AmmoType, HTMLDivElement>;
 
     setupUi() {
         this.playAgainButton.addEventListener("click", () => {
@@ -50,7 +50,7 @@ export class GameUi {
 
             const img = document.createElement("img");
             img.draggable = false;
-            img.src = this.game.resourceManager.getImage(def.inventoryImg.src);
+            img.src = this.game.resourceManager.getImage(def.lootImg.src);
 
             container.appendChild(img);
             this.weaponsContainers[weapon] = container;

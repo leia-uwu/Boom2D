@@ -10,11 +10,14 @@ import { Random } from "../../../common/src/utils/random";
 import { MathUtils } from "../../../common/src/utils/math";
 import { InputPacket } from "../../../common/src/packets/inputPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
-import { EntityType, GameConstants } from "../../../common/src/constants";
+import { AmmoType, EntityType, GameConstants } from "../../../common/src/constants";
 import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { Obstacle } from "./obstacle";
 import { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
 import { WeaponManager } from "../weaponManager";
+import { LootDefs } from "../../../common/src/defs/lootDefs";
+import { Loot } from "./loot";
+import { AmmoPickupDef } from "../../../common/src/defs/ammoPickupDefs";
 
 export class Player extends ServerEntity {
     readonly __type = EntityType.Player;
@@ -60,13 +63,13 @@ export class Player extends ServerEntity {
 
     weapons: Record<WeaponDefKey, boolean> = {
         pistol: true,
-        shotgun: true,
-        ak: true,
-        rocket_launcher: true,
-        plasma_rifle: true
+        shotgun: false,
+        ak: false,
+        rocket_launcher: false,
+        plasma_rifle: false
     };
 
-    ammo: Record<typeof GameConstants["ammoTypes"][number], number> = {
+    ammo: Record<AmmoType, number> = {
         bullet: 200,
         shell: 50,
         rocket: 50,
@@ -167,9 +170,52 @@ export class Player extends ServerEntity {
 
         this.weaponManager.tick(dt);
 
+        for (const entity of entities) {
+            if (!entity.hitbox.collidesWith(this.hitbox)) continue;
+
+            if (entity.__type === EntityType.Loot) {
+                this.pickupLoot(entity as Loot);
+            }
+        }
+
         if (!Vec2.equals(this.position, oldPos)) {
             this.setDirty();
             this.game.grid.updateEntity(this);
+        }
+    }
+
+    pickupLoot(loot: Loot) {
+        if (!loot.active) return;
+
+        const def = LootDefs.typeToDef(loot.type);
+
+        let sucess = false;
+
+        switch (def.type) {
+            case "gun": {
+                const weapType = loot.type as WeaponDefKey;
+                if (!this.weapons[weapType]) {
+                    this.weapons[weapType] = true;
+                    this.dirty.weapons = true;
+                    sucess = true;
+                }
+                break;
+            }
+            case "ammo-pickup": {
+                const def = LootDefs.typeToDef(loot.type) as AmmoPickupDef;
+
+                for (const ammo in def.ammo) {
+                    this.ammo[ammo as AmmoType] += def.ammo[ammo as AmmoType]!;
+                }
+                this.dirty.ammo = true;
+                sucess = true;
+                break;
+            }
+        }
+
+        if (sucess) {
+            loot.active = false;
+            loot.setDirty();
         }
     }
 

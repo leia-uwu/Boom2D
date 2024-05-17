@@ -9,12 +9,12 @@ import { ServerEntity } from "./entity";
 export class Obstacle extends ServerEntity {
     override readonly __type = EntityType.Obstacle;
 
-    obstacleType: ObstacleDefKey;
+    type: ObstacleDefKey;
     override hitbox: Hitbox;
 
     constructor(game: Game, position: Vector, type: ObstacleDefKey) {
         super(game, position);
-        this.obstacleType = type;
+        this.type = type;
         const def = ObstacleDefs.typeToDef(type);
         this.hitbox = BaseHitbox.fromJSON(def.hitbox).transform(this.position);
     }
@@ -25,7 +25,7 @@ export class Obstacle extends ServerEntity {
         return {
             full: {
                 position: this.position,
-                type: this.obstacleType
+                type: this.type
             }
         };
     }

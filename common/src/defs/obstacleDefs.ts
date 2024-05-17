@@ -9,10 +9,11 @@ export interface ObstacleDef {
 
 export const ObstacleDefs = new DefinitionList({
     barrel: {
-        hitbox: new CircleHitbox(1).toJSON(),
+        hitbox: new CircleHitbox(2).toJSON(),
         health: 100,
         img: {
-            src: "player-base.svg"
+            src: "barrel.svg",
+            tint: 0x550000
         }
     }
 } satisfies Record<string, ObstacleDef>);

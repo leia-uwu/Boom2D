@@ -1,7 +1,8 @@
 import { BaseBullet, BulletParams } from "../baseBullet";
-import { EntityType, GameConstants } from "../constants";
-import { ExplosionDefKey, ExplosionDefs } from "../defs/explosionDefs";
-import { ObstacleDefKey, ObstacleDefs } from "../defs/obstacleDefs";
+import { AmmoType, EntityType, GameConstants } from "../constants";
+import { type ExplosionDefKey, ExplosionDefs } from "../defs/explosionDefs";
+import { LootDefs, type LootDefKey } from "../defs/lootDefs";
+import { type ObstacleDefKey, ObstacleDefs } from "../defs/obstacleDefs";
 import { ProjectileDefKey, ProjectileDefs } from "../defs/projectileDefs";
 import { WeaponDefKey, WeaponDefs } from "../defs/weaponDefs";
 import { type GameBitStream, type Packet } from "../net";
@@ -29,6 +30,13 @@ export interface EntitiesNetData {
         full?: {
             position: Vector
             type: ObstacleDefKey
+        }
+    }
+    [EntityType.Loot]: {
+        active: boolean
+        full?: {
+            position: Vector
+            type: LootDefKey
         }
     }
 }
@@ -104,6 +112,28 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
             return {
                 position: stream.readPosition(),
                 type: ObstacleDefs.read(stream)
+            };
+        }
+    },
+    [EntityType.Loot]: {
+        partialSize: 7,
+        fullSize: 6,
+        serializePartial(stream, data) {
+            stream.writeBoolean(data.active);
+        },
+        serializeFull(stream, data) {
+            stream.writePosition(data.position);
+            LootDefs.write(stream, data.type);
+        },
+        deserializePartial(stream) {
+            return {
+                active: stream.readBoolean()
+            };
+        },
+        deserializeFull(stream) {
+            return {
+                position: stream.readPosition(),
+                type: LootDefs.read(stream)
             };
         }
     }
@@ -244,7 +274,7 @@ export class UpdatePacket implements Packet {
         health: 0,
         armor: 0,
         weapons: {} as Record<WeaponDefKey, boolean>,
-        ammo: {} as Record<typeof GameConstants["ammoTypes"][number], number>
+        ammo: {} as Record<AmmoType, number>
     };
 
     bullets: BulletParams[] = [];

@@ -20,6 +20,7 @@ import { MapPacket } from "../../../common/src/packets/mapPacke";
 import { GameMap } from "./map";
 import { ExplosionManager } from "./explosion";
 import { ResourceManager } from "./resourceManager";
+import { Loot } from "./entities/loot";
 
 export class Game {
     app: App;
@@ -145,7 +146,8 @@ export class Game {
     static typeToEntity = {
         [EntityType.Player]: Player,
         [EntityType.Projectile]: Projectile,
-        [EntityType.Obstacle]: Obstacle
+        [EntityType.Obstacle]: Obstacle,
+        [EntityType.Loot]: Loot
     };
 
     /**
