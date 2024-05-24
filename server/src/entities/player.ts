@@ -327,7 +327,7 @@ export class Player extends ServerEntity {
         this.packetsToSend.push(packet);
     }
 
-    sendData(data: ArrayBuffer): void {
+    sendData(data: ArrayBuffer | Buffer): void {
         try {
             this.socket.sendBinary(data);
         } catch (error) {

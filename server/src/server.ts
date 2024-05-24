@@ -74,7 +74,11 @@ Bun.serve<PlayerData>({
             try {
                 const player = socket.data.entity;
                 if (player === undefined) return;
-                player.processMessage((message as Buffer).buffer as ArrayBuffer);
+                if (message instanceof Buffer) {
+                    player.processMessage(message.buffer as ArrayBuffer);
+                } else {
+                    console.error(`Received invalid message type: ${typeof message}`);
+                }
             } catch (e) {
                 console.warn("Error parsing message:", e);
             }

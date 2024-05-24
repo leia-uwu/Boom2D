@@ -309,7 +309,7 @@ ServerToClientPackets.register(
 
 export class PacketStream {
     stream: GameBitStream;
-    buffer: ArrayBuffer;
+    buffer: ArrayBuffer | Buffer;
 
     constructor(source: GameBitStream | ArrayBuffer) {
         if (source instanceof ArrayBuffer) {
@@ -363,7 +363,7 @@ export class PacketStream {
         this.stream.writeAlignToNextByte();
     }
 
-    getBuffer(): ArrayBuffer {
+    getBuffer(): ArrayBuffer | Buffer {
         return this.buffer.slice(0, this.stream.byteIndex);
     }
 }
