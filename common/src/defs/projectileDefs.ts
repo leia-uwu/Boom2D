@@ -21,7 +21,7 @@ export interface ProjectileDef {
 
 export const ProjectileDefs = new DefinitionList({
     plasma: {
-        radius: 0.5,
+        radius: 0.25,
         speed: 50,
         damage: {
             min: 5,
@@ -35,7 +35,7 @@ export const ProjectileDefs = new DefinitionList({
         explosion: "plasma"
     },
     rocket: {
-        radius: 0.5,
+        radius: 0.3,
         speed: 40,
         damage: {
             min: 5,
