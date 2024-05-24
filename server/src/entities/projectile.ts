@@ -62,20 +62,30 @@ export class Projectile extends ServerEntity {
             if (!(entity.__type === EntityType.Player || entity.__type === EntityType.Obstacle)) continue;
             if (entity === this.source) continue;
 
-            if (entity.hitbox.collidesWith(this.hitbox)) {
+            const intersection = entity.hitbox.getIntersection(this.hitbox);
+
+            if (intersection) {
                 if (entity.__type === EntityType.Player) {
                     (entity as Player).damage(Random.int(def.damage.min, def.damage.max), this.source);
                 }
                 this.dead = true;
+
+                this.position = Vec2.sub(this.position, Vec2.mul(this.direction, intersection.pen));
                 break;
             }
         }
 
-        const { walls } = this.game.map.intersectsHitbox(this.hitbox);
-        for (const wall of walls) {
-            if (wall.hitbox.collidesWith(this.hitbox)) {
-                this.dead = true;
-                break;
+        if (!this.dead) {
+            const { walls } = this.game.map.intersectsHitbox(this.hitbox);
+            for (const wall of walls) {
+
+                const intersection = wall.hitbox.getIntersection(this.hitbox);
+
+                if (intersection) {
+                    this.dead = true;
+                    this.position = Vec2.sub(this.position, Vec2.mul(this.direction, intersection.pen));
+                    break;
+                }
             }
         }
 
