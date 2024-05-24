@@ -99,7 +99,11 @@ export class Player extends ClientEntity {
                 this.images.leftFist.position = weaponDef.leftFistPos;
                 this.images.leftFist.zIndex = -2;
             }
-            this.game.ui.updateWeaponsUi();
+
+            if (this.id === this.game.activePlayerID) {
+                this.game.ui.updateWeaponsUi();
+                this.game.ui.updateActiveWeaponAmmo();
+            }
 
             this.container.sortChildren();
         }

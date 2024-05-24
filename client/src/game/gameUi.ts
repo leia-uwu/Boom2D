@@ -14,6 +14,8 @@ export class GameUi {
     armor = 0;
     armorDisplay = Helpers.getElem("#player-armor");
 
+    ammoDisplay = Helpers.getElem("#player-ammo");
+
     weapons = {} as Record<WeaponDefKey, boolean>;
     weaponsContainer = Helpers.getElem("#weapons-container");
     weaponsContainers = {} as Record<WeaponDefKey, HTMLDivElement>;
@@ -89,12 +91,16 @@ export class GameUi {
 
         if (dirty.weapons) {
             this.weapons = data.weapons;
-            this.updateWeaponsUi();
         }
 
         if (dirty.ammo) {
             this.ammo = data.ammo;
+        }
+
+        if (dirty.weapons || dirty.ammo) {
+            this.updateWeaponsUi();
             this.updateAmmoUi();
+            this.updateActiveWeaponAmmo();
         }
     }
 
@@ -112,6 +118,13 @@ export class GameUi {
         for (const ammo of GameConstants.ammoTypes) {
             this.ammoContainers[ammo].innerText = this.ammo[ammo].toString();
         }
+    }
+
+    updateActiveWeaponAmmo() {
+        const activeWeapon = this.game.activePlayer!.activeWeapon;
+        const def = WeaponDefs.typeToDef(activeWeapon);
+        const activeAmmo = this.ammo[def.ammo] ?? 0;
+        this.ammoDisplay.innerText = activeAmmo.toString();
     }
 
     showGameOverScreen(packet: GameOverPacket): void {
