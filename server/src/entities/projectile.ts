@@ -78,7 +78,6 @@ export class Projectile extends ServerEntity {
         if (!this.dead) {
             const { walls } = this.game.map.intersectsHitbox(this.hitbox);
             for (const wall of walls) {
-
                 const intersection = wall.hitbox.getIntersection(this.hitbox);
 
                 if (intersection) {
