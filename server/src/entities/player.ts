@@ -81,6 +81,8 @@ export class Player extends ServerEntity {
     dead = false;
 
     kills = 0;
+    damageDone = 0;
+    damageTaken = 0;
 
     firstPacket = true;
 
@@ -220,8 +222,26 @@ export class Player extends ServerEntity {
     }
 
     damage(amount: number, source: Player) {
+        if (this.dead) return;
+
+        if (this.health - amount > GameConstants.player.maxHealth) {
+            amount = -(GameConstants.player.maxHealth - this.health);
+        }
+
+        if (this.health - amount <= 0) {
+            amount = this.health;
+        }
+
+        if (amount < 0) amount = 0;
+
         amount = Math.round(amount);
+
         this.health -= amount;
+
+        if (source !== this) {
+            source.damageDone += amount;
+        }
+        this.damageTaken += amount;
 
         if (this.health <= 0) {
             this.dead = true;
@@ -233,6 +253,8 @@ export class Player extends ServerEntity {
 
             const gameOverPacket = new GameOverPacket();
             gameOverPacket.kills = this.kills;
+            gameOverPacket.damageDone = this.damageDone;
+            gameOverPacket.damageTaken = this.damageTaken;
             this.sendPacket(gameOverPacket);
         }
     }

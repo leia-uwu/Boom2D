@@ -41,8 +41,19 @@
             <div id="ammo-container"></div>
           </div>
           <div id="game-over-screen" style="display: none;">
-            <h2>You died</h2>
-            <div id="game-over-kill-count"></div>
+            <div class="game-over-header">You died</div>
+
+            <div class="game-over-stats">
+              <div class="game-over-stat">
+                Kills: <div id="game-over-kill-count"></div>
+              </div>
+              <div class="game-over-stat">
+                Damage Done: <div id="game-over-damage-done"></div>
+              </div>
+              <div class="game-over-stat">
+                Damage Taken: <div id="game-over-damage-taken"></div>
+              </div>
+            </div>
             <button id="play-again-btn">Play Again</button>
           </div>
         </div>

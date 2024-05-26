@@ -23,6 +23,8 @@ export class GameUi {
     playAgainButton = Helpers.getElem("#play-again-btn");
     gameOverScreen = Helpers.getElem("#game-over-screen");
     gameOverKills = Helpers.getElem("#game-over-kill-count");
+    gameOverDamageDone = Helpers.getElem("#game-over-damage-done");
+    gameOverDamageTaken = Helpers.getElem("#game-over-damage-taken");
 
     ammo = {} as Record<AmmoType, number>;
     ammoContainer = Helpers.getElem("#ammo-container");
@@ -129,6 +131,8 @@ export class GameUi {
 
     showGameOverScreen(packet: GameOverPacket): void {
         this.gameOverScreen.style.display = "block";
-        this.gameOverKills.innerText = `Kills: ${packet.kills}`;
+        this.gameOverKills.innerText = `${packet.kills}`;
+        this.gameOverDamageDone.innerText = `${packet.damageDone}`;
+        this.gameOverDamageTaken.innerText = `${packet.damageTaken}`;
     }
 }

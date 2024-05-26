@@ -90,11 +90,30 @@
 
 #game-over-screen {
     position: absolute;
-    width: 250px;
-    height: 150px;
+    width: 300px;
+    padding: 10px;
     display: flex;
     text-align: center;
     transform: translate(-50%, -50%);
     left: 50vw;
-    top: 50%
+    top: 50%;
+    background: rgba(0, 0, 0, 0.5);
+
+    .game-over-header {
+        font-size: 1.4em;
+        margin: 10px;
+    }
+
+    .game-over-stats {
+        margin: 10px;
+    }
+
+    .game-over-stat {
+        margin: 5px;
+        display: flex;
+
+        div {
+            margin-left: auto;
+        }
+    }
 }
