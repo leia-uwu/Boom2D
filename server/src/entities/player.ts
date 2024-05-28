@@ -15,9 +15,8 @@ import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { Obstacle } from "./obstacle";
 import { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
 import { WeaponManager } from "../weaponManager";
-import { LootDefs } from "../../../common/src/defs/lootDefs";
+import { LootDef, LootDefs } from "../../../common/src/defs/lootDefs";
 import { Loot } from "./loot";
-import { AmmoPickupDef } from "../../../common/src/defs/ammoPickupDefs";
 
 export class Player extends ServerEntity {
     readonly __type = EntityType.Player;
@@ -189,7 +188,7 @@ export class Player extends ServerEntity {
     pickupLoot(loot: Loot) {
         if (!loot.active) return;
 
-        const def = LootDefs.typeToDef(loot.type);
+        const def = LootDefs.typeToDef(loot.type) as LootDef;
 
         let sucess = false;
 
@@ -204,13 +203,27 @@ export class Player extends ServerEntity {
                 break;
             }
             case "ammo-pickup": {
-                const def = LootDefs.typeToDef(loot.type) as AmmoPickupDef;
-
-                for (const ammo in def.ammo) {
-                    this.ammo[ammo as AmmoType] += def.ammo[ammo as AmmoType]!;
+                for (const ammo of GameConstants.ammoTypes) {
+                    const amount = def.ammo[ammo];
+                    if (amount !== undefined) {
+                        this.ammo[ammo] += amount;
+                    }
                 }
                 this.dirty.ammo = true;
                 sucess = true;
+                break;
+            }
+            case "powerup": {
+                if (def.health && this.health < def.maxHealth) {
+                    this.health += def.health;
+                    sucess = true;
+                }
+
+                if (def.armor && this.armor < def.maxArmor) {
+                    this.armor += def.armor;
+                    sucess = true;
+                }
+
                 break;
             }
         }
