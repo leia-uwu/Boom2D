@@ -216,11 +216,13 @@ export class Player extends ServerEntity {
             case "powerup": {
                 if (def.health && this.health < def.maxHealth) {
                     this.health += def.health;
+                    this.health = MathUtils.min(this.health, def.maxHealth);
                     sucess = true;
                 }
 
                 if (def.armor && this.armor < def.maxArmor) {
                     this.armor += def.armor;
+                    this.armor = MathUtils.min(this.armor, def.maxArmor);
                     sucess = true;
                 }
 
