@@ -1,14 +1,18 @@
 import { type Graphics, type Sprite, Texture } from "pixi.js";
 import type { ImgDefinition } from "../../common/src/utils/definitionList";
 import { type Hitbox, HitboxType } from "../../common/src/utils/hitbox";
+import { assert } from "../../common/src/utils/util";
 import { Camera } from "./game/camera";
 
 export const Helpers = {
     getElem<T extends HTMLElement>(selector: string): T {
         const element = document.querySelector(selector);
-        if (!(element instanceof HTMLElement)) {
-            throw new Error(`Unknown element with selector: ${selector}`);
-        }
+
+        assert(
+            element instanceof HTMLElement,
+            `Unknown element with selector: ${selector}`
+        );
+
         return element as T;
     },
     spriteFromDef(sprite: Sprite, def: ImgDefinition) {

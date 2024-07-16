@@ -13,6 +13,7 @@ import {
     RectHitbox
 } from "./utils/hitbox";
 import { MathUtils } from "./utils/math";
+import { assert } from "./utils/util";
 import type { Vector } from "./utils/vector";
 
 export class GameBitStream extends BitStream {
@@ -28,12 +29,15 @@ export class GameBitStream extends BitStream {
      * @param bitCount The number of bits to write
      */
     writeFloat(value: number, min: number, max: number, bitCount: number): void {
-        if (bitCount < 0 || bitCount >= 31) {
-            throw new Error(`Invalid bit count ${bitCount}`);
-        }
-        if (value > max || value < min) {
-            throw new Error(`Value out of range: ${value}, range: [${min}, ${max}]`);
-        }
+        assert(
+            bitCount > 0 || bitCount <= 31,
+            `bit count out of range: ${bitCount}, range: [0, 31]`
+        );
+
+        assert(
+            value < max || value > min,
+            `Value out of range: ${value}, range: [${min}, ${max}]`
+        );
         const range = (1 << bitCount) - 1;
         const clamped = MathUtils.clamp(value, min, max);
         this.writeBits(((clamped - min) / (max - min)) * range + 0.5, bitCount);
@@ -47,9 +51,10 @@ export class GameBitStream extends BitStream {
      * @return The floating point number
      */
     readFloat(min: number, max: number, bitCount: number): number {
-        if (bitCount < 0 || bitCount >= 31) {
-            throw new Error(`Invalid bit count ${bitCount}`);
-        }
+        assert(
+            bitCount > 0 || bitCount <= 31,
+            `bit count out of range: ${bitCount}, range: [0, 31]`
+        );
         const range = (1 << bitCount) - 1;
         return min + ((max - min) * this.readBits(bitCount)) / range;
     }
@@ -193,17 +198,18 @@ export class GameBitStream extends BitStream {
     /**
      * Write an array to the stream
      * @param arr An array containing the items to serialize
-     * @param bits The amount of bits to write for the array size
+     * @param bitCount The amount of bits to write for the array size
      * @param serializeFn The function to serialize each array item
      */
-    writeArray<T>(arr: T[], bits: number, serializeFn: (item: T) => void): void {
-        if (bits < 0 || bits >= 31) {
-            throw new Error(`Invalid bit count ${bits}`);
-        }
+    writeArray<T>(arr: T[], bitCount: number, serializeFn: (item: T) => void): void {
+        assert(
+            bitCount > 0 || bitCount <= 31,
+            `bit count out of range: ${bitCount}, range: [0, 31]`
+        );
 
-        this.writeBits(arr.length, bits);
+        this.writeBits(arr.length, bitCount);
 
-        const maxSize = 1 << bits;
+        const maxSize = 1 << bitCount;
         for (let i = 0; i < arr.length; i++) {
             if (i > maxSize) {
                 console.warn(
@@ -221,8 +227,13 @@ export class GameBitStream extends BitStream {
      * @param bits The amount of bits to read for the array size
      * @param serializeFn The function to de-serialize each array item
      */
-    readArray<T>(arr: T[], bits: number, deserializeFn: () => T): void {
-        const size = this.readBits(bits);
+    readArray<T>(arr: T[], bitCount: number, deserializeFn: () => T): void {
+        assert(
+            bitCount > 0 || bitCount <= 31,
+            `bit count out of range: ${bitCount}, range: [0, 31]`
+        );
+
+        const size = this.readBits(bitCount);
 
         for (let i = 0; i < size; i++) {
             arr.push(deserializeFn());
@@ -242,9 +253,8 @@ export class GameBitStream extends BitStream {
      * @param length The amount of bytes to copy
      */
     writeBytes(src: GameBitStream, offset: number, length: number): void {
-        if (this.index % 8 !== 0) {
-            throw new Error("WriteBytes: stream must be byte aligned");
-        }
+        assert(this.index % 8 == 0, "WriteBytes: stream must be byte aligned");
+
         const data = new Uint8Array(src._view._view.buffer, offset, length);
         this._view._view.set(data, this.index / 8);
         this.index += length * 8;
@@ -391,11 +401,12 @@ export class PacketStream {
 
     private _serializePacket(packet: Packet, register: PacketRegister) {
         const type = register.typeToId[packet.constructor.name];
-        if (type === undefined) {
-            throw new Error(
-                `Unknown packet type: ${packet.constructor.name}, did you forget to register it?`
-            );
-        }
+
+        assert(
+            type,
+            `Unknown packet type: ${packet.constructor.name}, did you forget to register it?`
+        );
+
         this.stream.writeUint8(type);
         packet.serialize(this.stream);
         this.stream.writeAlignToNextByte();
