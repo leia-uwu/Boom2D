@@ -1,14 +1,20 @@
-import { type BLEND_MODES, Sprite, type TextureSourceLike, type ColorSource, Color } from "pixi.js";
+import {
+    type BLEND_MODES,
+    Color,
+    type ColorSource,
+    Sprite,
+    type TextureSourceLike
+} from "pixi.js";
 import { EasinFunctions, MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
-import { type Game } from "./game";
 import { Camera } from "./camera";
+import type { Game } from "./game";
 
 export class ParticleManager {
     particles: Particle[] = [];
 
-    constructor(public game: Game) { }
+    constructor(public game: Game) {}
 
     addParticle(position: Vector, rotation: Vector, type: keyof typeof ParticleDefs) {
         const def = ParticleDefs[type];
@@ -35,42 +41,46 @@ export class ParticleManager {
 }
 
 interface MinMax {
-    min: number
-    max: number
+    min: number;
+    max: number;
 }
 
-type ParticleOption = (MinMax | {
-    start: number
-    end: number
-} | {
-    value: number
-}) & {
+type ParticleOption = (
+    | MinMax
+    | {
+          start: number;
+          end: number;
+      }
+    | {
+          value: number;
+      }
+) & {
     /**
      * Easing function
      * Defaults to linear lerp
      */
-    easing?: (t: number) => number
+    easing?: (t: number) => number;
 };
 
 interface ParticleDef {
     /** Particle frame id */
-    sprite: TextureSourceLike
+    sprite: TextureSourceLike;
     /** Particle sprite zIndex */
-    zIndex?: number
+    zIndex?: number;
     /** Particle sprite blend mode */
-    blendMode?: BLEND_MODES
+    blendMode?: BLEND_MODES;
     /** Particle Sprite tint */
-    tint?: ColorSource
+    tint?: ColorSource;
     /** Particle life time in seconds */
-    lifeTime: MinMax | number
+    lifeTime: MinMax | number;
     /** Particle rotation */
-    rotation: ParticleOption
+    rotation: ParticleOption;
     /** Particle speed */
-    speed: ParticleOption
+    speed: ParticleOption;
     /** Particle scale */
-    scale: ParticleOption
+    scale: ParticleOption;
     /** Particle alpha */
-    alpha: ParticleOption
+    alpha: ParticleOption;
 }
 
 function getMinMax(option: ParticleOption) {
@@ -93,7 +103,7 @@ function getMinMax(option: ParticleOption) {
     };
 }
 
-type ParticleInterpData = Omit<ParticleDef, | "sprite" | "lifeTime">;
+type ParticleInterpData = Omit<ParticleDef, "sprite" | "lifeTime">;
 
 class Particle {
     dead = false;
@@ -106,11 +116,11 @@ class Particle {
 
     data: {
         [K in keyof ParticleInterpData]: {
-            start: number
-            end: number
-            value: number
-            easing: (t: number) => number
-        }
+            start: number;
+            end: number;
+            value: number;
+            easing: (t: number) => number;
+        };
     };
 
     constructor(position: Vector, direction: Vector, def: ParticleDef) {

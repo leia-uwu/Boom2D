@@ -1,12 +1,12 @@
-import { BaseWall } from "../baseMap";
+import type { BaseWall } from "../baseMap";
 import { DefinitionList } from "../utils/definitionList";
 import { CircleHitbox, PolygonHitbox } from "../utils/hitbox";
 import { Vec2 } from "../utils/vector";
 
 export interface MapDef {
-    width: number
-    height: number
-    walls: BaseWall[]
+    width: number;
+    height: number;
+    walls: BaseWall[];
 }
 
 export const MapDefs = new DefinitionList({
@@ -30,4 +30,4 @@ export const MapDefs = new DefinitionList({
     }
 } satisfies Record<string, MapDef>);
 
-export type MapDefKey = keyof typeof MapDefs["definitions"];
+export type MapDefKey = keyof (typeof MapDefs)["definitions"];

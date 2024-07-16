@@ -2,11 +2,11 @@ import { EntityType } from "../../common/src/constants";
 import { type Hitbox, RectHitbox } from "../../common/src/utils/hitbox";
 import { MathUtils } from "../../common/src/utils/math";
 import { Vec2, type Vector } from "../../common/src/utils/vector";
-import { type Obstacle } from "./entities/obstacle";
-import { type ServerEntity } from "./entities/entity";
-import { type Player } from "./entities/player";
-import { type Loot } from "./entities/loot";
-import { type Projectile } from "./entities/projectile";
+import type { ServerEntity } from "./entities/entity";
+import type { Loot } from "./entities/loot";
+import type { Obstacle } from "./entities/obstacle";
+import type { Player } from "./entities/player";
+import type { Projectile } from "./entities/projectile";
 
 /**
  * A Grid to filter collision detection of game entities
@@ -37,9 +37,8 @@ export class Grid {
         this.width = Math.floor(width / this.cellSize);
         this.height = Math.floor(height / this.cellSize);
 
-        this._grid = Array.from(
-            { length: this.width + 1 },
-            () => Array.from({ length: this.height + 1 }, () => new Map())
+        this._grid = Array.from({ length: this.width + 1 }, () =>
+            Array.from({ length: this.height + 1 }, () => new Map())
         );
     }
 

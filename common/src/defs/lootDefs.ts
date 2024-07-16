@@ -1,23 +1,23 @@
-import { AmmoType } from "../constants";
-import { DefinitionList, ImgDefinition } from "../utils/definitionList";
-import { GunDef, WeaponDefs } from "./weaponDefs";
+import type { AmmoType } from "../constants";
+import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
+import { type GunDef, WeaponDefs } from "./weaponDefs";
 
 export interface BaseLootDef {
-    lootImg: ImgDefinition
-    respawnTime: number
+    lootImg: ImgDefinition;
+    respawnTime: number;
 }
 
 export interface AmmoPickupDef extends BaseLootDef {
-    type: "ammo-pickup"
-    ammo: Partial<Record<AmmoType, number>>
+    type: "ammo-pickup";
+    ammo: Partial<Record<AmmoType, number>>;
 }
 
 export interface PowerUpDef extends BaseLootDef {
-    type: "powerup"
-    health: number
-    maxHealth: number
-    maxArmor: number
-    armor: number
+    type: "powerup";
+    health: number;
+    maxHealth: number;
+    maxArmor: number;
+    armor: number;
 }
 
 export type LootDef = GunDef | AmmoPickupDef | PowerUpDef;
@@ -128,4 +128,4 @@ export const LootDefs = new DefinitionList({
     }
 } satisfies Record<string, LootDef>);
 
-export type LootDefKey = keyof typeof LootDefs["definitions"];
+export type LootDefKey = keyof (typeof LootDefs)["definitions"];

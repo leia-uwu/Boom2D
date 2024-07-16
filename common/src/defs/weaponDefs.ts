@@ -1,31 +1,31 @@
-import { type AmmoType } from "../constants";
-import { DefinitionList, ImgDefinition } from "../utils/definitionList";
-import { Vec2, Vector } from "../utils/vector";
-import { type BulletDefKey } from "./bulletDefs";
-import { type BaseLootDef } from "./lootDefs";
-import { ProjectileDefKey } from "./projectileDefs";
+import type { AmmoType } from "../constants";
+import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
+import { Vec2, type Vector } from "../utils/vector";
+import type { BulletDefKey } from "./bulletDefs";
+import type { BaseLootDef } from "./lootDefs";
+import type { ProjectileDefKey } from "./projectileDefs";
 
 export interface GunDef extends BaseLootDef {
-    type: "gun"
-    key: string
-    ammo: AmmoType
-    ammoPerShot: number
-    fireDelay: number
-    switchDelay: number
-    projectileType?: ProjectileDefKey
-    bulletType?: BulletDefKey
-    jitterRadius?: number
-    bulletCount: number
-    spread: number
-    lootImg: ImgDefinition
-    worldImg: ImgDefinition
-    muzzleImgs: string[]
-    leftFistPos: Vector
-    barrelLength: number
-    barrelOffset: number
+    type: "gun";
+    key: string;
+    ammo: AmmoType;
+    ammoPerShot: number;
+    fireDelay: number;
+    switchDelay: number;
+    projectileType?: ProjectileDefKey;
+    bulletType?: BulletDefKey;
+    jitterRadius?: number;
+    bulletCount: number;
+    spread: number;
+    lootImg: ImgDefinition;
+    worldImg: ImgDefinition;
+    muzzleImgs: string[];
+    leftFistPos: Vector;
+    barrelLength: number;
+    barrelOffset: number;
     sfx: {
-        shoot: string
-    }
+        shoot: string;
+    };
 }
 export const WeaponDefs = new DefinitionList({
     pistol: {
@@ -165,4 +165,4 @@ export const WeaponDefs = new DefinitionList({
     }
 } satisfies Record<string, GunDef>);
 
-export type WeaponDefKey = keyof typeof WeaponDefs["definitions"];
+export type WeaponDefKey = keyof (typeof WeaponDefs)["definitions"];

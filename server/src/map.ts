@@ -1,17 +1,20 @@
 import { BaseGameMap } from "../../common/src/baseMap";
 import { LootDefs } from "../../common/src/defs/lootDefs";
-import { MapDefKey, MapDefs } from "../../common/src/defs/mapDefs";
+import { type MapDefKey, MapDefs } from "../../common/src/defs/mapDefs";
 import { PacketStream } from "../../common/src/net";
 import { MapPacket } from "../../common/src/packets/mapPacke";
 import { Random } from "../../common/src/utils/random";
 import { Loot } from "./entities/loot";
 import { Obstacle } from "./entities/obstacle";
-import { Game } from "./game";
+import type { Game } from "./game";
 
 export class GameMap extends BaseGameMap {
     serializedData = new PacketStream(new ArrayBuffer(1 << 14));
 
-    constructor(readonly game: Game, readonly name: MapDefKey) {
+    constructor(
+        readonly game: Game,
+        readonly name: MapDefKey
+    ) {
         super();
         const def = MapDefs.typeToDef(name);
 

@@ -1,20 +1,20 @@
 // add a namespace to pixi sound imports because it has annoying generic names like "sound" and "filters" without a namespace
 import * as PixiSound from "@pixi/sound";
-import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { MathUtils } from "../../../common/src/utils/math";
-import { type Game } from "./game";
+import { Vec2, type Vector } from "../../../common/src/utils/vector";
+import type { Game } from "./game";
 
 export interface SoundOptions {
-    position?: Vector
-    falloff: number
-    maxRange: number
-    loop: boolean
+    position?: Vector;
+    falloff: number;
+    maxRange: number;
+    loop: boolean;
     /**
      * If the sound volume and panning will be updated
      * when the camera position changes after it started playing
      */
-    dynamic: boolean
-    onEnd?: () => void
+    dynamic: boolean;
+    onEnd?: () => void;
 }
 
 PixiSound.sound.disableAutoPause = true;
@@ -82,14 +82,13 @@ export class GameSound {
         if (this.instance && this.position) {
             const diff = Vec2.sub(this.manager.position, this.position);
 
-            this.instance.volume = (1
-            - MathUtils.clamp(
-                Math.abs(Vec2.length(diff) / this.maxRange),
-                0,
-                1
-            )) ** (1 + this.fallOff * 2) * this.manager.volume;
+            this.instance.volume =
+                (1 -
+                    MathUtils.clamp(Math.abs(Vec2.length(diff) / this.maxRange), 0, 1)) **
+                    (1 + this.fallOff * 2) *
+                this.manager.volume;
 
-            this.stereoFilter.pan = MathUtils.clamp(diff.x / this.maxRange * -1, -1, 1);
+            this.stereoFilter.pan = MathUtils.clamp((diff.x / this.maxRange) * -1, -1, 1);
         }
     }
 
@@ -108,17 +107,20 @@ export class AudioManager {
     volume = 1;
     position = Vec2.new(0, 0);
 
-    constructor(public game: Game) {
-    }
+    constructor(public game: Game) {}
 
     play(name: string, options?: Partial<SoundOptions>): GameSound {
-        const sound = new GameSound(name, {
-            falloff: 1,
-            maxRange: 256,
-            dynamic: false,
-            loop: false,
-            ...options
-        }, this);
+        const sound = new GameSound(
+            name,
+            {
+                falloff: 1,
+                maxRange: 256,
+                dynamic: false,
+                loop: false,
+                ...options
+            },
+            this
+        );
 
         if (sound.dynamic) this.dynamicSounds.push(sound);
 
@@ -144,9 +146,12 @@ export class AudioManager {
         // Load all mp3s from the sounds folder
         // and sets an alias with the file name
         // similar to how svgs are loaded
-        const sounds: Record<string, { default: string }> = import.meta.glob("/assets/sounds/**/*.mp3", {
-            eager: true
-        });
+        const sounds: Record<string, { default: string }> = import.meta.glob(
+            "/assets/sounds/**/*.mp3",
+            {
+                eager: true
+            }
+        );
 
         const soundsToLoad: Record<string, string> = {};
 

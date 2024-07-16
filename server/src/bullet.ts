@@ -1,15 +1,15 @@
-import { BaseBullet, BulletParams } from "../../common/src/baseBullet";
+import { BaseBullet, type BulletParams } from "../../common/src/baseBullet";
 import { BulletDefs } from "../../common/src/defs/bulletDefs";
 import { Random } from "../../common/src/utils/random";
 import { Vec2 } from "../../common/src/utils/vector";
 import { Player } from "./entities/player";
-import { Game } from "./game";
+import type { Game } from "./game";
 
 export class BulletManager {
     readonly bullets: ServerBullet[] = [];
     newBullets: ServerBullet[] = [];
 
-    constructor(readonly game: Game) { }
+    constructor(readonly game: Game) {}
 
     tick(dt: number) {
         for (let i = 0; i < this.bullets.length; i++) {
@@ -40,8 +40,11 @@ export class ServerBullet extends BaseBullet {
     override tick(dt: number) {
         super.tick(dt);
 
-        if (this.position.x < 0 || this.position.y < 0
-            || this.position.x > this.game.map.width || this.position.y > this.game.map.height
+        if (
+            this.position.x < 0 ||
+            this.position.y < 0 ||
+            this.position.x > this.game.map.width ||
+            this.position.y > this.game.map.height
         ) {
             this.dead = true;
             return;
@@ -49,7 +52,10 @@ export class ServerBullet extends BaseBullet {
 
         const def = BulletDefs.typeToDef(this.type);
 
-        const objs = this.game.grid.intersectLineSegment(this.lastPosition, this.position);
+        const objs = this.game.grid.intersectLineSegment(
+            this.lastPosition,
+            this.position
+        );
 
         const collisions = this.checkCollisions(objs, this.game.map);
 

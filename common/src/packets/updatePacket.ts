@@ -1,54 +1,57 @@
-import { BaseBullet, BulletParams } from "../baseBullet";
-import { AmmoType, EntityType, GameConstants } from "../constants";
+import { BaseBullet, type BulletParams } from "../baseBullet";
+import { type AmmoType, EntityType, GameConstants } from "../constants";
 import { type ExplosionDefKey, ExplosionDefs } from "../defs/explosionDefs";
-import { LootDefs, type LootDefKey } from "../defs/lootDefs";
+import { type LootDefKey, LootDefs } from "../defs/lootDefs";
 import { type ObstacleDefKey, ObstacleDefs } from "../defs/obstacleDefs";
-import { ProjectileDefKey, ProjectileDefs } from "../defs/projectileDefs";
-import { WeaponDefKey, WeaponDefs } from "../defs/weaponDefs";
-import { type GameBitStream, type Packet } from "../net";
-import { type Vector } from "../utils/vector";
+import { type ProjectileDefKey, ProjectileDefs } from "../defs/projectileDefs";
+import { type WeaponDefKey, WeaponDefs } from "../defs/weaponDefs";
+import type { GameBitStream, Packet } from "../net";
+import type { Vector } from "../utils/vector";
 
 export interface EntitiesNetData {
     [EntityType.Player]: {
         // Partial data should be used for data that changes often
-        position: Vector
-        direction: Vector
+        position: Vector;
+        direction: Vector;
 
         // while full data for data that rarely changes
         full?: {
-            activeWeapon: WeaponDefKey
-        }
-    }
+            activeWeapon: WeaponDefKey;
+        };
+    };
     [EntityType.Projectile]: {
-        position: Vector
+        position: Vector;
         full?: {
-            type: ProjectileDefKey
-            direction: Vector
-        }
-    }
+            type: ProjectileDefKey;
+            direction: Vector;
+        };
+    };
     [EntityType.Obstacle]: {
         full?: {
-            position: Vector
-            type: ObstacleDefKey
-        }
-    }
+            position: Vector;
+            type: ObstacleDefKey;
+        };
+    };
     [EntityType.Loot]: {
-        active: boolean
+        active: boolean;
         full?: {
-            position: Vector
-            type: LootDefKey
-        }
-    }
+            position: Vector;
+            type: LootDefKey;
+        };
+    };
 }
 
 interface EntitySerialization<T extends EntityType> {
     // how many bytes to alloc for the entity serialized data cache
-    partialSize: number
-    fullSize: number
-    serializePartial: (stream: GameBitStream, data: EntitiesNetData[T]) => void
-    serializeFull: (stream: GameBitStream, data: Required<EntitiesNetData[T]>["full"]) => void
-    deserializePartial: (stream: GameBitStream) => EntitiesNetData[T]
-    deserializeFull: (stream: GameBitStream) => Required<EntitiesNetData[T]>["full"]
+    partialSize: number;
+    fullSize: number;
+    serializePartial: (stream: GameBitStream, data: EntitiesNetData[T]) => void;
+    serializeFull: (
+        stream: GameBitStream,
+        data: Required<EntitiesNetData[T]>["full"]
+    ) => void;
+    deserializePartial: (stream: GameBitStream) => EntitiesNetData[T];
+    deserializeFull: (stream: GameBitStream) => Required<EntitiesNetData[T]>["full"];
 }
 
 export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> } = {
@@ -99,8 +102,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
     [EntityType.Obstacle]: {
         partialSize: 7,
         fullSize: 6,
-        serializePartial(_stream, _data) {
-        },
+        serializePartial(_stream, _data) {},
         serializeFull(stream, data) {
             stream.writePosition(data.position);
             ObstacleDefs.write(stream, data.type);
@@ -140,26 +142,30 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
 };
 
 interface Entity {
-    __type: EntityType
-    id: number
-    data: EntitiesNetData[Entity["__type"]]
+    __type: EntityType;
+    id: number;
+    data: EntitiesNetData[Entity["__type"]];
 }
 
 export interface Explosion {
-    position: Vector
-    type: ExplosionDefKey
+    position: Vector;
+    type: ExplosionDefKey;
 }
 
 export interface Shot {
-    id: number
-    weapon: WeaponDefKey
+    id: number;
+    weapon: WeaponDefKey;
 }
 
 //
 // Active player serialization
 //
 
-function serializeActivePlayerData(stream: GameBitStream, data: UpdatePacket["playerData"], dirty: UpdatePacket["playerDataDirty"]) {
+function serializeActivePlayerData(
+    stream: GameBitStream,
+    data: UpdatePacket["playerData"],
+    dirty: UpdatePacket["playerDataDirty"]
+) {
     stream.writeBoolean(dirty.id);
     if (dirty.id) {
         stream.writeUint16(data.id);
@@ -197,7 +203,11 @@ function serializeActivePlayerData(stream: GameBitStream, data: UpdatePacket["pl
     stream.writeAlignToNextByte();
 }
 
-function deserializePlayerData(stream: GameBitStream, data: UpdatePacket["playerData"], dirty: UpdatePacket["playerDataDirty"]) {
+function deserializePlayerData(
+    stream: GameBitStream,
+    data: UpdatePacket["playerData"],
+    dirty: UpdatePacket["playerDataDirty"]
+) {
     if (stream.readBoolean()) {
         dirty.id = true;
         data.id = stream.readUint16();
@@ -250,11 +260,12 @@ enum UpdateFlags {
 export class UpdatePacket implements Packet {
     deletedEntities: number[] = [];
     partialEntities: Entity[] = [];
-    fullEntities: Array<Entity & { data: Required<EntitiesNetData[Entity["__type"]]> }> = [];
+    fullEntities: Array<Entity & { data: Required<EntitiesNetData[Entity["__type"]]> }> =
+        [];
 
     newPlayers: Array<{
-        name: string
-        id: number
+        name: string;
+        id: number;
     }> = [];
 
     deletedPlayers: number[] = [];
@@ -285,12 +296,12 @@ export class UpdatePacket implements Packet {
 
     // server side cached entity serializations
     serverPartialEntities: Array<{
-        partialStream: GameBitStream
+        partialStream: GameBitStream;
     }> = [];
 
     serverFullEntities: Array<{
-        partialStream: GameBitStream
-        fullStream: GameBitStream
+        partialStream: GameBitStream;
+        fullStream: GameBitStream;
     }> = [];
 
     serialize(stream: GameBitStream): void {
@@ -300,7 +311,7 @@ export class UpdatePacket implements Packet {
         stream.writeUint16(flags);
 
         if (this.deletedEntities.length) {
-            stream.writeArray(this.deletedEntities, 16, id => {
+            stream.writeArray(this.deletedEntities, 16, (id) => {
                 stream.writeUint16(id);
             });
 
@@ -308,8 +319,12 @@ export class UpdatePacket implements Packet {
         }
 
         if (this.serverFullEntities.length) {
-            stream.writeArray(this.serverFullEntities, 16, entity => {
-                stream.writeBytes(entity.partialStream, 0, entity.partialStream.byteIndex);
+            stream.writeArray(this.serverFullEntities, 16, (entity) => {
+                stream.writeBytes(
+                    entity.partialStream,
+                    0,
+                    entity.partialStream.byteIndex
+                );
                 stream.writeBytes(entity.fullStream, 0, entity.fullStream.byteIndex);
             });
 
@@ -317,15 +332,19 @@ export class UpdatePacket implements Packet {
         }
 
         if (this.serverPartialEntities.length) {
-            stream.writeArray(this.serverPartialEntities, 16, entity => {
-                stream.writeBytes(entity.partialStream, 0, entity.partialStream.byteIndex);
+            stream.writeArray(this.serverPartialEntities, 16, (entity) => {
+                stream.writeBytes(
+                    entity.partialStream,
+                    0,
+                    entity.partialStream.byteIndex
+                );
             });
 
             flags |= UpdateFlags.PartialEntities;
         }
 
         if (this.newPlayers.length) {
-            stream.writeArray(this.newPlayers, 8, player => {
+            stream.writeArray(this.newPlayers, 8, (player) => {
                 stream.writeUint16(player.id);
                 stream.writeASCIIString(player.name, GameConstants.player.nameMaxLength);
             });
@@ -334,7 +353,7 @@ export class UpdatePacket implements Packet {
         }
 
         if (this.deletedPlayers.length) {
-            stream.writeArray(this.deletedPlayers, 8, id => {
+            stream.writeArray(this.deletedPlayers, 8, (id) => {
                 stream.writeUint16(id);
             });
 
@@ -348,14 +367,14 @@ export class UpdatePacket implements Packet {
         }
 
         if (this.bullets.length) {
-            stream.writeArray(this.bullets, 8, bullet => {
+            stream.writeArray(this.bullets, 8, (bullet) => {
                 BaseBullet.serialize(stream, bullet);
             });
             flags |= UpdateFlags.Bullets;
         }
 
         if (this.explosions.length) {
-            stream.writeArray(this.explosions, 8, explosion => {
+            stream.writeArray(this.explosions, 8, (explosion) => {
                 stream.writePosition(explosion.position);
                 ExplosionDefs.write(stream, explosion.type);
             });
@@ -364,7 +383,7 @@ export class UpdatePacket implements Packet {
         }
 
         if (this.shots.length) {
-            stream.writeArray(this.shots, 8, shot => {
+            stream.writeArray(this.shots, 8, (shot) => {
                 stream.writeUint16(shot.id);
                 WeaponDefs.write(stream, shot.weapon);
             });

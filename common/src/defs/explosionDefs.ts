@@ -1,18 +1,18 @@
-import { DefinitionList, ImgDefinition } from "../utils/definitionList";
-import { type ParticleDefKey } from "../../../client/src/game/particle";
+import type { ParticleDefKey } from "../../../client/src/game/particle";
+import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
 
 export interface ExplosionDef {
-    radius: number
-    damage: number
+    radius: number;
+    damage: number;
     img: ImgDefinition & {
-        animDuration: number
-        animScale: number
-    }
+        animDuration: number;
+        animScale: number;
+    };
     particles?: {
-        type: ParticleDefKey
-        amount: number
-    }
-    sound?: string
+        type: ParticleDefKey;
+        amount: number;
+    };
+    sound?: string;
 }
 
 export const ExplosionDefs = new DefinitionList({
@@ -47,4 +47,4 @@ export const ExplosionDefs = new DefinitionList({
     }
 } satisfies Record<string, ExplosionDef>);
 
-export type ExplosionDefKey = keyof typeof ExplosionDefs["definitions"];
+export type ExplosionDefKey = keyof (typeof ExplosionDefs)["definitions"];

@@ -1,15 +1,15 @@
 import { Container, Sprite, Text, Texture } from "pixi.js";
-import { type Game } from "../game";
-import { ClientEntity } from "./entity";
-import { type EntitiesNetData } from "../../../../common/src/packets/updatePacket";
-import { Vec2 } from "../../../../common/src/utils/vector";
-import { Camera } from "../camera";
 import { EntityType, GameConstants } from "../../../../common/src/constants";
-import { WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
+import { type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
+import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
-import { Helpers } from "../../helpers";
-import { Random } from "../../../../common/src/utils/random";
 import { MathUtils } from "../../../../common/src/utils/math";
+import { Random } from "../../../../common/src/utils/random";
+import { Vec2 } from "../../../../common/src/utils/vector";
+import { Helpers } from "../../helpers";
+import { Camera } from "../camera";
+import type { Game } from "../game";
+import { ClientEntity } from "./entity";
 
 export class Player extends ClientEntity {
     readonly __type = EntityType.Player;
@@ -70,13 +70,19 @@ export class Player extends ClientEntity {
         this.nameText.position.set(0, 90);
         this.staticContainer.addChild(this.nameText);
 
-        const tint = GameConstants.player[this.id === this.game.activePlayerID ? "activeColor" : "enemyColor"];
+        const tint =
+            GameConstants.player[
+                this.id === this.game.activePlayerID ? "activeColor" : "enemyColor"
+            ];
         this.images.base.tint = tint;
         this.images.leftFist.tint = tint;
         this.images.rightFist.tint = tint;
     }
 
-    override updateFromData(data: EntitiesNetData[EntityType.Player], isNew: boolean): void {
+    override updateFromData(
+        data: EntitiesNetData[EntityType.Player],
+        isNew: boolean
+    ): void {
         super.updateFromData(data, isNew);
 
         this.oldPosition = isNew ? data.position : Vec2.clone(this.position);
@@ -117,7 +123,11 @@ export class Player extends ClientEntity {
         this.container.position = pos;
         this.staticContainer.position = pos;
 
-        const direction = Vec2.lerp(this.oldDirection, this.direction, this.interpolationFactor);
+        const direction = Vec2.lerp(
+            this.oldDirection,
+            this.direction,
+            this.interpolationFactor
+        );
         this.container.rotation = Math.atan2(direction.y, direction.x);
 
         this.muzzleTicker -= dt;
@@ -134,7 +144,9 @@ export class Player extends ClientEntity {
         const pos = Vec2.new(def.barrelLength, 0);
         const muzzle = this.images.muzzle;
         this.muzzleTicker = 0.2;
-        muzzle.texture = Texture.from(def.muzzleImgs[Random.int(0, def.muzzleImgs.length - 1)]);
+        muzzle.texture = Texture.from(
+            def.muzzleImgs[Random.int(0, def.muzzleImgs.length - 1)]
+        );
         muzzle.position = Camera.vecToScreen(pos);
     }
 

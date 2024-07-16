@@ -1,21 +1,21 @@
-import { BaseGameMap, Wall } from "./baseMap";
-import { EntityType } from "./constants";
-import { BulletDefKey, BulletDefs } from "./defs/bulletDefs";
-import { GameBitStream } from "./net";
-import { Hitbox } from "./utils/hitbox";
-import { Vec2, Vector } from "./utils/vector";
+import type { BaseGameMap, Wall } from "./baseMap";
+import type { EntityType } from "./constants";
+import { type BulletDefKey, BulletDefs } from "./defs/bulletDefs";
+import type { GameBitStream } from "./net";
+import type { Hitbox } from "./utils/hitbox";
+import { Vec2, type Vector } from "./utils/vector";
 
 export interface BulletParams {
-    initialPosition: Vector
-    shooterId: number
-    direction: Vector
-    type: BulletDefKey
+    initialPosition: Vector;
+    shooterId: number;
+    direction: Vector;
+    type: BulletDefKey;
 }
 
 interface GameEntity {
-    __type: EntityType
-    hitbox: Hitbox
-    id: number
+    __type: EntityType;
+    hitbox: Hitbox;
+    id: number;
 }
 
 export class BaseBullet implements BulletParams {
@@ -43,7 +43,10 @@ export class BaseBullet implements BulletParams {
 
         const def = BulletDefs.typeToDef(this.type);
 
-        this.finalPosition = Vec2.add(this.position, Vec2.mul(this.direction, def.maxDistance));
+        this.finalPosition = Vec2.add(
+            this.position,
+            Vec2.mul(this.direction, def.maxDistance)
+        );
     }
 
     tick(dt: number) {
@@ -60,17 +63,23 @@ export class BaseBullet implements BulletParams {
         }
     }
 
-    protected checkCollisions<T extends GameEntity>(entities: Iterable<T>, gameMap: BaseGameMap) {
+    protected checkCollisions<T extends GameEntity>(
+        entities: Iterable<T>,
+        gameMap: BaseGameMap
+    ) {
         const collisions: Array<{
-            entity?: T
-            wall?: Wall
-            position: Vector
-            normal: Vector
-            distSquared: number
+            entity?: T;
+            wall?: Wall;
+            position: Vector;
+            normal: Vector;
+            distSquared: number;
         }> = [];
 
-        if (this.position.x < 0 || this.position.y < 0
-            || this.position.x > gameMap.width || this.position.y > gameMap.height
+        if (
+            this.position.x < 0 ||
+            this.position.y < 0 ||
+            this.position.x > gameMap.width ||
+            this.position.y > gameMap.height
         ) {
             return collisions;
         }
@@ -78,7 +87,10 @@ export class BaseBullet implements BulletParams {
         for (const entity of entities) {
             if (entity.id === this.shooterId) continue;
 
-            const intersection = entity.hitbox.intersectsLine(this.lastPosition, this.position);
+            const intersection = entity.hitbox.intersectsLine(
+                this.lastPosition,
+                this.position
+            );
 
             if (intersection) {
                 collisions.push({
@@ -93,7 +105,10 @@ export class BaseBullet implements BulletParams {
         const { walls } = gameMap.intersectLineSegment(this.lastPosition, this.position);
 
         for (const wall of walls) {
-            const intersection = wall.hitbox.intersectsLine(this.lastPosition, this.position);
+            const intersection = wall.hitbox.intersectsLine(
+                this.lastPosition,
+                this.position
+            );
             if (intersection) {
                 collisions.push({
                     wall,

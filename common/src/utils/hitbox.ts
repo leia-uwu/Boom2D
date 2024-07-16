@@ -10,20 +10,20 @@ export enum HitboxType {
 
 export interface HitboxJSONMapping {
     [HitboxType.Circle]: {
-        readonly type: HitboxType.Circle
-        readonly radius: number
-        readonly position: Vector
-    }
+        readonly type: HitboxType.Circle;
+        readonly radius: number;
+        readonly position: Vector;
+    };
     [HitboxType.Rect]: {
-        readonly type: HitboxType.Rect
-        readonly min: Vector
-        readonly max: Vector
-    }
+        readonly type: HitboxType.Rect;
+        readonly min: Vector;
+        readonly max: Vector;
+    };
     [HitboxType.Polygon]: {
-        readonly type: HitboxType.Polygon
-        readonly center: Vector
-        readonly verts: Vector[]
-    }
+        readonly type: HitboxType.Polygon;
+        readonly center: Vector;
+        readonly verts: Vector[];
+    };
 }
 
 export type HitboxJSON = HitboxJSONMapping[HitboxType];
@@ -113,29 +113,61 @@ export class CircleHitbox extends BaseHitbox {
 
     override transform(position: Vector, rotation = 0, scale = 1) {
         const radius = this.radius * scale;
-        const newPos = Vec2.add(Vec2.rotate(Vec2.mul(this.position, scale), rotation), position);
+        const newPos = Vec2.add(
+            Vec2.rotate(Vec2.mul(this.position, scale), rotation),
+            position
+        );
         return new CircleHitbox(radius, newPos);
     }
 
     override collidesWith(that: Hitbox): boolean {
         switch (that.type) {
             case HitboxType.Circle:
-                return Collision.checkCircleCircle(that.position, that.radius, this.position, this.radius);
+                return Collision.checkCircleCircle(
+                    that.position,
+                    that.radius,
+                    this.position,
+                    this.radius
+                );
             case HitboxType.Rect:
-                return Collision.checkRectCircle(that.min, that.max, this.position, this.radius);
+                return Collision.checkRectCircle(
+                    that.min,
+                    that.max,
+                    this.position,
+                    this.radius
+                );
             case HitboxType.Polygon:
-                return Collision.checkCirclePolygon(this.position, this.radius, that.verts);
+                return Collision.checkCirclePolygon(
+                    this.position,
+                    this.radius,
+                    that.verts
+                );
         }
     }
 
     override getIntersection(that: Hitbox) {
         switch (that.type) {
             case HitboxType.Circle:
-                return Collision.circleCircleIntersection(this.position, this.radius, that.position, that.radius);
+                return Collision.circleCircleIntersection(
+                    this.position,
+                    this.radius,
+                    that.position,
+                    that.radius
+                );
             case HitboxType.Rect:
-                return Collision.rectCircleIntersection(that.min, that.max, this.position, this.radius);
+                return Collision.rectCircleIntersection(
+                    that.min,
+                    that.max,
+                    this.position,
+                    this.radius
+                );
             case HitboxType.Polygon:
-                return Collision.circlePolygonIntersection(this.position, this.radius, that.center, that.verts);
+                return Collision.circlePolygonIntersection(
+                    this.position,
+                    this.radius,
+                    that.center,
+                    that.verts
+                );
         }
     }
 
@@ -177,24 +209,15 @@ export class RectHitbox extends BaseHitbox {
 
     static fromLine(a: Vector, b: Vector): RectHitbox {
         return new RectHitbox(
-            Vec2.new(
-                MathUtils.min(a.x, b.x),
-                MathUtils.min(a.y, b.y)
-            ),
-            Vec2.new(
-                MathUtils.max(a.x, b.x),
-                MathUtils.max(a.y, b.y)
-            )
+            Vec2.new(MathUtils.min(a.x, b.x), MathUtils.min(a.y, b.y)),
+            Vec2.new(MathUtils.max(a.x, b.x), MathUtils.max(a.y, b.y))
         );
     }
 
     static fromRect(width: number, height: number, pos = Vec2.new(0, 0)): RectHitbox {
         const size = Vec2.new(width / 2, height / 2);
 
-        return new RectHitbox(
-            Vec2.sub(pos, size),
-            Vec2.add(pos, size)
-        );
+        return new RectHitbox(Vec2.sub(pos, size), Vec2.add(pos, size));
     }
 
     override toJSON(): HitboxJSONMapping[HitboxType.Rect] {
@@ -211,13 +234,19 @@ export class RectHitbox extends BaseHitbox {
     static fromCircle(radius: number, position: Vector): RectHitbox {
         return new RectHitbox(
             Vec2.new(position.x - radius, position.y - radius),
-            Vec2.new(position.x + radius, position.y + radius));
+            Vec2.new(position.x + radius, position.y + radius)
+        );
     }
 
     override transform(position: Vector, rotation = 0, scale = 1) {
         const e = Vec2.mul(Vec2.sub(this.max, this.min), 0.5);
         const c = Vec2.add(this.min, e);
-        const pts = [Vec2.new(c.x - e.x, c.y - e.y), Vec2.new(c.x - e.x, c.y + e.y), Vec2.new(c.x + e.x, c.y - e.y), Vec2.new(c.x + e.x, c.y + e.y)];
+        const pts = [
+            Vec2.new(c.x - e.x, c.y - e.y),
+            Vec2.new(c.x - e.x, c.y + e.y),
+            Vec2.new(c.x + e.x, c.y - e.y),
+            Vec2.new(c.x + e.x, c.y + e.y)
+        ];
         const min = Vec2.new(Number.MAX_VALUE, Number.MAX_VALUE);
         const max = Vec2.new(-Number.MAX_VALUE, -Number.MAX_VALUE);
 
@@ -235,7 +264,12 @@ export class RectHitbox extends BaseHitbox {
     override collidesWith(that: Hitbox): boolean {
         switch (that.type) {
             case HitboxType.Circle:
-                return Collision.checkRectCircle(this.min, this.max, that.position, that.radius);
+                return Collision.checkRectCircle(
+                    this.min,
+                    this.max,
+                    that.position,
+                    that.radius
+                );
             case HitboxType.Rect:
                 return Collision.checkRectRect(that.min, that.max, this.min, this.max);
         }
@@ -245,9 +279,19 @@ export class RectHitbox extends BaseHitbox {
     override getIntersection(that: Hitbox) {
         switch (that.type) {
             case HitboxType.Circle:
-                return Collision.rectCircleIntersection(this.min, this.max, that.position, that.radius);
+                return Collision.rectCircleIntersection(
+                    this.min,
+                    this.max,
+                    that.position,
+                    that.radius
+                );
             case HitboxType.Rect:
-                return Collision.rectRectIntersection(this.min, this.max, that.min, that.max);
+                return Collision.rectRectIntersection(
+                    this.min,
+                    this.max,
+                    that.min,
+                    that.max
+                );
         }
         return null;
     }
@@ -260,8 +304,14 @@ export class RectHitbox extends BaseHitbox {
         const centerX = (this.min.x + this.max.x) / 2;
         const centerY = (this.min.y + this.max.y) / 2;
 
-        this.min = Vec2.new((this.min.x - centerX) * scale + centerX, (this.min.y - centerY) * scale + centerY);
-        this.max = Vec2.new((this.max.x - centerX) * scale + centerX, (this.max.y - centerY) * scale + centerY);
+        this.min = Vec2.new(
+            (this.min.x - centerX) * scale + centerX,
+            (this.min.y - centerY) * scale + centerY
+        );
+        this.max = Vec2.new(
+            (this.max.x - centerX) * scale + centerX,
+            (this.max.y - centerY) * scale + centerY
+        );
     }
 
     override intersectsLine(a: Vector, b: Vector): LineIntersection {
@@ -273,32 +323,45 @@ export class RectHitbox extends BaseHitbox {
     }
 
     override isPointInside(point: Vector): boolean {
-        return point.x > this.min.x && point.y > this.min.y && point.x < this.max.x && point.y < this.max.y;
+        return (
+            point.x > this.min.x &&
+            point.y > this.min.y &&
+            point.x < this.max.x &&
+            point.y < this.max.y
+        );
     }
 }
 
 export class PolygonHitbox extends BaseHitbox {
     override readonly type = HitboxType.Polygon;
     verts: Vector[];
-    constructor(verts: Vector[], public center = Vec2.new(0, 0)) {
+    constructor(
+        verts: Vector[],
+        public center = Vec2.new(0, 0)
+    ) {
         super();
         if (verts.length < 3) {
             throw new Error("Polygons must have at least 3 points");
         }
-        this.verts = verts.map(p => Vec2.clone(p));
+        this.verts = verts.map((p) => Vec2.clone(p));
     }
 
     override toJSON(): HitboxJSONMapping[HitboxType.Polygon] {
         return {
             type: this.type,
-            verts: this.verts.map(point => Vec2.clone(point)),
+            verts: this.verts.map((point) => Vec2.clone(point)),
             center: Vec2.clone(this.center)
         };
     }
 
     getIntersection(that: Hitbox): CollisionResponse {
         if (that.type === HitboxType.Circle) {
-            return Collision.circlePolygonIntersection(that.position, that.radius, this.center, this.verts);
+            return Collision.circlePolygonIntersection(
+                that.position,
+                that.radius,
+                this.center,
+                this.verts
+            );
         }
         return null;
     }
@@ -366,7 +429,7 @@ export class PolygonHitbox extends BaseHitbox {
             const { x: xi, y: yi } = this.verts[i];
             const { x: xj, y: yj } = this.verts[j];
 
-            if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) {
+            if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
                 inside = !inside;
             }
         }

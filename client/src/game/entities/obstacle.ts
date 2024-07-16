@@ -1,12 +1,15 @@
 import { Sprite } from "pixi.js";
-import { type Game } from "../game";
-import { ClientEntity } from "./entity";
-import { type EntitiesNetData } from "../../../../common/src/packets/updatePacket";
-import { Camera } from "../camera";
 import { EntityType } from "../../../../common/src/constants";
-import { BaseHitbox, Hitbox } from "../../../../common/src/utils/hitbox";
-import { ObstacleDefKey, ObstacleDefs } from "../../../../common/src/defs/obstacleDefs";
+import {
+    type ObstacleDefKey,
+    ObstacleDefs
+} from "../../../../common/src/defs/obstacleDefs";
+import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
+import { BaseHitbox, type Hitbox } from "../../../../common/src/utils/hitbox";
 import { Helpers } from "../../helpers";
+import { Camera } from "../camera";
+import type { Game } from "../game";
+import { ClientEntity } from "./entity";
 
 export class Obstacle extends ClientEntity {
     readonly __type = EntityType.Obstacle;
@@ -21,7 +24,10 @@ export class Obstacle extends ClientEntity {
         this.sprite.anchor.set(0.5, 0.5);
     }
 
-    override updateFromData(data: EntitiesNetData[EntityType.Obstacle], isNew: boolean): void {
+    override updateFromData(
+        data: EntitiesNetData[EntityType.Obstacle],
+        isNew: boolean
+    ): void {
         super.updateFromData(data, isNew);
 
         if (data.full) {

@@ -10,10 +10,13 @@ export const ClientConfig: ClientConfigType = {
 };
 
 interface ClientConfigType {
-    readonly servers: Record<string, {
-        readonly name: string
-        readonly address: string
-        readonly https: boolean
-    }>
-    readonly defaultServer: string
+    readonly servers: Record<
+        string,
+        {
+            readonly name: string;
+            readonly address: string;
+            readonly https: boolean;
+        }
+    >;
+    readonly defaultServer: string;
 }

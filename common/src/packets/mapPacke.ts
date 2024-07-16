@@ -1,5 +1,5 @@
-import { BaseWall } from "../baseMap";
-import { GameBitStream, Packet } from "../net";
+import type { BaseWall } from "../baseMap";
+import type { GameBitStream, Packet } from "../net";
 
 export class MapPacket implements Packet {
     width = 0;
@@ -10,7 +10,7 @@ export class MapPacket implements Packet {
         stream.writeUint16(this.width);
         stream.writeUint16(this.height);
 
-        stream.writeArray(this.walls, 16, wall => {
+        stream.writeArray(this.walls, 16, (wall) => {
             stream.writeHitbox(wall.hitbox);
             stream.writeBits(wall.color, 24);
         });

@@ -1,16 +1,20 @@
 import { Sprite } from "pixi.js";
-import { ExplosionDef, ExplosionDefKey, ExplosionDefs } from "../../../common/src/defs/explosionDefs";
-import { Vector } from "../../../common/src/utils/vector";
-import { Game } from "./game";
+import {
+    type ExplosionDef,
+    type ExplosionDefKey,
+    ExplosionDefs
+} from "../../../common/src/defs/explosionDefs";
 import { MathUtils } from "../../../common/src/utils/math";
-import { Camera } from "./camera";
 import { Random } from "../../../common/src/utils/random";
+import type { Vector } from "../../../common/src/utils/vector";
 import { Helpers } from "../helpers";
+import { Camera } from "./camera";
+import type { Game } from "./game";
 
 export class ExplosionManager {
     explosions: Explosion[] = [];
 
-    constructor(readonly game: Game) { }
+    constructor(readonly game: Game) {}
 
     addExplosion(type: ExplosionDefKey, position: Vector) {
         const explosion = new Explosion(type, position);
@@ -21,7 +25,11 @@ export class ExplosionManager {
         const def = ExplosionDefs.typeToDef(type) as ExplosionDef;
         if (def.particles) {
             for (let i = 0; i < def.particles.amount; i++) {
-                this.game.particleManager.addParticle(position, Random.vector(-1, 1, -1, 1), def.particles.type);
+                this.game.particleManager.addParticle(
+                    position,
+                    Random.vector(-1, 1, -1, 1),
+                    def.particles.type
+                );
             }
         }
 
@@ -51,7 +59,10 @@ class Explosion {
     ticks = 0;
     targetScale: number;
 
-    constructor(readonly type: ExplosionDefKey, readonly position: Vector) {
+    constructor(
+        readonly type: ExplosionDefKey,
+        readonly position: Vector
+    ) {
         const def = ExplosionDefs.typeToDef(this.type);
         Helpers.spriteFromDef(this.sprite, def.img);
         this.targetScale = Camera.unitToScreen(def.radius * def.img.animScale);

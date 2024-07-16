@@ -1,10 +1,10 @@
-import { DefinitionList, ImgDefinition } from "../utils/definitionList";
-import { CircleHitbox, HitboxJSON } from "../utils/hitbox";
+import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
+import { CircleHitbox, type HitboxJSON } from "../utils/hitbox";
 
 export interface ObstacleDef {
-    hitbox: HitboxJSON
-    health: number
-    img: ImgDefinition
+    hitbox: HitboxJSON;
+    health: number;
+    img: ImgDefinition;
 }
 
 export const ObstacleDefs = new DefinitionList({
@@ -18,4 +18,4 @@ export const ObstacleDefs = new DefinitionList({
     }
 } satisfies Record<string, ObstacleDef>);
 
-export type ObstacleDefKey = keyof typeof ObstacleDefs["definitions"];
+export type ObstacleDefKey = keyof (typeof ObstacleDefs)["definitions"];

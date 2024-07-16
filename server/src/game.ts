@@ -1,16 +1,16 @@
-import { ServerWebSocket } from "bun";
-import { Player } from "./entities/player";
-import { type PlayerData } from "./server";
-import { type ServerEntity } from "./entities/entity";
-import { Grid } from "./grid";
-import { EntityPool } from "../../common/src/utils/entityPool";
+import type { ServerWebSocket } from "bun";
 import { GameConstants } from "../../common/src/constants";
-import { type ServerConfig } from "./config";
-import { Shot } from "../../common/src/packets/updatePacket";
-import { IDAllocator } from "./idAllocator";
+import type { Shot } from "../../common/src/packets/updatePacket";
+import { EntityPool } from "../../common/src/utils/entityPool";
 import { BulletManager } from "./bullet";
-import { GameMap } from "./map";
+import type { ServerConfig } from "./config";
+import type { ServerEntity } from "./entities/entity";
+import { Player } from "./entities/player";
 import { ExplosionManager } from "./explosion";
+import { Grid } from "./grid";
+import { IDAllocator } from "./idAllocator";
+import { GameMap } from "./map";
+import type { PlayerData } from "./server";
 
 export class Game {
     players = new EntityPool<Player>();

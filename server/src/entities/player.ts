@@ -1,22 +1,25 @@
-import { ServerWebSocket } from "bun";
-import { ServerEntity } from "./entity";
-import { type PlayerData } from "../server";
-import { Vec2, type Vector } from "../../../common/src/utils/vector";
+import type { ServerWebSocket } from "bun";
+import { type AmmoType, EntityType, GameConstants } from "../../../common/src/constants";
+import { type LootDef, LootDefs } from "../../../common/src/defs/lootDefs";
+import type { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
 import { GameBitStream, type Packet, PacketStream } from "../../../common/src/net";
-import { type Game } from "../game";
-import { UpdatePacket, type EntitiesNetData } from "../../../common/src/packets/updatePacket";
-import { CircleHitbox, RectHitbox } from "../../../common/src/utils/hitbox";
-import { Random } from "../../../common/src/utils/random";
-import { MathUtils } from "../../../common/src/utils/math";
+import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { InputPacket } from "../../../common/src/packets/inputPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
-import { AmmoType, EntityType, GameConstants } from "../../../common/src/constants";
-import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
-import { Obstacle } from "./obstacle";
-import { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
+import {
+    type EntitiesNetData,
+    UpdatePacket
+} from "../../../common/src/packets/updatePacket";
+import { CircleHitbox, RectHitbox } from "../../../common/src/utils/hitbox";
+import { MathUtils } from "../../../common/src/utils/math";
+import { Random } from "../../../common/src/utils/random";
+import { Vec2, type Vector } from "../../../common/src/utils/vector";
+import type { Game } from "../game";
+import type { PlayerData } from "../server";
 import { WeaponManager } from "../weaponManager";
-import { LootDef, LootDefs } from "../../../common/src/defs/lootDefs";
-import { Loot } from "./loot";
+import { ServerEntity } from "./entity";
+import type { Loot } from "./loot";
+import { Obstacle } from "./obstacle";
 
 export class Player extends ServerEntity {
     readonly __type = EntityType.Player;
@@ -86,8 +89,8 @@ export class Player extends ServerEntity {
     firstPacket = true;
 
     /**
-    * Entities the player can see
-    */
+     * Entities the player can see
+     */
     visibleEntities = new Set<ServerEntity>();
 
     // what needs to be sent again to the client
@@ -137,12 +140,16 @@ export class Player extends ServerEntity {
         if (this.moveLeft) movement.x--;
         if (this.moveRight) movement.x++;
 
-        if (movement.x * movement.y !== 0) { // If the product is non-zero, then both of the components must be non-zero
+        if (movement.x * movement.y !== 0) {
+            // If the product is non-zero, then both of the components must be non-zero
             movement.x *= Math.SQRT1_2;
             movement.y *= Math.SQRT1_2;
         }
 
-        this.position = Vec2.add(this.position, Vec2.mul(movement, GameConstants.player.speed * dt));
+        this.position = Vec2.add(
+            this.position,
+            Vec2.mul(movement, GameConstants.player.speed * dt)
+        );
 
         const entities = this.game.grid.intersectsHitbox(this.hitbox);
 
@@ -152,7 +159,10 @@ export class Player extends ServerEntity {
 
             const collision = this.hitbox.getIntersection(entity.hitbox);
             if (collision) {
-                this.position = Vec2.sub(this.position, Vec2.mul(collision.dir, collision.pen));
+                this.position = Vec2.sub(
+                    this.position,
+                    Vec2.mul(collision.dir, collision.pen)
+                );
             }
         }
 
@@ -161,13 +171,24 @@ export class Player extends ServerEntity {
         for (const wall of wallsAndFloors.walls) {
             const collision = this.hitbox.getIntersection(wall.hitbox);
             if (collision) {
-                this.position = Vec2.sub(this.position, Vec2.mul(collision.dir, collision.pen));
+                this.position = Vec2.sub(
+                    this.position,
+                    Vec2.mul(collision.dir, collision.pen)
+                );
             }
         }
 
         const rad = this.hitbox.radius;
-        this.position.x = MathUtils.clamp(this.position.x, rad, this.game.map.width - rad);
-        this.position.y = MathUtils.clamp(this.position.y, rad, this.game.map.height - rad);
+        this.position.x = MathUtils.clamp(
+            this.position.x,
+            rad,
+            this.game.map.width - rad
+        );
+        this.position.y = MathUtils.clamp(
+            this.position.y,
+            rad,
+            this.game.map.height - rad
+        );
 
         this.weaponManager.tick(dt);
 
@@ -296,17 +317,21 @@ export class Player extends ServerEntity {
         }
 
         for (const entity of this.game.fullDirtyEntities) {
-            if (newVisibleEntities.has(entity)
-                && !updatePacket.serverFullEntities.includes(entity)
-                && !updatePacket.deletedEntities.includes(entity.id)) {
+            if (
+                newVisibleEntities.has(entity) &&
+                !updatePacket.serverFullEntities.includes(entity) &&
+                !updatePacket.deletedEntities.includes(entity.id)
+            ) {
                 updatePacket.serverFullEntities.push(entity);
             }
         }
 
         for (const entity of this.game.partialDirtyEntities) {
-            if (newVisibleEntities.has(entity)
-                && !updatePacket.serverFullEntities.includes(entity)
-                && !updatePacket.deletedEntities.includes(entity.id)) {
+            if (
+                newVisibleEntities.has(entity) &&
+                !updatePacket.serverFullEntities.includes(entity) &&
+                !updatePacket.deletedEntities.includes(entity.id)
+            ) {
                 updatePacket.serverPartialEntities.push(entity);
             }
         }
@@ -315,19 +340,26 @@ export class Player extends ServerEntity {
         updatePacket.playerData = this;
         updatePacket.playerDataDirty = this.dirty;
 
-        updatePacket.newPlayers = this.firstPacket ? [...this.game.players] : this.game.newPlayers;
+        updatePacket.newPlayers = this.firstPacket
+            ? [...this.game.players]
+            : this.game.newPlayers;
         updatePacket.deletedPlayers = this.game.deletedPlayers;
 
         for (const bullet of this.game.bulletManager.newBullets) {
-            if (rect.isPointInside(bullet.initialPosition)
-                || rect.isPointInside(bullet.finalPosition)
-                || rect.intersectsLine(bullet.initialPosition, bullet.finalPosition)) {
+            if (
+                rect.isPointInside(bullet.initialPosition) ||
+                rect.isPointInside(bullet.finalPosition) ||
+                rect.intersectsLine(bullet.initialPosition, bullet.finalPosition)
+            ) {
                 updatePacket.bullets.push(bullet);
             }
         }
 
         for (const explosion of this.game.explosionManager.explosions) {
-            if (rect.isPointInside(explosion.position) || rect.collidesWith(explosion.hitbox)) {
+            if (
+                rect.isPointInside(explosion.position) ||
+                rect.collidesWith(explosion.hitbox)
+            ) {
                 updatePacket.explosions.push(explosion);
             }
         }

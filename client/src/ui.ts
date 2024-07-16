@@ -1,8 +1,8 @@
-import { ServerInfo } from "../../common/src/apiTypings";
+import type { ServerInfo } from "../../common/src/apiTypings";
 import { GameConstants } from "../../common/src/constants";
 import { ClientConfig } from "./config";
 import { Helpers } from "./helpers";
-import { type App } from "./main";
+import type { App } from "./main";
 import { settings } from "./settings";
 
 export class UiManager {
@@ -28,7 +28,9 @@ export class UiManager {
         this.playButton.addEventListener("click", () => {
             if (this.playButton.disabled) return;
             const server = ClientConfig.servers[this.serverSelect.value];
-            this.app.game.connect(`ws${server.https ? "s" : ""}://${server.address}/play`);
+            this.app.game.connect(
+                `ws${server.https ? "s" : ""}://${server.address}/play`
+            );
         });
 
         this.loadServerInfo();
@@ -52,12 +54,16 @@ export class UiManager {
             option.value = serverId;
             option.innerText = server.name;
 
-            fetch(`http${server.https ? "s" : ""}://${server.address}/server_info`).then(async res => {
-                const data = await res.json() as ServerInfo;
-                option.innerText = `${server.name} - ${data.playerCount} Players`;
-            }).catch(err => {
-                console.error(`Failed to fetch server info for region ${server.name}: ${err}`);
-            });
+            fetch(`http${server.https ? "s" : ""}://${server.address}/server_info`)
+                .then(async (res) => {
+                    const data = (await res.json()) as ServerInfo;
+                    option.innerText = `${server.name} - ${data.playerCount} Players`;
+                })
+                .catch((err) => {
+                    console.error(
+                        `Failed to fetch server info for region ${server.name}: ${err}`
+                    );
+                });
         }
     }
 }

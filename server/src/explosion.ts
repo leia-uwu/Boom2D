@@ -1,17 +1,15 @@
 import { EntityType } from "../../common/src/constants";
-import { ExplosionDefKey, ExplosionDefs } from "../../common/src/defs/explosionDefs";
+import { type ExplosionDefKey, ExplosionDefs } from "../../common/src/defs/explosionDefs";
 import { CircleHitbox } from "../../common/src/utils/hitbox";
 import { MathUtils } from "../../common/src/utils/math";
-import { Vec2, Vector } from "../../common/src/utils/vector";
+import { Vec2, type Vector } from "../../common/src/utils/vector";
 import { Player } from "./entities/player";
-import { Game } from "./game";
+import type { Game } from "./game";
 
 export class ExplosionManager {
     explosions: Explosion[] = [];
 
-    constructor(readonly game: Game) {
-
-    }
+    constructor(readonly game: Game) {}
 
     addExplosion(type: ExplosionDefKey, position: Vector, source: Player) {
         const explosion = new Explosion(type, position, source);
@@ -43,8 +41,13 @@ class Explosion {
 
         for (const entity of entities) {
             if (!entity.hitbox.collidesWith(this.hitbox)) continue;
-            if (!(entity.__type === EntityType.Player
-                || entity.__type === EntityType.Obstacle)) continue;
+            if (
+                !(
+                    entity.__type === EntityType.Player ||
+                    entity.__type === EntityType.Obstacle
+                )
+            )
+                continue;
 
             const dist = Vec2.distance(this.position, entity.position);
             const damage = MathUtils.remap(dist, 0, def.radius, def.damage, 0);

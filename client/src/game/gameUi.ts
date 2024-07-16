@@ -1,12 +1,12 @@
-import { AmmoType, GameConstants } from "../../../common/src/constants";
-import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
-import { type GameOverPacket } from "../../../common/src/packets/gameOverPacket";
-import { UpdatePacket } from "../../../common/src/packets/updatePacket";
+import { type AmmoType, GameConstants } from "../../../common/src/constants";
+import { type WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
+import type { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
+import type { UpdatePacket } from "../../../common/src/packets/updatePacket";
 import { Helpers } from "../helpers";
-import { type Game } from "./game";
+import type { Game } from "./game";
 
 export class GameUi {
-    constructor(public game: Game) { }
+    constructor(public game: Game) {}
 
     health = 0;
     healthDisplay = Helpers.getElem("#player-health");
@@ -36,7 +36,7 @@ export class GameUi {
             this.gameOverScreen.style.display = "none";
         });
 
-        Helpers.getElem("#game-ui").addEventListener("contextmenu", e => {
+        Helpers.getElem("#game-ui").addEventListener("contextmenu", (e) => {
             e.preventDefault();
         });
 
@@ -44,7 +44,7 @@ export class GameUi {
         for (const weapon of WeaponDefs) {
             const container = document.createElement("div");
             container.classList.add("inventory-weapon");
-            container.addEventListener("pointerdown", e => {
+            container.addEventListener("pointerdown", (e) => {
                 this.game.inputManager.weaponToSwitch = weapon;
                 e.stopPropagation();
             });
@@ -81,7 +81,10 @@ export class GameUi {
         }
     }
 
-    updateUi(data: UpdatePacket["playerData"], dirty: UpdatePacket["playerDataDirty"]): void {
+    updateUi(
+        data: UpdatePacket["playerData"],
+        dirty: UpdatePacket["playerDataDirty"]
+    ): void {
         if (dirty.health) {
             this.health = data.health;
             this.healthDisplay.innerText = `${this.health}%`;

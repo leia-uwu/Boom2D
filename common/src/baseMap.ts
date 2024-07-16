@@ -1,10 +1,10 @@
-import { BaseHitbox, Hitbox, HitboxJSON, RectHitbox } from "./utils/hitbox";
+import { BaseHitbox, type Hitbox, type HitboxJSON, RectHitbox } from "./utils/hitbox";
 import { MathUtils } from "./utils/math";
-import { Vector } from "./utils/vector";
+import type { Vector } from "./utils/vector";
 
 export interface BaseWall {
-    hitbox: HitboxJSON
-    color: number
+    hitbox: HitboxJSON;
+    color: number;
 }
 
 export class Wall {
@@ -20,7 +20,7 @@ export class Wall {
 }
 
 interface GridCell {
-    walls: Wall[]
+    walls: Wall[];
 }
 
 /**
@@ -39,12 +39,12 @@ export class BaseGameMap {
     private _grid: GridCell[][] = [];
 
     /**
-    * Get all walls and floors near this Hitbox
-    * This transforms the Hitbox into a rectangle
-    * and gets all walls and floors intersecting it after rounding it to grid cells
-    * @param Hitbox The Hitbox
-    * @return A set with the walls and floors near this Hitbox
-    */
+     * Get all walls and floors near this Hitbox
+     * This transforms the Hitbox into a rectangle
+     * and gets all walls and floors intersecting it after rounding it to grid cells
+     * @param Hitbox The Hitbox
+     * @return A set with the walls and floors near this Hitbox
+     */
     intersectsHitbox(hitbox: Hitbox) {
         const rect = hitbox.toRectangle();
 
@@ -94,9 +94,8 @@ export class BaseGameMap {
     }
 
     private _resetGrid() {
-        this._grid = Array.from(
-            { length: this.gridWidth + 1 },
-            () => Array.from({ length: this.gridHeight + 1 }, () => {
+        this._grid = Array.from({ length: this.gridWidth + 1 }, () =>
+            Array.from({ length: this.gridHeight + 1 }, () => {
                 return {
                     walls: []
                 };

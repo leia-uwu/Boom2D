@@ -1,15 +1,15 @@
 import { Sprite } from "pixi.js";
-import { BaseBullet, BulletParams } from "../../../common/src/baseBullet";
-import { Game } from "./game";
-import { Camera } from "./camera";
-import { Vec2 } from "../../../common/src/utils/vector";
+import { BaseBullet, type BulletParams } from "../../../common/src/baseBullet";
 import { BulletDefs } from "../../../common/src/defs/bulletDefs";
 import { MathUtils } from "../../../common/src/utils/math";
+import { Vec2 } from "../../../common/src/utils/vector";
+import { Camera } from "./camera";
+import type { Game } from "./game";
 
 export class BulletManager {
     readonly bullets: ClientBullet[] = [];
 
-    constructor(readonly game: Game) { }
+    constructor(readonly game: Game) {}
 
     tick(dt: number) {
         for (let i = 0; i < this.bullets.length; i++) {
@@ -35,7 +35,10 @@ export class ClientBullet extends BaseBullet {
     active = true;
     trailReachedMaxLength = false;
 
-    constructor(readonly game: Game, params: BulletParams) {
+    constructor(
+        readonly game: Game,
+        params: BulletParams
+    ) {
         super(params);
 
         this.trailSprite.anchor.set(1, 0.5);

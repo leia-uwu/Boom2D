@@ -15,10 +15,13 @@ export class ResourceManager {
         // instead of:
         // new Sprite("./game/img/player.svg")
 
-        const promises: Array<ReturnType<typeof Assets["load"]>> = [];
-        const imgs: Record<string, { default: string }> = import.meta.glob("/assets/img/**/*.svg", {
-            eager: true
-        });
+        const promises: Array<ReturnType<(typeof Assets)["load"]>> = [];
+        const imgs: Record<string, { default: string }> = import.meta.glob(
+            "/assets/img/**/*.svg",
+            {
+                eager: true
+            }
+        );
 
         for (const img in imgs) {
             const path = img.split("/");

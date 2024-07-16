@@ -1,4 +1,4 @@
-import { type GameBitStream, type Packet } from "../net";
+import type { GameBitStream, Packet } from "../net";
 
 export class GameOverPacket implements Packet {
     kills = 0;

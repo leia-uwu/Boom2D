@@ -1,7 +1,7 @@
-import { WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
+import { type WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
 import { InputPacket } from "../../../common/src/packets/inputPacket";
 import { Vec2 } from "../../../common/src/utils/vector";
-import { type Game } from "./game";
+import type { Game } from "./game";
 
 export class InputManager {
     readonly game: Game;
@@ -40,13 +40,15 @@ export class InputManager {
         window.addEventListener("pointerup", this.handleInputEvent.bind(this, false));
         window.addEventListener("wheel", this.handleInputEvent.bind(this, true));
 
-        window.addEventListener("mousemove", e => {
-            const rotation = Math.atan2(window.innerHeight / 2 - e.clientY, window.innerWidth / 2 - e.clientX) - Math.PI / 2;
+        window.addEventListener("mousemove", (e) => {
+            const rotation =
+                Math.atan2(
+                    window.innerHeight / 2 - e.clientY,
+                    window.innerWidth / 2 - e.clientX
+                ) -
+                Math.PI / 2;
 
-            this.mouseDir = Vec2.new(
-                Math.sin(rotation),
-                -Math.cos(rotation)
-            );
+            this.mouseDir = Vec2.new(Math.sin(rotation), -Math.cos(rotation));
         });
     }
 
@@ -67,7 +69,10 @@ export class InputManager {
 
         for (const weapon of WeaponDefs) {
             const def = WeaponDefs.typeToDef(weapon);
-            if (this.isInputDown(def.key) && weapon !== this.game.activePlayer?.activeWeapon) {
+            if (
+                this.isInputDown(def.key) &&
+                weapon !== this.game.activePlayer?.activeWeapon
+            ) {
                 inputPacket.weaponToSwitch = weapon;
                 break;
             }
@@ -86,7 +91,10 @@ export class InputManager {
 
     private _mWheelStopTimer: number | undefined;
 
-    handleInputEvent(down: boolean, event: KeyboardEvent | MouseEvent | WheelEvent): void {
+    handleInputEvent(
+        down: boolean,
+        event: KeyboardEvent | MouseEvent | WheelEvent
+    ): void {
         /*
             We don't want to allow keybinds to work with modifiers, because firstly,
             pressing ctrl + R to reload is dumb and secondly, doing that refreshes the page.
@@ -96,15 +104,19 @@ export class InputManager {
         */
         if (event instanceof KeyboardEvent) {
             let modifierCount = 0;
-            (["altKey", "metaKey", "ctrlKey", "shiftKey"] as Array<keyof KeyboardEvent>)
-                .forEach(modifier => (event[modifier] && modifierCount++));
+            (
+                ["altKey", "metaKey", "ctrlKey", "shiftKey"] as Array<keyof KeyboardEvent>
+            ).forEach((modifier) => event[modifier] && modifierCount++);
 
             // As stated before, more than one modifier or a modifier alongside another key should invalidate an input
-            if ((modifierCount > 1
-                || (modifierCount === 1 && !["Shift", "Control", "Alt", "Meta"].includes(event.key)))
-                && down
+            if (
+                (modifierCount > 1 ||
+                    (modifierCount === 1 &&
+                        !["Shift", "Control", "Alt", "Meta"].includes(event.key))) &&
+                down
                 // …but it only invalidates pressing a key, not releasing it
-            ) return;
+            )
+                return;
         }
 
         const key = this.getKeyFromInputEvent(event);
@@ -136,12 +148,30 @@ export class InputManager {
 
         if (event instanceof WheelEvent) {
             switch (true) {
-                case event.deltaX > 0: { key = "MWheelRight"; break; }
-                case event.deltaX < 0: { key = "MWheelLeft"; break; }
-                case event.deltaY > 0: { key = "MWheelDown"; break; }
-                case event.deltaY < 0: { key = "MWheelUp"; break; }
-                case event.deltaZ > 0: { key = "MWheelForwards"; break; }
-                case event.deltaZ < 0: { key = "MWheelBackwards"; break; }
+                case event.deltaX > 0: {
+                    key = "MWheelRight";
+                    break;
+                }
+                case event.deltaX < 0: {
+                    key = "MWheelLeft";
+                    break;
+                }
+                case event.deltaY > 0: {
+                    key = "MWheelDown";
+                    break;
+                }
+                case event.deltaY < 0: {
+                    key = "MWheelUp";
+                    break;
+                }
+                case event.deltaZ > 0: {
+                    key = "MWheelForwards";
+                    break;
+                }
+                case event.deltaZ < 0: {
+                    key = "MWheelBackwards";
+                    break;
+                }
             }
             if (key === "") {
                 console.error("An unrecognized scroll wheel event was received: ", event);

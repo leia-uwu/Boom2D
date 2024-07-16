@@ -2,8 +2,8 @@
  * 2D vector
  */
 export interface Vector {
-    x: number
-    y: number
+    x: number;
+    y: number;
 }
 
 /**
@@ -11,101 +11,101 @@ export interface Vector {
  */
 export const Vec2 = {
     /**
-    * Creates a new Vector
-    * @param x - The horizontal (x-axis) coordinate
-    * @param y - The vertical (y-axis) coordinate
-    * @returns A new Vector object with the provided x and y coordinates
-    */
+     * Creates a new Vector
+     * @param x - The horizontal (x-axis) coordinate
+     * @param y - The vertical (y-axis) coordinate
+     * @returns A new Vector object with the provided x and y coordinates
+     */
     new(x: number, y: number): Vector {
         return { x, y };
     },
 
     /**
-    * Adds two Vectors together
-    * @param a - The first Vector
-    * @param b - The second Vector
-    * @returns A new Vector resulting from the addition of vectors a and b
-    */
+     * Adds two Vectors together
+     * @param a - The first Vector
+     * @param b - The second Vector
+     * @returns A new Vector resulting from the addition of vectors a and b
+     */
     add(a: Vector, b: Vector): Vector {
         return Vec2.new(a.x + b.x, a.y + b.y);
     },
 
     /**
-    * Adds two vectors together
-    * @param a - The first Vector
-    * @param x - The x-coordinate of the second vector
-    * @param y - The y-coordinate of the second vector
-    * @returns A new Vector resulting from the addition of a, and x and y
-    */
+     * Adds two vectors together
+     * @param a - The first Vector
+     * @param x - The x-coordinate of the second vector
+     * @param y - The y-coordinate of the second vector
+     * @returns A new Vector resulting from the addition of a, and x and y
+     */
     add2(a: Vector, x: number, y: number): Vector {
         return Vec2.new(a.x + x, a.y + y);
     },
 
     /**
-    * Subtracts one Vector from another
-    * @param a - The Vector to be subtracted from
-    * @param b - The Vector to subtract
-    * @returns A new Vector resulting from the subtraction of vector b from vector a
-    */
+     * Subtracts one Vector from another
+     * @param a - The Vector to be subtracted from
+     * @param b - The Vector to subtract
+     * @returns A new Vector resulting from the subtraction of vector b from vector a
+     */
     sub(a: Vector, b: Vector): Vector {
         return Vec2.new(a.x - b.x, a.y - b.y);
     },
 
     /**
-    * Subtracts one Vector from another
-    * @param a - The Vector to be subtracted from
-    * @param x - The x-coordinate of the second vector
-    * @param y - The y-coordinate of the second vector
-    * @returns A new Vector resulting from the subtraction of and x and y from vector a
-    */
+     * Subtracts one Vector from another
+     * @param a - The Vector to be subtracted from
+     * @param x - The x-coordinate of the second vector
+     * @param y - The y-coordinate of the second vector
+     * @returns A new Vector resulting from the subtraction of and x and y from vector a
+     */
     sub2(a: Vector, x: number, y: number): Vector {
         return Vec2.new(a.x - x, a.y - y);
     },
 
     /**
-    * Multiplies a Vector by a scalar
-    * @param a - The Vector to be multiplied
-    * @param n - The scalar value to multiply the Vector by
-    * @returns A new Vector resulting from the multiplication of vector a and scalar n
-    */
+     * Multiplies a Vector by a scalar
+     * @param a - The Vector to be multiplied
+     * @param n - The scalar value to multiply the Vector by
+     * @returns A new Vector resulting from the multiplication of vector a and scalar n
+     */
     mul(a: Vector, n: number): Vector {
         return Vec2.new(a.x * n, a.y * n);
     },
 
     /**
-    * Divides a Vector by a scalar
-    * @param a - The Vector to be divided
-    * @param n - The scalar value to divide the Vector by
-    * @returns A new Vector resulting from the division of vector a and scalar n
-    */
+     * Divides a Vector by a scalar
+     * @param a - The Vector to be divided
+     * @param n - The scalar value to divide the Vector by
+     * @returns A new Vector resulting from the division of vector a and scalar n
+     */
     div(a: Vector, n: number): Vector {
         return Vec2.new(a.x / n, a.y / n);
     },
 
     /**
-    * Clones a Vector
-    * @param vector - The Vector to be cloned
-    * @returns A new Vector with the same coordinates as the input Vector
-    */
+     * Clones a Vector
+     * @param vector - The Vector to be cloned
+     * @returns A new Vector with the same coordinates as the input Vector
+     */
     clone(vector: Vector): Vector {
         return Vec2.new(vector.x, vector.y);
     },
 
     /**
-    * Inverts a Vector
-    * @param a - The Vector to be inverted
-    * @returns A new Vector resulting from inverting vector a
-    */
+     * Inverts a Vector
+     * @param a - The Vector to be inverted
+     * @returns A new Vector resulting from inverting vector a
+     */
     invert(a: Vector): Vector {
         return Vec2.new(-a.x, -a.y);
     },
 
     /**
-    * Rotates a Vector by a given angle
-    * @param vector - The Vector to be rotated
-    * @param angle - The angle in radians to rotate the Vector by
-    * @returns A new Vector resulting from the rotation of the input Vector by the given angle
-    */
+     * Rotates a Vector by a given angle
+     * @param vector - The Vector to be rotated
+     * @param angle - The angle in radians to rotate the Vector by
+     * @returns A new Vector resulting from the rotation of the input Vector by the given angle
+     */
     rotate(vector: Vector, angle: number): Vector {
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
@@ -131,21 +131,21 @@ export const Vec2 = {
     },
 
     /**
-    * Gets the distance between two vectors
-    * @param a - The first Vector
-    * @param b - The second Vector
-    * @returns The distance between Vector a and b
-    */
+     * Gets the distance between two vectors
+     * @param a - The first Vector
+     * @param b - The second Vector
+     * @returns The distance between Vector a and b
+     */
     distance(a: Vector, b: Vector): number {
         const diff = Vec2.sub(a, b);
         return Vec2.length(diff);
     },
     /**
-    * Gets the distance between two vectors squared
-    * @param a - The first Vector
-    * @param b - The second Vector
-    * @returns The distance between Vector a and b squared
-    */
+     * Gets the distance between two vectors squared
+     * @param a - The first Vector
+     * @param b - The second Vector
+     * @returns The distance between Vector a and b squared
+     */
     distanceSqrt(a: Vector, b: Vector): number {
         const diff = Vec2.sub(a, b);
         return Vec2.lengthSqr(diff);

@@ -1,13 +1,19 @@
 import { BitStream } from "bit-buffer";
-import { type Vector } from "./utils/vector";
 import { GameConstants } from "./constants";
-import { MathUtils } from "./utils/math";
-import { JoinPacket } from "./packets/joinPacket";
-import { InputPacket } from "./packets/inputPacket";
-import { UpdatePacket } from "./packets/updatePacket";
 import { GameOverPacket } from "./packets/gameOverPacket";
+import { InputPacket } from "./packets/inputPacket";
+import { JoinPacket } from "./packets/joinPacket";
 import { MapPacket } from "./packets/mapPacke";
-import { CircleHitbox, HitboxJSON, HitboxType, PolygonHitbox, RectHitbox } from "./utils/hitbox";
+import { UpdatePacket } from "./packets/updatePacket";
+import {
+    CircleHitbox,
+    type HitboxJSON,
+    HitboxType,
+    PolygonHitbox,
+    RectHitbox
+} from "./utils/hitbox";
+import { MathUtils } from "./utils/math";
+import type { Vector } from "./utils/vector";
 
 export class GameBitStream extends BitStream {
     static alloc(size: number): GameBitStream {
@@ -45,7 +51,7 @@ export class GameBitStream extends BitStream {
             throw new Error(`Invalid bit count ${bitCount}`);
         }
         const range = (1 << bitCount) - 1;
-        return min + (max - min) * this.readBits(bitCount) / range;
+        return min + ((max - min) * this.readBits(bitCount)) / range;
     }
 
     /**
@@ -57,7 +63,14 @@ export class GameBitStream extends BitStream {
      * @param maxY The maximum Y position.
      * @param bitCount The number of bits to write.
      */
-    writeVector(vector: Vector, minX: number, minY: number, maxX: number, maxY: number, bitCount: number): void {
+    writeVector(
+        vector: Vector,
+        minX: number,
+        minY: number,
+        maxX: number,
+        maxY: number,
+        bitCount: number
+    ): void {
         this.writeVector2(vector.x, vector.y, minX, minY, maxX, maxY, bitCount);
     }
 
@@ -72,7 +85,15 @@ export class GameBitStream extends BitStream {
      * @param bitCount The number of bits to write.
      * @return The position Vector.
      */
-    writeVector2(x: number, y: number, minX: number, minY: number, maxX: number, maxY: number, bitCount: number): void {
+    writeVector2(
+        x: number,
+        y: number,
+        minX: number,
+        minY: number,
+        maxX: number,
+        maxY: number,
+        bitCount: number
+    ): void {
         this.writeFloat(x, minX, maxX, bitCount);
         this.writeFloat(y, minY, maxY, bitCount);
     }
@@ -85,7 +106,13 @@ export class GameBitStream extends BitStream {
      * @param maxY The maximum Y position.
      * @param bitCount The number of bits to read
      */
-    readVector(minX: number, minY: number, maxX: number, maxY: number, bitCount: number): Vector {
+    readVector(
+        minX: number,
+        minY: number,
+        maxX: number,
+        maxY: number,
+        bitCount: number
+    ): Vector {
         return {
             x: this.readFloat(minX, maxX, bitCount),
             y: this.readFloat(minY, maxY, bitCount)
@@ -106,7 +133,15 @@ export class GameBitStream extends BitStream {
      * @param y The y-coordinate of the vector to write
      */
     writePosition2(x: number, y: number): void {
-        this.writeVector2(x, y, -32, -32, GameConstants.maxPosition, GameConstants.maxPosition, 16);
+        this.writeVector2(
+            x,
+            y,
+            -32,
+            -32,
+            GameConstants.maxPosition,
+            GameConstants.maxPosition,
+            16
+        );
     }
 
     /**
@@ -114,15 +149,21 @@ export class GameBitStream extends BitStream {
      * @return the position Vector.
      */
     readPosition(): Vector {
-        return this.readVector(-32, -32, GameConstants.maxPosition, GameConstants.maxPosition, 16);
+        return this.readVector(
+            -32,
+            -32,
+            GameConstants.maxPosition,
+            GameConstants.maxPosition,
+            16
+        );
     }
 
     static unitEps = 1.0001;
     /**
-    * Write an unit vector to the stream
-    * @param vector The Vector to write.
-    * @param bitCount The number of bits to write.
-    */
+     * Write an unit vector to the stream
+     * @param vector The Vector to write.
+     * @param bitCount The number of bits to write.
+     */
     writeUnit(vector: Vector, bitCount: number): void {
         this.writeVector(
             vector,
@@ -165,7 +206,9 @@ export class GameBitStream extends BitStream {
         const maxSize = 1 << bits;
         for (let i = 0; i < arr.length; i++) {
             if (i > maxSize) {
-                console.warn(`writeArray: array overflow: max length: ${maxSize}, length: ${arr.length}`);
+                console.warn(
+                    `writeArray: array overflow: max length: ${maxSize}, length: ${arr.length}`
+                );
                 break;
             }
             serializeFn(arr[i]);
@@ -188,7 +231,7 @@ export class GameBitStream extends BitStream {
 
     // private field L
     declare _view: {
-        _view: Uint8Array
+        _view: Uint8Array;
     };
 
     /**
@@ -212,7 +255,7 @@ export class GameBitStream extends BitStream {
      * This is to ensure the stream index is a multiple of 8
      */
     writeAlignToNextByte(): void {
-        const offset = 8 - this.index % 8;
+        const offset = 8 - (this.index % 8);
         if (offset < 8) this.writeBits(0, offset);
     }
 
@@ -220,7 +263,7 @@ export class GameBitStream extends BitStream {
      * Read a byte alignment from the stream
      */
     readAlignToNextByte(): void {
-        const offset = 8 - this.index % 8;
+        const offset = 8 - (this.index % 8);
         if (offset < 8) this.readBits(offset);
     }
 
@@ -239,7 +282,7 @@ export class GameBitStream extends BitStream {
                 break;
             }
             case HitboxType.Polygon: {
-                this.writeArray(hitbox.verts, 16, point => {
+                this.writeArray(hitbox.verts, 16, (point) => {
                     this.writePosition(point);
                 });
             }
@@ -272,8 +315,8 @@ export class GameBitStream extends BitStream {
 }
 
 export interface Packet {
-    serialize(stream: GameBitStream): void
-    deserialize(stream: GameBitStream): void
+    serialize(stream: GameBitStream): void;
+    deserialize(stream: GameBitStream): void;
 }
 
 class PacketRegister {
@@ -281,7 +324,7 @@ class PacketRegister {
     readonly typeToId: Record<string, number> = {};
     readonly idToCtor: Array<new () => Packet> = [];
 
-    register(...packets: Array<(new () => Packet)>) {
+    register(...packets: Array<new () => Packet>) {
         for (const packet of packets) {
             if (this.typeToId[packet.name]) {
                 console.warn(`Trying to register ${packet.name} multiple times`);
@@ -295,17 +338,10 @@ class PacketRegister {
 }
 
 const ClientToServerPackets = new PacketRegister();
-ClientToServerPackets.register(
-    JoinPacket,
-    InputPacket
-);
+ClientToServerPackets.register(JoinPacket, InputPacket);
 
 const ServerToClientPackets = new PacketRegister();
-ServerToClientPackets.register(
-    UpdatePacket,
-    GameOverPacket,
-    MapPacket
-);
+ServerToClientPackets.register(UpdatePacket, GameOverPacket, MapPacket);
 
 export class PacketStream {
     stream: GameBitStream;
@@ -356,7 +392,9 @@ export class PacketStream {
     private _serializePacket(packet: Packet, register: PacketRegister) {
         const type = register.typeToId[packet.constructor.name];
         if (type === undefined) {
-            throw new Error(`Unknown packet type: ${packet.constructor.name}, did you forget to register it?`);
+            throw new Error(
+                `Unknown packet type: ${packet.constructor.name}, did you forget to register it?`
+            );
         }
         this.stream.writeUint8(type);
         packet.serialize(this.stream);

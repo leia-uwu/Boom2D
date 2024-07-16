@@ -1,5 +1,5 @@
 export interface ServerInfo {
-    playerCount: number
+    playerCount: number;
 }
 
 export type ServerAPIResponse = ServerInfo;

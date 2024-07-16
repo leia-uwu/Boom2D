@@ -1,14 +1,18 @@
 import { Sprite } from "pixi.js";
-import { type Game } from "../game";
-import { ClientEntity } from "./entity";
-import { type EntitiesNetData } from "../../../../common/src/packets/updatePacket";
-import { Vec2 } from "../../../../common/src/utils/vector";
-import { Camera } from "../camera";
 import { EntityType } from "../../../../common/src/constants";
+import {
+    type ProjectileDef,
+    type ProjectileDefKey,
+    ProjectileDefs
+} from "../../../../common/src/defs/projectileDefs";
+import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
-import { ProjectileDef, ProjectileDefKey, ProjectileDefs } from "../../../../common/src/defs/projectileDefs";
 import { Random } from "../../../../common/src/utils/random";
+import { Vec2 } from "../../../../common/src/utils/vector";
 import { Helpers } from "../../helpers";
+import { Camera } from "../camera";
+import type { Game } from "../game";
+import { ClientEntity } from "./entity";
 
 export class Projectile extends ClientEntity {
     readonly __type = EntityType.Projectile;
@@ -29,7 +33,10 @@ export class Projectile extends ClientEntity {
         this.sprite.anchor.set(0.5, 0.5);
     }
 
-    override updateFromData(data: EntitiesNetData[EntityType.Projectile], isNew: boolean): void {
+    override updateFromData(
+        data: EntitiesNetData[EntityType.Projectile],
+        isNew: boolean
+    ): void {
         super.updateFromData(data, isNew);
 
         if (isNew) {
@@ -48,7 +55,10 @@ export class Projectile extends ClientEntity {
             if (this.spin) {
                 this.container.rotation = Random.float(0, Math.PI * 2);
             } else {
-                this.container.rotation = Math.atan2(data.full.direction.y, data.full.direction.x);
+                this.container.rotation = Math.atan2(
+                    data.full.direction.y,
+                    data.full.direction.x
+                );
             }
 
             this.hitbox = new CircleHitbox(def.radius);
@@ -79,7 +89,10 @@ export class Projectile extends ClientEntity {
 
                 for (let i = 0; i < def.particles.amount; i++) {
                     this.game.particleManager.addParticle(
-                        Vec2.add(this.position, Vec2.rotate(Vec2.new(particles.spawnOffset, 0), rot)),
+                        Vec2.add(
+                            this.position,
+                            Vec2.rotate(Vec2.new(particles.spawnOffset, 0), rot)
+                        ),
                         Vec2.fromPolar(Random.float(rot - 0.2, rot + 0.2)),
                         def.particles.type
                     );

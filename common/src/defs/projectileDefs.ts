@@ -1,22 +1,22 @@
-import { DefinitionList, ImgDefinition } from "../utils/definitionList";
-import { ExplosionDefKey } from "./explosionDefs";
-import { type ParticleDefKey } from "../../../client/src/game/particle";
+import type { ParticleDefKey } from "../../../client/src/game/particle";
+import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
+import type { ExplosionDefKey } from "./explosionDefs";
 
 export interface ProjectileDef {
-    radius: number
-    speed: number
+    radius: number;
+    speed: number;
     damage: {
-        min: number
-        max: number
-    }
-    explosion?: ExplosionDefKey
-    img: ImgDefinition & { spin?: boolean }
+        min: number;
+        max: number;
+    };
+    explosion?: ExplosionDefKey;
+    img: ImgDefinition & { spin?: boolean };
     particles?: {
-        spawnDelay: number
-        spawnOffset: number
-        amount: number
-        type: ParticleDefKey
-    }
+        spawnDelay: number;
+        spawnOffset: number;
+        amount: number;
+        type: ParticleDefKey;
+    };
 }
 
 export const ProjectileDefs = new DefinitionList({
@@ -54,4 +54,4 @@ export const ProjectileDefs = new DefinitionList({
     }
 } satisfies Record<string, ProjectileDef>);
 
-export type ProjectileDefKey = keyof typeof ProjectileDefs["definitions"];
+export type ProjectileDefKey = keyof (typeof ProjectileDefs)["definitions"];

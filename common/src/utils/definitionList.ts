@@ -1,17 +1,17 @@
-import { type GameBitStream } from "../net";
-import { type Vector } from "./vector";
+import type { GameBitStream } from "../net";
+import type { Vector } from "./vector";
 
 //
 // Typings shared between definition lists
 //
 
 export interface ImgDefinition {
-    src: string
-    rotation?: number
-    scale?: number
-    tint?: number
-    zIndex?: number
-    position?: Vector
+    src: string;
+    rotation?: number;
+    scale?: number;
+    tint?: number;
+    zIndex?: number;
+    position?: Vector;
 }
 
 //

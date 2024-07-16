@@ -1,8 +1,8 @@
 import { ClientConfig } from "./config";
 
 interface GameSettings {
-    server: string
-    name: string
+    server: string;
+    name: string;
 }
 
 const defaultSettings: GameSettings = {

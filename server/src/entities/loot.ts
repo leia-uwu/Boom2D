@@ -1,9 +1,9 @@
 import { EntityType, GameConstants } from "../../../common/src/constants";
-import { LootDefKey, LootDefs } from "../../../common/src/defs/lootDefs";
-import { EntitiesNetData } from "../../../common/src/packets/updatePacket";
+import { type LootDefKey, LootDefs } from "../../../common/src/defs/lootDefs";
+import type { EntitiesNetData } from "../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../common/src/utils/hitbox";
-import { Vector } from "../../../common/src/utils/vector";
-import { Game } from "../game";
+import type { Vector } from "../../../common/src/utils/vector";
+import type { Game } from "../game";
 import { ServerEntity } from "./entity";
 
 export class Loot extends ServerEntity {

@@ -1,5 +1,5 @@
 import { GameConstants } from "../constants";
-import { type GameBitStream, type Packet } from "../net";
+import type { GameBitStream, Packet } from "../net";
 
 export class JoinPacket implements Packet {
     name = "";

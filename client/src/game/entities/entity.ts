@@ -1,10 +1,10 @@
 import { Container } from "pixi.js";
-import { type EntitiesNetData } from "../../../../common/src/packets/updatePacket";
+import type { EntityType } from "../../../../common/src/constants";
+import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
+import type { Hitbox } from "../../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../../common/src/utils/math";
-import { EntityType } from "../../../../common/src/constants";
 import { Vec2 } from "../../../../common/src/utils/vector";
-import { type Game } from "../game";
-import { Hitbox } from "../../../../common/src/utils/hitbox";
+import type { Game } from "../game";
 
 export abstract class ClientEntity<T extends EntityType = EntityType> {
     abstract __type: T;
@@ -34,6 +34,10 @@ export abstract class ClientEntity<T extends EntityType = EntityType> {
 
     render(dt: number): void {
         this.interpolationTick += dt;
-        this.interpolationFactor = MathUtils.clamp(this.interpolationTick / this.game.serverDt, 0, 1);
+        this.interpolationFactor = MathUtils.clamp(
+            this.interpolationTick / this.game.serverDt,
+            0,
+            1
+        );
     }
 }

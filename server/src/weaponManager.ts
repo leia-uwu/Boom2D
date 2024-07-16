@@ -1,9 +1,13 @@
 import { EntityType } from "../../common/src/constants";
-import { GunDef, WeaponDefKey, WeaponDefs } from "../../common/src/defs/weaponDefs";
+import {
+    type GunDef,
+    type WeaponDefKey,
+    WeaponDefs
+} from "../../common/src/defs/weaponDefs";
 import { MathUtils } from "../../common/src/utils/math";
 import { Random } from "../../common/src/utils/random";
 import { Vec2 } from "../../common/src/utils/vector";
-import { Player } from "./entities/player";
+import type { Player } from "./entities/player";
 import { Projectile } from "./entities/projectile";
 
 enum WeaponState {
@@ -13,7 +17,7 @@ enum WeaponState {
 }
 
 export class WeaponManager {
-    constructor(readonly player: Player) { }
+    constructor(readonly player: Player) {}
 
     stateTicker = 0;
 
@@ -35,9 +39,13 @@ export class WeaponManager {
         const gunStartPos = this.player.position;
         const gunEndPos = Vec2.add(
             Vec2.add(gunStartPos, Vec2.mul(Vec2.perp(dir), weaponDef.barrelOffset)),
-            Vec2.mul(dir, weaponDef.barrelLength));
+            Vec2.mul(dir, weaponDef.barrelLength)
+        );
 
-        const entities = this.player.game.grid.intersectLineSegment(gunStartPos, gunEndPos);
+        const entities = this.player.game.grid.intersectLineSegment(
+            gunStartPos,
+            gunEndPos
+        );
 
         let finalGunPos = Vec2.clone(gunEndPos);
         let dist = Vec2.distanceSqrt(gunStartPos, gunEndPos);
@@ -46,7 +54,10 @@ export class WeaponManager {
             if (entity.__type !== EntityType.Obstacle) continue;
             const intersection = entity.hitbox.intersectsLine(gunStartPos, gunEndPos);
             if (intersection) {
-                const intersectionDist = Vec2.distanceSqrt(gunStartPos, intersection.point);
+                const intersectionDist = Vec2.distanceSqrt(
+                    gunStartPos,
+                    intersection.point
+                );
                 if (intersectionDist < dist) {
                     finalGunPos = intersection.point;
                     dist = intersectionDist;
@@ -59,7 +70,10 @@ export class WeaponManager {
         for (const wall of walls) {
             const intersection = wall.hitbox.intersectsLine(gunStartPos, gunEndPos);
             if (intersection) {
-                const intersectionDist = Vec2.distanceSqrt(gunStartPos, intersection.point);
+                const intersectionDist = Vec2.distanceSqrt(
+                    gunStartPos,
+                    intersection.point
+                );
                 if (intersectionDist < dist) {
                     finalGunPos = intersection.point;
                     dist = intersectionDist;
@@ -79,7 +93,13 @@ export class WeaponManager {
 
                 // Add shotgun jitter
                 if (jitter > 0) {
-                    const offset = Vec2.mul(Vec2.new(Random.float(-jitter, jitter), Random.float(-jitter, jitter)), 1.11);
+                    const offset = Vec2.mul(
+                        Vec2.new(
+                            Random.float(-jitter, jitter),
+                            Random.float(-jitter, jitter)
+                        ),
+                        1.11
+                    );
                     bulletPos = Vec2.add(bulletPos, offset);
                 }
 
@@ -93,7 +113,13 @@ export class WeaponManager {
         }
 
         if (weaponDef.projectileType) {
-            const projectile = new Projectile(game, weaponDef.projectileType, finalGunPos, dir, this.player);
+            const projectile = new Projectile(
+                game,
+                weaponDef.projectileType,
+                finalGunPos,
+                dir,
+                this.player
+            );
             game.grid.addEntity(projectile);
         }
 

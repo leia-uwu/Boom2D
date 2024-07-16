@@ -2,12 +2,12 @@ import { DefinitionList } from "../utils/definitionList";
 
 export interface BulletDef {
     damage: {
-        min: number
-        max: number
-    }
-    speed: number
-    maxDistance: number
-    trailMaxLength: number
+        min: number;
+        max: number;
+    };
+    speed: number;
+    maxDistance: number;
+    trailMaxLength: number;
 }
 
 export const BulletDefs = new DefinitionList({
@@ -31,4 +31,4 @@ export const BulletDefs = new DefinitionList({
     }
 } satisfies Record<string, BulletDef>);
 
-export type BulletDefKey = keyof typeof BulletDefs["definitions"];
+export type BulletDefKey = keyof (typeof BulletDefs)["definitions"];

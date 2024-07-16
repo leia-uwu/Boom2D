@@ -1,13 +1,13 @@
 import { Sprite, Texture } from "pixi.js";
-import { type Game } from "../game";
-import { ClientEntity } from "./entity";
-import { type EntitiesNetData } from "../../../../common/src/packets/updatePacket";
-import { Camera } from "../camera";
 import { EntityType, GameConstants } from "../../../../common/src/constants";
-import { Helpers } from "../../helpers";
-import { LootDefKey, LootDefs } from "../../../../common/src/defs/lootDefs";
+import { type LootDefKey, LootDefs } from "../../../../common/src/defs/lootDefs";
+import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../../common/src/utils/math";
+import { Helpers } from "../../helpers";
+import { Camera } from "../camera";
+import type { Game } from "../game";
+import { ClientEntity } from "./entity";
 
 export class Loot extends ClientEntity {
     readonly __type = EntityType.Loot;
@@ -28,7 +28,10 @@ export class Loot extends ClientEntity {
         this.background.anchor.set(0.5, 0.5);
     }
 
-    override updateFromData(data: EntitiesNetData[EntityType.Loot], isNew: boolean): void {
+    override updateFromData(
+        data: EntitiesNetData[EntityType.Loot],
+        isNew: boolean
+    ): void {
         super.updateFromData(data, isNew);
 
         this.active = data.active;

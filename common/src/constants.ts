@@ -26,4 +26,4 @@ export const GameConstants = {
     }
 } as const;
 
-export type AmmoType = typeof GameConstants["ammoTypes"][number];
+export type AmmoType = (typeof GameConstants)["ammoTypes"][number];

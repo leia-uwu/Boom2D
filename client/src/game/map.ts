@@ -1,9 +1,9 @@
 import { Graphics } from "pixi.js";
-import { Game } from "./game";
-import { Camera } from "./camera";
-import { MapPacket } from "../../../common/src/packets/mapPacke";
 import { BaseGameMap } from "../../../common/src/baseMap";
+import type { MapPacket } from "../../../common/src/packets/mapPacke";
 import { Helpers } from "../helpers";
+import { Camera } from "./camera";
+import type { Game } from "./game";
 
 export class GameMap extends BaseGameMap {
     mapGraphics = new Graphics({

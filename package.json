@@ -8,11 +8,7 @@
     "dev:client": "cd client && bun dev",
     "dev:server": "cd server && bun dev"
   },
-  "workspaces": [
-    "common",
-    "client",
-    "server"
-  ],
+  "workspaces": ["common", "client", "server"],
   "keywords": [],
   "author": {
     "name": "Leia",

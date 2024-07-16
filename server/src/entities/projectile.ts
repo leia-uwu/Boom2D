@@ -1,13 +1,17 @@
 import { EntityType } from "../../../common/src/constants";
-import { ProjectileDef, ProjectileDefKey, ProjectileDefs } from "../../../common/src/defs/projectileDefs";
-import { type EntitiesNetData } from "../../../common/src/packets/updatePacket";
+import {
+    type ProjectileDef,
+    type ProjectileDefKey,
+    ProjectileDefs
+} from "../../../common/src/defs/projectileDefs";
+import type { EntitiesNetData } from "../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
-import { type Game } from "../game";
+import type { Game } from "../game";
 import { ServerEntity } from "./entity";
-import { Player } from "./player";
+import type { Player } from "./player";
 
 export class Projectile extends ServerEntity {
     readonly __type = EntityType.Projectile;
@@ -30,7 +34,13 @@ export class Projectile extends ServerEntity {
         this._position = pos;
     }
 
-    constructor(game: Game, type: ProjectileDefKey, position: Vector, direction: Vector, source: Player) {
+    constructor(
+        game: Game,
+        type: ProjectileDefKey,
+        position: Vector,
+        direction: Vector,
+        source: Player
+    ) {
         super(game, position);
         this.type = type;
         this.direction = direction;
@@ -59,18 +69,30 @@ export class Projectile extends ServerEntity {
 
         const entities = this.game.grid.intersectsHitbox(this.hitbox);
         for (const entity of entities) {
-            if (!(entity.__type === EntityType.Player || entity.__type === EntityType.Obstacle)) continue;
+            if (
+                !(
+                    entity.__type === EntityType.Player ||
+                    entity.__type === EntityType.Obstacle
+                )
+            )
+                continue;
             if (entity === this.source) continue;
 
             const intersection = entity.hitbox.getIntersection(this.hitbox);
 
             if (intersection) {
                 if (entity.__type === EntityType.Player) {
-                    (entity as Player).damage(Random.int(def.damage.min, def.damage.max), this.source);
+                    (entity as Player).damage(
+                        Random.int(def.damage.min, def.damage.max),
+                        this.source
+                    );
                 }
                 this.dead = true;
 
-                this.position = Vec2.sub(this.position, Vec2.mul(this.direction, intersection.pen));
+                this.position = Vec2.sub(
+                    this.position,
+                    Vec2.mul(this.direction, intersection.pen)
+                );
                 break;
             }
         }
@@ -82,14 +104,21 @@ export class Projectile extends ServerEntity {
 
                 if (intersection) {
                     this.dead = true;
-                    this.position = Vec2.sub(this.position, Vec2.mul(this.direction, intersection.pen));
+                    this.position = Vec2.sub(
+                        this.position,
+                        Vec2.mul(this.direction, intersection.pen)
+                    );
                     break;
                 }
             }
         }
 
-        if (this.position.x <= 0 || this.position.x >= this.game.map.width
-            || this.position.y <= 0 || this.position.y >= this.game.map.height) {
+        if (
+            this.position.x <= 0 ||
+            this.position.x >= this.game.map.width ||
+            this.position.y <= 0 ||
+            this.position.y >= this.game.map.height
+        ) {
             this.dead = true;
         }
         this.position.x = MathUtils.clamp(this.position.x, 0, this.game.map.width);
@@ -99,7 +128,11 @@ export class Projectile extends ServerEntity {
     destroy() {
         const def = ProjectileDefs.typeToDef(this.type) as ProjectileDef;
         if (def.explosion) {
-            this.game.explosionManager.addExplosion(def.explosion, this.position, this.source);
+            this.game.explosionManager.addExplosion(
+                def.explosion,
+                this.position,
+                this.source
+            );
         }
         this.game.grid.remove(this);
     }

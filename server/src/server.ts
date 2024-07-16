@@ -1,17 +1,17 @@
-import { type Player } from "./entities/player";
-import { Game } from "./game";
-import { Config } from "./config";
-import { ServerAPIResponse } from "../../common/src/apiTypings";
+import type { ServerAPIResponse } from "../../common/src/apiTypings";
 import { version } from "../../package.json";
+import { Config } from "./config";
+import type { Player } from "./entities/player";
+import { Game } from "./game";
 
 const game = new Game(Config);
 
 export interface PlayerData {
-    joined: boolean
+    joined: boolean;
     /**
      * The player socket game entity
      */
-    entity?: Player
+    entity?: Player;
 }
 
 // Initialize the server
@@ -20,9 +20,9 @@ Bun.serve<PlayerData>({
     hostname: Config.host,
     tls: Config.ssl
         ? {
-            key: Bun.file(Config.ssl.keyFile),
-            cert: Bun.file(Config.ssl.certFile)
-        }
+              key: Bun.file(Config.ssl.keyFile),
+              cert: Bun.file(Config.ssl.certFile)
+          }
         : undefined,
 
     async fetch(request, server) {

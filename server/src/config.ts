@@ -1,4 +1,4 @@
-import { MapDefKey } from "../../common/src/defs/mapDefs";
+import type { MapDefKey } from "../../common/src/defs/mapDefs";
 
 export const Config: ServerConfig = {
     host: "127.0.0.1",
@@ -8,21 +8,21 @@ export const Config: ServerConfig = {
 };
 
 export interface ServerConfig {
-    readonly host: string
-    readonly port: number
+    readonly host: string;
+    readonly port: number;
 
-    readonly map: MapDefKey
+    readonly map: MapDefKey;
 
     /**
      * The server tick rate
      * In ticks/second
      */
-    readonly tps: number
+    readonly tps: number;
     /**
      * HTTPS/SSL options. Not used if running locally or with nginx.
      */
     readonly ssl?: {
-        readonly keyFile: string
-        readonly certFile: string
-    }
+        readonly keyFile: string;
+        readonly certFile: string;
+    };
 }

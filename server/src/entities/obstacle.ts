@@ -1,9 +1,9 @@
 import { EntityType } from "../../../common/src/constants";
-import { ObstacleDefKey, ObstacleDefs } from "../../../common/src/defs/obstacleDefs";
-import { EntitiesNetData } from "../../../common/src/packets/updatePacket";
-import { BaseHitbox, Hitbox } from "../../../common/src/utils/hitbox";
-import { Vector } from "../../../common/src/utils/vector";
-import { Game } from "../game";
+import { type ObstacleDefKey, ObstacleDefs } from "../../../common/src/defs/obstacleDefs";
+import type { EntitiesNetData } from "../../../common/src/packets/updatePacket";
+import { BaseHitbox, type Hitbox } from "../../../common/src/utils/hitbox";
+import type { Vector } from "../../../common/src/utils/vector";
+import type { Game } from "../game";
 import { ServerEntity } from "./entity";
 
 export class Obstacle extends ServerEntity {

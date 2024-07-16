@@ -1,6 +1,6 @@
-import { type Sprite, Texture, Graphics } from "pixi.js";
-import { type ImgDefinition } from "../../common/src/utils/definitionList";
-import { Hitbox, HitboxType } from "../../common/src/utils/hitbox";
+import { type Graphics, type Sprite, Texture } from "pixi.js";
+import type { ImgDefinition } from "../../common/src/utils/definitionList";
+import { type Hitbox, HitboxType } from "../../common/src/utils/hitbox";
 import { Camera } from "./game/camera";
 
 export const Helpers = {
@@ -14,15 +14,25 @@ export const Helpers = {
     spriteFromDef(sprite: Sprite, def: ImgDefinition) {
         sprite.texture = Texture.from(def.src);
 
-        if (def.rotation !== undefined) { sprite.rotation = def.rotation; }
+        if (def.rotation !== undefined) {
+            sprite.rotation = def.rotation;
+        }
 
-        if (def.tint !== undefined) { sprite.tint = def.tint; }
+        if (def.tint !== undefined) {
+            sprite.tint = def.tint;
+        }
 
-        if (def.scale !== undefined) { sprite.scale.set(def.scale); }
+        if (def.scale !== undefined) {
+            sprite.scale.set(def.scale);
+        }
 
-        if (def.zIndex !== undefined) { sprite.zIndex = def.zIndex; }
+        if (def.zIndex !== undefined) {
+            sprite.zIndex = def.zIndex;
+        }
 
-        if (def.position) { sprite.position = def.position; }
+        if (def.position) {
+            sprite.position = def.position;
+        }
     },
 
     drawHitbox(ctx: Graphics, hitbox: Hitbox) {
@@ -41,7 +51,7 @@ export const Helpers = {
                 break;
             }
             case HitboxType.Polygon:
-                ctx.poly(hitbox.verts.map(p => Camera.vecToScreen(p)));
+                ctx.poly(hitbox.verts.map((p) => Camera.vecToScreen(p)));
                 break;
         }
     }

@@ -1,8 +1,8 @@
 import "./scss/main.scss";
-import { Game } from "./game/game";
-import { UiManager } from "./ui";
 import { Application } from "pixi.js";
+import { Game } from "./game/game";
 import { Helpers } from "./helpers";
+import { UiManager } from "./ui";
 
 export class App {
     uiManager = new UiManager(this);
@@ -27,6 +27,6 @@ export class App {
 
 const app = new App();
 
-(async() => {
+(async () => {
     await app.init();
 })();

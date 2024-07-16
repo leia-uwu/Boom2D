@@ -1,26 +1,26 @@
+import type { Application } from "pixi.js";
+import { EntityType } from "../../../common/src/constants";
 import { GameBitStream, type Packet, PacketStream } from "../../../common/src/net";
-import { type Application } from "pixi.js";
+import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
+import { JoinPacket } from "../../../common/src/packets/joinPacket";
+import { MapPacket } from "../../../common/src/packets/mapPacke";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
 import { EntityPool } from "../../../common/src/utils/entityPool";
-import { type ClientEntity } from "./entities/entity";
-import { Player } from "./entities/player";
-import { Camera } from "./camera";
-import { InputManager } from "./inputManager";
-import { JoinPacket } from "../../../common/src/packets/joinPacket";
-import { Projectile } from "./entities/projectile";
-import { type App } from "../main";
-import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
-import { GameUi } from "./gameUi";
-import { ParticleManager } from "./particle";
+import type { App } from "../main";
 import { AudioManager } from "./audioManager";
-import { EntityType } from "../../../common/src/constants";
-import { Obstacle } from "./entities/obstacle";
 import { BulletManager } from "./bullet";
-import { MapPacket } from "../../../common/src/packets/mapPacke";
-import { GameMap } from "./map";
-import { ExplosionManager } from "./explosion";
-import { ResourceManager } from "./resourceManager";
+import { Camera } from "./camera";
+import type { ClientEntity } from "./entities/entity";
 import { Loot } from "./entities/loot";
+import { Obstacle } from "./entities/obstacle";
+import { Player } from "./entities/player";
+import { Projectile } from "./entities/projectile";
+import { ExplosionManager } from "./explosion";
+import { GameUi } from "./gameUi";
+import { InputManager } from "./inputManager";
+import { GameMap } from "./map";
+import { ParticleManager } from "./particle";
+import { ResourceManager } from "./resourceManager";
 
 export class Game {
     app: App;
@@ -75,7 +75,7 @@ export class Game {
 
         this.socket.binaryType = "arraybuffer";
 
-        this.socket.onmessage = msg => {
+        this.socket.onmessage = (msg) => {
             this.onMessage(msg.data);
         };
 
@@ -89,7 +89,7 @@ export class Game {
             this.endGame();
         };
 
-        this.socket.onerror = error => {
+        this.socket.onerror = (error) => {
             console.error(error);
             this.endGame();
         };
@@ -193,7 +193,9 @@ export class Game {
             const entity = this.entities.get(entityPartialData.id);
 
             if (!entity) {
-                console.warn(`Unknown partial dirty entity with ID ${entityPartialData.id}`);
+                console.warn(
+                    `Unknown partial dirty entity with ID ${entityPartialData.id}`
+                );
                 continue;
             }
             entity.updateFromData(entityPartialData.data, false);

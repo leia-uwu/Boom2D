@@ -1,8 +1,8 @@
 import { Container } from "pixi.js";
-import { Vec2, type Vector } from "../../../common/src/utils/vector";
-import { type Game } from "./game";
 import { GameConstants } from "../../../common/src/constants";
 import { MathUtils } from "../../../common/src/utils/math";
+import { Vec2, type Vector } from "../../../common/src/utils/vector";
+import type { Game } from "./game";
 
 export class Camera {
     readonly container = new Container({
@@ -38,7 +38,9 @@ export class Camera {
         return a * this.scale;
     }
 
-    get zoom(): number { return this._zoom; }
+    get zoom(): number {
+        return this._zoom;
+    }
     set zoom(zoom: number) {
         if (zoom === this._zoom) return;
         this._zoom = zoom;
@@ -65,7 +67,8 @@ export class Camera {
         const position = this.position;
         const cameraPos = Vec2.add(
             Vec2.mul(position, this.container.scale.x),
-            Vec2.new(-this.width / 2, -this.height / 2));
+            Vec2.new(-this.width / 2, -this.height / 2)
+        );
         this.container.position.set(-cameraPos.x, -cameraPos.y);
     }
 
