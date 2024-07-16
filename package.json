@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "2D DeathMatch game inspired by surviv.io and Doom",
   "scripts": {
-    "lint": "eslint . --fix",
-    "lint:ci": "eslint . --max-warnings 0",
+    "lint": "biome check --write",
+    "lint:ci": "biome check",
     "dev:client": "cd client && bun dev",
     "dev:server": "cd server && bun dev"
   },
@@ -20,11 +20,8 @@
   },
   "license": "GPL-3.0",
   "devDependencies": {
-    "@eslint/js": "^9.7.0",
-    "@stylistic/eslint-plugin": "^2.3.0",
     "@types/node": "^20.14.11",
-    "eslint": "^9.7.0",
     "typescript": "^5.5.3",
-    "typescript-eslint": "^7.16.1"
+    "@biomejs/biome": "^1.8.3"
   }
 }
