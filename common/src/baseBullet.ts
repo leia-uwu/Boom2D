@@ -18,6 +18,8 @@ interface GameEntity {
     id: number;
 }
 
+export interface BulletCollision {}
+
 export class BaseBullet implements BulletParams {
     direction: Vector;
     initialPosition: Vector;

@@ -1,9 +1,14 @@
 import { Sprite } from "pixi.js";
 import { BaseBullet, type BulletParams } from "../../../common/src/baseBullet";
+import type { Wall } from "../../../common/src/baseMap";
+import { EntityType } from "../../../common/src/constants";
 import { BulletDefs } from "../../../common/src/defs/bulletDefs";
+import { ObstacleDefs } from "../../../common/src/defs/obstacleDefs";
 import { MathUtils } from "../../../common/src/utils/math";
-import { Vec2 } from "../../../common/src/utils/vector";
+import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { Camera } from "./camera";
+import type { ClientEntity } from "./entities/entity";
+import type { Obstacle } from "./entities/obstacle";
 import type { Game } from "./game";
 
 export class BulletManager {
@@ -59,6 +64,13 @@ export class ClientBullet extends BaseBullet {
                 this.dead = true;
                 this.position = collision.position;
 
+                this.createHitParticle(
+                    collision.position,
+                    collision.normal,
+                    collision.wall,
+                    collision.entity
+                );
+
                 break;
             }
         }
@@ -91,6 +103,29 @@ export class ClientBullet extends BaseBullet {
 
         if (this.dead && this.trailTicks <= 0) {
             this.active = false;
+        }
+    }
+
+    createHitParticle(
+        position: Vector,
+        normal: Vector,
+        wall?: Wall,
+        entity?: ClientEntity
+    ) {
+        if (wall || entity?.__type === EntityType.Obstacle) {
+            let tint = 0xff0000;
+            if (wall) {
+                tint = wall.color;
+            } else if (entity && entity.__type == EntityType.Obstacle) {
+                const def = ObstacleDefs.typeToDef((entity as Obstacle).type);
+                tint = def.img.tint;
+            }
+
+            this.game.particleManager.addParticle(position, normal, "wall_chip", {
+                tint
+            });
+        } else if (entity?.__type === EntityType.Player) {
+            this.game.particleManager.addParticle(position, normal, "blood");
         }
     }
 
