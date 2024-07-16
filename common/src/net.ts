@@ -20,7 +20,6 @@ export class GameBitStream extends BitStream {
     static alloc(size: number): GameBitStream {
         return new GameBitStream(new ArrayBuffer(size));
     }
-
     /**
      * Write a floating point number to the stream
      * @param value The number
@@ -355,16 +354,15 @@ ServerToClientPackets.register(UpdatePacket, GameOverPacket, MapPacket);
 
 export class PacketStream {
     stream: GameBitStream;
-    buffer: ArrayBuffer | Buffer;
+    buffer: ArrayBuffer;
 
-    constructor(source: GameBitStream | ArrayBuffer) {
-        if (source instanceof ArrayBuffer) {
-            this.buffer = source;
-            this.stream = new GameBitStream(source);
-        } else {
-            this.stream = source;
-            this.buffer = source.buffer;
-        }
+    constructor(source: ArrayBuffer) {
+        this.buffer = source;
+        this.stream = new GameBitStream(source);
+    }
+
+    static alloc(size: number): PacketStream {
+        return new PacketStream(new ArrayBuffer(size));
     }
 
     serializeServerPacket(packet: Packet) {
@@ -401,9 +399,8 @@ export class PacketStream {
 
     private _serializePacket(packet: Packet, register: PacketRegister) {
         const type = register.typeToId[packet.constructor.name];
-
         assert(
-            type,
+            type !== undefined,
             `Unknown packet type: ${packet.constructor.name}, did you forget to register it?`
         );
 
@@ -412,7 +409,7 @@ export class PacketStream {
         this.stream.writeAlignToNextByte();
     }
 
-    getBuffer(): ArrayBuffer | Buffer {
+    getBuffer(): ArrayBuffer {
         return this.buffer.slice(0, this.stream.byteIndex);
     }
 }

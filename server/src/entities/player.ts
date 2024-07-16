@@ -2,7 +2,7 @@ import type { ServerWebSocket } from "bun";
 import { type AmmoType, EntityType, GameConstants } from "../../../common/src/constants";
 import { type LootDef, LootDefs } from "../../../common/src/defs/lootDefs";
 import type { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
-import { GameBitStream, type Packet, PacketStream } from "../../../common/src/net";
+import { type Packet, PacketStream } from "../../../common/src/net";
 import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { InputPacket } from "../../../common/src/packets/inputPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
@@ -468,7 +468,7 @@ export class Player extends ServerEntity {
         this.firstPacket = false;
     }
 
-    packetStream = new PacketStream(GameBitStream.alloc(1 << 16));
+    packetStream = PacketStream.alloc(1 << 16);
 
     readonly packetsToSend: Packet[] = [];
 

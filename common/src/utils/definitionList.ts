@@ -1,5 +1,5 @@
-import assert from "assert";
 import type { GameBitStream } from "../net";
+import { assert } from "./util";
 import type { Vector } from "./vector";
 
 //
@@ -48,13 +48,13 @@ export class DefinitionList<T extends Record<string, object>> {
 
     typeToId(type: keyof T) {
         const id = this._typeToId[type];
-        assert(type, `Invalid type: ${type.toString()}`);
+        assert(type !== undefined, `Invalid type: ${type.toString()}`);
         return id;
     }
 
     idToType(id: number): keyof T {
         const type = this._idToType[id];
-        assert(type, `Invalid id ${id}, max: ${this._maxId}`);
+        assert(type !== undefined, `Invalid id ${id}, max: ${this._maxId}`);
         return type;
     }
 
@@ -63,9 +63,7 @@ export class DefinitionList<T extends Record<string, object>> {
      */
     typeToDef(type: keyof T | string): T[keyof T] {
         const def = this.definitions[type];
-        if (def === undefined) {
-            throw new Error(`Invalid type: ${type.toString()}`);
-        }
+        assert(def !== undefined, `Invalid type: ${type.toString()}`);
         return def;
     }
 

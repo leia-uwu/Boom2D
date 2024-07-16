@@ -91,7 +91,7 @@ export abstract class ServerEntity<T extends EntityType = EntityType> {
     abstract get data(): Required<EntitiesNetData[EntityType]>;
 }
 
-const MAX_ID = 65535;
+const MAX_ID = 1 << 16;
 
 export class EntityManager {
     entities: Array<ServerEntity | undefined> = [];

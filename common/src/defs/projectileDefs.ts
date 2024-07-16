@@ -1,4 +1,3 @@
-import type { ParticleDefKey } from "../../../client/src/game/particle";
 import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
 import type { ExplosionDefKey } from "./explosionDefs";
 
@@ -15,7 +14,7 @@ export interface ProjectileDef {
         spawnDelay: number;
         spawnOffset: number;
         amount: number;
-        type: ParticleDefKey;
+        type: string;
     };
 }
 

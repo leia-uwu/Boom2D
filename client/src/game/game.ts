@@ -1,16 +1,16 @@
 import type { Application } from "pixi.js";
 import { EntityType } from "../../../common/src/constants";
-import { GameBitStream, type Packet, PacketStream } from "../../../common/src/net";
+import { type Packet, PacketStream } from "../../../common/src/net";
 import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { MapPacket } from "../../../common/src/packets/mapPacke";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
-import { EntityPool } from "../../../common/src/utils/entityPool";
+import { assert } from "../../../common/src/utils/util";
 import type { App } from "../main";
 import { AudioManager } from "./audioManager";
 import { BulletManager } from "./bullet";
 import { Camera } from "./camera";
-import type { ClientEntity } from "./entities/entity";
+import { type ClientEntity, EntityManager } from "./entities/entity";
 import { Loot } from "./entities/loot";
 import { Obstacle } from "./entities/obstacle";
 import { Player } from "./entities/player";
@@ -29,12 +29,17 @@ export class Game {
 
     running = false;
 
-    entities = new EntityPool<ClientEntity>();
+    entityManager = new EntityManager(this, {
+        [EntityType.Player]: Player,
+        [EntityType.Loot]: Loot,
+        [EntityType.Obstacle]: Obstacle,
+        [EntityType.Projectile]: Projectile
+    });
 
     activePlayerID = 0;
 
     get activePlayer(): Player | undefined {
-        return this.entities.get(this.activePlayerID) as Player;
+        return this.entityManager.getById(this.activePlayerID) as Player;
     }
 
     playerNames = new Map<number, string>();
@@ -133,22 +138,12 @@ export class Game {
         this.running = false;
 
         // reset stuff
-        for (const entity of this.entities) {
-            entity.destroy();
-        }
-        this.entities.clear();
+        this.entityManager.clear();
         this.camera.clear();
     }
 
     lastUpdateTime = 0;
     serverDt = 0;
-
-    static typeToEntity = {
-        [EntityType.Player]: Player,
-        [EntityType.Projectile]: Projectile,
-        [EntityType.Obstacle]: Obstacle,
-        [EntityType.Loot]: Loot
-    };
 
     /**
      * Process a game update packet
@@ -165,70 +160,66 @@ export class Game {
             this.camera.zoom = packet.playerData.zoom;
         }
 
-        for (const id of packet.deletedEntities) {
-            this.entities.get(id)?.destroy();
-            this.entities.deleteByID(id);
+        for (let i = 0; i < packet.deletedEntities.length; i++) {
+            const id = packet.deletedEntities[i];
+            this.entityManager.deleteEntity(id);
         }
 
-        for (const newPlayer of packet.newPlayers) {
+        for (let i = 0; i < packet.newPlayers.length; i++) {
+            const newPlayer = packet.newPlayers[i];
             this.playerNames.set(newPlayer.id, newPlayer.name);
         }
-        for (const id of packet.deletedPlayers) {
-            this.playerNames.delete(id);
+
+        for (let i = 0; i < packet.deletedPlayers.length; i++) {
+            this.playerNames.delete(packet.deletedPlayers[i]);
         }
 
-        for (const entityData of packet.fullEntities) {
-            let entity = this.entities.get(entityData.id);
-            let isNew = false;
+        for (let i = 0; i < packet.fullEntities.length; i++) {
+            const entityData = packet.fullEntities[i];
+            assert(entityData.__type, "Invalid entity type");
 
-            if (!entity) {
-                isNew = true;
-                entity = new (
-                    Game.typeToEntity as unknown as Record<
-                        EntityType,
-                        new (
-                            game: Game,
-                            id: number
-                        ) => ClientEntity
-                    >
-                )[entityData.__type](this, entityData.id);
-                this.entities.add(entity);
-            }
-            entity.updateFromData(entityData.data, isNew);
-        }
+            let entity: ClientEntity | undefined = this.entityManager.getById(
+                entityData.id
+            );
 
-        for (const entityPartialData of packet.partialEntities) {
-            const entity = this.entities.get(entityPartialData.id);
-
-            if (!entity) {
-                console.warn(
-                    `Unknown partial dirty entity with ID ${entityPartialData.id}`
+            if (entity === undefined) {
+                entity = this.entityManager.createEntity(
+                    entityData.__type,
+                    entityData.id,
+                    entityData.data
                 );
-                continue;
+            } else {
+                this.entityManager.updateFullEntity(entityData.id, entityData.data);
             }
-            entity.updateFromData(entityPartialData.data, false);
+        }
+
+        for (let i = 0; i < packet.partialEntities.length; i++) {
+            const entityData = packet.partialEntities[i];
+            this.entityManager.updatePartialEntity(entityData.id, entityData.data);
         }
 
         this.ui.updateUi(packet.playerData, packet.playerDataDirty);
 
-        for (const bulletParams of packet.bullets) {
-            this.bulletManager.fireBullet(bulletParams);
+        for (let i = 0; i < packet.bullets.length; i++) {
+            this.bulletManager.fireBullet(packet.bullets[i]);
         }
 
-        for (const explosion of packet.explosions) {
+        for (let i = 0; i < packet.explosions.length; i++) {
+            const explosion = packet.explosions[i];
             this.explosionManager.addExplosion(explosion.type, explosion.position);
         }
 
-        for (const shot of packet.shots) {
-            const player = this.entities.get(shot.id);
-            if (!(player instanceof Player)) continue;
-            player.shootEffect(shot.weapon);
+        for (let i = 0; i < packet.shots.length; i++) {
+            const shot = packet.shots[i];
+            const player = this.entityManager.getById(shot.id);
+            if (player?.__type !== EntityType.Player) continue;
+            (player as Player).shootEffect(shot.weapon);
         }
     }
 
     sendPacket(packet: Packet) {
         if (this.socket && this.socket.readyState === this.socket.OPEN) {
-            const packetStream = new PacketStream(GameBitStream.alloc(128));
+            const packetStream = PacketStream.alloc(128);
             packetStream.serializeClientPacket(packet);
             this.socket.send(packetStream.getBuffer());
         }
@@ -247,9 +238,7 @@ export class Game {
         const dt = (now - this.now) / 1000;
         this.now = now;
 
-        for (const entity of this.entities) {
-            entity.render(dt);
-        }
+        this.entityManager.render(dt);
         this.bulletManager.tick(dt);
 
         this.particleManager.render(dt);

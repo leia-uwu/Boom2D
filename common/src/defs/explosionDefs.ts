@@ -1,4 +1,3 @@
-import type { ParticleDefKey } from "../../../client/src/game/particle";
 import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
 
 export interface ExplosionDef {
@@ -9,7 +8,7 @@ export interface ExplosionDef {
         animScale: number;
     };
     particles?: {
-        type: ParticleDefKey;
+        type: string;
         amount: number;
     };
     sound?: string;
