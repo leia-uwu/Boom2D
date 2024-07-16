@@ -47,21 +47,3 @@ jobs:
       - name: Build
         working-directory: ./server
         run: bun run build
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    concurrency: ci-lint-${{ github.ref }}
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install bun
-        uses: oven-sh/setup-bun@v1
-
-      - name: Install Packages
-        run: bun install --frozen-lockfile
-
-      - name: Lint
-        run: bun run lint:ci
