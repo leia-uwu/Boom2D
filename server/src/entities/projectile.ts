@@ -126,6 +126,7 @@ export class Projectile extends ServerEntity {
     }
 
     destroy() {
+        super.destroy();
         const def = ProjectileDefs.typeToDef(this.type) as ProjectileDef;
         if (def.explosion) {
             this.game.explosionManager.addExplosion(
@@ -134,7 +135,6 @@ export class Projectile extends ServerEntity {
                 this.source
             );
         }
-        this.game.grid.remove(this);
     }
 
     get data(): Required<EntitiesNetData[EntityType.Projectile]> {

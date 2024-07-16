@@ -1,12 +1,7 @@
-import { EntityType } from "../../common/src/constants";
 import { type Hitbox, RectHitbox } from "../../common/src/utils/hitbox";
 import { MathUtils } from "../../common/src/utils/math";
 import { Vec2, type Vector } from "../../common/src/utils/vector";
 import type { ServerEntity } from "./entities/entity";
-import type { Loot } from "./entities/loot";
-import type { Obstacle } from "./entities/obstacle";
-import type { Player } from "./entities/player";
-import type { Projectile } from "./entities/projectile";
 
 /**
  * A Grid to filter collision detection of game entities
@@ -18,38 +13,18 @@ export class Grid {
 
     //                        X     Y     Entity ID
     //                      __^__ __^__     ___^__
-    private readonly _grid: Array<Array<Map<number, ServerEntity>>>;
-
-    // store the cells each entity is occupying
-    // so removing the entity from the grid is faster
-    private readonly _entitiesCells = new Map<number, Vector[]>();
-
-    readonly entities = new Map<number, ServerEntity>();
-
-    readonly byCategory = {
-        [EntityType.Player]: new Set<Player>(),
-        [EntityType.Projectile]: new Set<Projectile>(),
-        [EntityType.Obstacle]: new Set<Obstacle>(),
-        [EntityType.Loot]: new Set<Loot>()
-    };
+    private readonly _grid: Array<Array<Set<ServerEntity>>>;
 
     constructor(width: number, height: number) {
         this.width = Math.floor(width / this.cellSize);
         this.height = Math.floor(height / this.cellSize);
 
         this._grid = Array.from({ length: this.width + 1 }, () =>
-            Array.from({ length: this.height + 1 }, () => new Map())
+            Array.from({ length: this.height + 1 }, () => new Set())
         );
     }
 
-    getById(id: number) {
-        return this.entities.get(id);
-    }
-
     addEntity(entity: ServerEntity): void {
-        this.entities.set(entity.id, entity);
-        entity.init();
-        (this.byCategory[entity.__type] as Set<typeof entity>).add(entity);
         this.updateEntity(entity);
     }
 
@@ -58,7 +33,7 @@ export class Grid {
      */
     updateEntity(entity: ServerEntity): void {
         this.removeFromGrid(entity);
-        const cells: Vector[] = [];
+        const cells = entity.__gridCells;
 
         const rect = entity.hitbox.toRectangle();
 
@@ -71,32 +46,23 @@ export class Grid {
         for (let x = min.x; x <= max.x; x++) {
             const xRow = this._grid[x];
             for (let y = min.y; y <= max.y; y++) {
-                xRow[y].set(entity.id, entity);
+                xRow[y].add(entity);
                 cells.push(Vec2.new(x, y));
             }
         }
-        // Store the cells this entity is occupying
-        this._entitiesCells.set(entity.id, cells);
-    }
-
-    remove(entity: ServerEntity): void {
-        this.entities.delete(entity.id);
-        this.removeFromGrid(entity);
-        entity.game.idAllocator.give(entity.id);
-        (this.byCategory[entity.__type] as Set<typeof entity>).delete(entity);
     }
 
     /**
      * Remove a entity from the grid system
      */
     removeFromGrid(entity: ServerEntity): void {
-        const cells = this._entitiesCells.get(entity.id);
-        if (!cells) return;
+        const cells = entity.__gridCells;
 
-        for (const cell of cells) {
-            this._grid[cell.x][cell.y].delete(entity.id);
+        for (let i = 0; i < cells.length; i++) {
+            const cell = cells[i];
+            this._grid[cell.x][cell.y].delete(entity);
         }
-        this._entitiesCells.delete(entity.id);
+        cells.length = 0;
     }
 
     /**
@@ -117,7 +83,7 @@ export class Grid {
         for (let x = min.x; x <= max.x; x++) {
             const xRow = this._grid[x];
             for (let y = min.y; y <= max.y; y++) {
-                const cellEntities = xRow[y].values();
+                const cellEntities = xRow[y];
                 for (const entity of cellEntities) {
                     entities.add(entity);
                 }
@@ -129,7 +95,7 @@ export class Grid {
 
     intersectPos(pos: Vector) {
         pos = this._roundToCells(pos);
-        return [...this._grid[pos.x][pos.y].values()];
+        return [...this._grid[pos.x][pos.y]];
     }
 
     // TODO: optimize this

@@ -16,10 +16,14 @@ export class ExplosionManager {
         this.explosions.push(explosion);
     }
 
-    tick(_dt: number) {
+    tick() {
         for (let i = 0; i < this.explosions.length; i++) {
             this.explosions[i].explode(this.game);
         }
+    }
+
+    flush() {
+        this.explosions.length = 0;
     }
 }
 

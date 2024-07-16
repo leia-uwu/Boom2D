@@ -1,5 +1,6 @@
 import { BaseBullet, type BulletParams } from "../../common/src/baseBullet";
 import { BulletDefs } from "../../common/src/defs/bulletDefs";
+import type { Shot } from "../../common/src/packets/updatePacket";
 import { Random } from "../../common/src/utils/random";
 import { Vec2 } from "../../common/src/utils/vector";
 import { Player } from "./entities/player";
@@ -8,6 +9,7 @@ import type { Game } from "./game";
 export class BulletManager {
     readonly bullets: ServerBullet[] = [];
     newBullets: ServerBullet[] = [];
+    shots: Shot[] = [];
 
     constructor(readonly game: Game) {}
 
@@ -25,6 +27,11 @@ export class BulletManager {
         const bullet = new ServerBullet(this.game, player, params);
         this.bullets.push(bullet);
         this.newBullets.push(bullet);
+    }
+
+    flush() {
+        this.newBullets.length = 0;
+        this.shots.length = 0;
     }
 }
 

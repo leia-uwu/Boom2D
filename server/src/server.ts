@@ -7,7 +7,6 @@ import { Game } from "./game";
 const game = new Game(Config);
 
 export interface PlayerData {
-    joined: boolean;
     /**
      * The player socket game entity
      */
@@ -33,7 +32,7 @@ Bun.serve<PlayerData>({
         switch (url.pathname) {
             case "/server_info":
                 response = {
-                    playerCount: game.players.size
+                    playerCount: game.playerManager.players.length
                 };
                 break;
             case "/play": {
@@ -64,18 +63,18 @@ Bun.serve<PlayerData>({
         open(socket) {
             // disconnect players that didn't send a join packet after 1 second
             setTimeout(() => {
-                if (!socket.data.joined) {
+                if (!socket.data.entity) {
                     socket.close();
                 }
             }, 1000);
-            socket.data.entity = game.addPlayer(socket);
         },
         message(socket, message) {
             try {
-                const player = socket.data.entity;
-                if (player === undefined) return;
                 if (message instanceof Buffer) {
-                    player.processMessage(message.buffer as ArrayBuffer);
+                    game.playerManager.processPacket(
+                        message.buffer as ArrayBuffer,
+                        socket
+                    );
                 } else {
                     console.error(`Received invalid message type: ${typeof message}`);
                 }
@@ -85,7 +84,7 @@ Bun.serve<PlayerData>({
         },
         close(socket) {
             const data = socket.data;
-            if (data.entity) game.removePlayer(data.entity);
+            if (data.entity) game.playerManager.removePlayer(data.entity);
         }
     }
 });

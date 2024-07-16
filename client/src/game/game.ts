@@ -31,7 +31,7 @@ export class Game {
 
     entities = new EntityPool<ClientEntity>();
 
-    activePlayerID = -1;
+    activePlayerID = 0;
 
     get activePlayer(): Player | undefined {
         return this.entities.get(this.activePlayerID) as Player;
@@ -183,7 +183,15 @@ export class Game {
 
             if (!entity) {
                 isNew = true;
-                entity = new Game.typeToEntity[entityData.__type](this, entityData.id);
+                entity = new (
+                    Game.typeToEntity as unknown as Record<
+                        EntityType,
+                        new (
+                            game: Game,
+                            id: number
+                        ) => ClientEntity
+                    >
+                )[entityData.__type](this, entityData.id);
                 this.entities.add(entity);
             }
             entity.updateFromData(entityData.data, isNew);

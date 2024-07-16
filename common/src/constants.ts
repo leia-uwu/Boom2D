@@ -1,4 +1,5 @@
 export enum EntityType {
+    Invalid,
     Player,
     Projectile,
     Obstacle,

@@ -1,35 +1,21 @@
-import type { ServerWebSocket } from "bun";
 import { GameConstants } from "../../common/src/constants";
-import type { Shot } from "../../common/src/packets/updatePacket";
-import { EntityPool } from "../../common/src/utils/entityPool";
 import { BulletManager } from "./bullet";
 import type { ServerConfig } from "./config";
-import type { ServerEntity } from "./entities/entity";
-import { Player } from "./entities/player";
+import { EntityManager } from "./entities/entity";
+import { PlayerManager } from "./entities/player";
 import { ExplosionManager } from "./explosion";
 import { Grid } from "./grid";
-import { IDAllocator } from "./idAllocator";
 import { GameMap } from "./map";
-import type { PlayerData } from "./server";
 
 export class Game {
-    players = new EntityPool<Player>();
-
-    newPlayers: Player[] = [];
-    deletedPlayers: number[] = [];
-
-    partialDirtyEntities = new Set<ServerEntity>();
-    fullDirtyEntities = new Set<ServerEntity>();
-
-    bulletManager = new BulletManager(this);
-    explosionManager = new ExplosionManager(this);
-    shots: Shot[] = [];
-
     grid = new Grid(GameConstants.maxPosition, GameConstants.maxPosition);
+    entityManager = new EntityManager(this.grid);
 
     map: GameMap;
 
-    idAllocator = new IDAllocator(16);
+    playerManager = new PlayerManager(this);
+    bulletManager = new BulletManager(this);
+    explosionManager = new ExplosionManager(this);
 
     now = Date.now();
 
@@ -40,62 +26,24 @@ export class Game {
         this.timer = setInterval(this.tick.bind(this), 1000 / config.tps);
     }
 
-    addPlayer(socket: ServerWebSocket<PlayerData>): Player {
-        const player = new Player(this, socket);
-        return player;
-    }
-
-    removePlayer(player: Player): void {
-        this.players.delete(player);
-        this.grid.remove(player);
-        this.deletedPlayers.push(player.id);
-        console.log(`"${player.name}" left game`);
-    }
-
     tick(): void {
         const now = Date.now();
         const dt = (now - this.now) / 1000;
         this.now = now;
 
         // update entities
-        for (const entity of this.grid.entities.values()) {
-            entity.tick(dt);
-        }
-
+        this.entityManager.tick(dt);
         this.bulletManager.tick(dt);
-        this.explosionManager.tick(dt);
+        this.explosionManager.tick();
 
-        // Cache entity serializations
-        for (const entity of this.partialDirtyEntities) {
-            if (this.fullDirtyEntities.has(entity)) {
-                this.partialDirtyEntities.delete(entity);
-                continue;
-            }
-            entity.serializePartial();
-        }
-
-        for (const entity of this.fullDirtyEntities) {
-            entity.serializeFull();
-        }
-
-        // Second loop over players: calculate visible entities & send updates
-        for (const player of this.players) {
-            player.sendPackets();
-        }
+        // Cache entity serializations, calculate visible objects for players, send packets etc
+        this.entityManager.serializeEntities();
+        this.playerManager.sendPackets();
 
         // reset stuff
-        for (const player of this.players) {
-            for (const key in player.dirty) {
-                player.dirty[key as keyof Player["dirty"]] = false;
-            }
-        }
-
-        this.partialDirtyEntities.clear();
-        this.fullDirtyEntities.clear();
-        this.newPlayers.length = 0;
-        this.deletedPlayers.length = 0;
-        this.bulletManager.newBullets.length = 0;
-        this.explosionManager.explosions.length = 0;
-        this.shots.length = 0;
+        this.entityManager.flush();
+        this.playerManager.flush();
+        this.bulletManager.flush();
+        this.explosionManager.flush();
     }
 }

@@ -1,34 +1,43 @@
-import type { EntityType } from "../../../common/src/constants";
+import { EntityType } from "../../../common/src/constants";
 import { GameBitStream } from "../../../common/src/net";
 import {
     type EntitiesNetData,
     EntitySerializations
 } from "../../../common/src/packets/updatePacket";
 import type { Hitbox } from "../../../common/src/utils/hitbox";
+import { assert } from "../../../common/src/utils/util";
 import type { Vector } from "../../../common/src/utils/vector";
 import type { Game } from "../game";
+import type { Grid } from "../grid";
 
 export abstract class ServerEntity<T extends EntityType = EntityType> {
-    abstract __type: T;
-    readonly id: number;
-    game: Game;
+    abstract readonly __type: T;
+
+    declare id: number;
+    declare __arrayIdx: number;
+
+    __gridCells: Vector[] = [];
+
+    readonly game: Game;
+
+    abstract hitbox: Hitbox;
 
     _position: Vector;
-    get position(): Vector {
+
+    get position() {
         return this._position;
     }
     set position(pos: Vector) {
         this._position = pos;
     }
 
-    abstract hitbox: Hitbox;
+    destroyed = false;
 
     partialStream!: GameBitStream;
     fullStream!: GameBitStream;
 
     constructor(game: Game, pos: Vector) {
         this.game = game;
-        this.id = game.idAllocator.getNextId();
         this._position = pos;
     }
 
@@ -62,12 +71,129 @@ export abstract class ServerEntity<T extends EntityType = EntityType> {
     }
 
     setDirty(): void {
-        this.game.partialDirtyEntities.add(this);
+        this.game.entityManager.dirtyPart[this.id] = 1;
     }
 
     setFullDirty(): void {
-        this.game.fullDirtyEntities.add(this);
+        this.game.entityManager.dirtyFull[this.id] = 1;
+    }
+
+    destroy() {
+        if (this.destroyed) {
+            console.warn("Tried to destroy object twice");
+            return;
+        }
+        this.game.grid.removeFromGrid(this);
+        this.game.entityManager.deletedEntities.push(this);
+        this.destroyed = true;
     }
 
     abstract get data(): Required<EntitiesNetData[EntityType]>;
+}
+
+const MAX_ID = 65535;
+
+export class EntityManager {
+    entities: Array<ServerEntity | undefined> = [];
+    idToEntity: Array<ServerEntity | null> = [];
+
+    idToType = new Uint8Array(MAX_ID);
+    dirtyPart = new Uint8Array(MAX_ID);
+    dirtyFull = new Uint8Array(MAX_ID);
+
+    deletedEntities: ServerEntity[] = [];
+
+    idNext = 1;
+    freeIds: number[] = [];
+
+    constructor(readonly grid: Grid) {
+        for (let i = 0; i < MAX_ID; i++) {
+            this.idToEntity[i] = null;
+        }
+    }
+
+    getById(id: number) {
+        return this.idToEntity[id] ?? undefined;
+    }
+
+    allocId() {
+        let id = 1;
+        if (this.idNext < MAX_ID) {
+            id = this.idNext++;
+        } else {
+            if (this.freeIds.length > 0) {
+                id = this.freeIds.shift()!;
+            } else {
+                assert(false, "Ran out of entity ids");
+            }
+        }
+        return id;
+    }
+
+    freeId(id: number) {
+        this.freeIds.push(id);
+    }
+
+    register(entity: ServerEntity) {
+        const type = entity.__type;
+        const id = this.allocId();
+        entity.id = id;
+        entity.__arrayIdx = this.entities.length;
+        entity.init();
+        this.entities[entity.__arrayIdx] = entity;
+        this.idToEntity[id] = entity;
+        this.idToType[id] = type;
+        this.dirtyPart[id] = 1;
+        this.dirtyFull[id] = 1;
+        this.grid.addEntity(entity);
+        entity.init();
+    }
+
+    unregister(entity: ServerEntity) {
+        assert(entity.id > 0);
+
+        const lastEntity = this.entities.pop()!;
+        if (entity !== lastEntity) {
+            this.entities[entity.__arrayIdx] = lastEntity;
+            lastEntity.__arrayIdx = entity.__arrayIdx;
+        }
+        this.idToEntity[entity.id] = null;
+
+        this.freeId(entity.id);
+
+        this.idToType[entity.id] = 0;
+        this.dirtyPart[entity.id] = 0;
+        this.dirtyFull[entity.id] = 0;
+
+        entity.id = 0;
+        // @ts-expect-error type is readonly for proper type to entity class casting
+        entity.__type = EntityType.Invalid;
+    }
+
+    tick(dt: number): void {
+        for (let i = 0; i < this.entities.length; i++) {
+            this.entities[i]?.tick(dt);
+        }
+    }
+
+    serializeEntities() {
+        for (let i = 0; i < this.entities.length; i++) {
+            const entity = this.entities[i]!;
+            const id = entity.id;
+            if (this.dirtyFull[id]) {
+                entity.serializeFull();
+            } else if (this.dirtyPart[id]) {
+                entity.serializePartial();
+            }
+        }
+    }
+
+    flush() {
+        for (let i = 0; i < this.deletedEntities.length; i++) {
+            this.unregister(this.deletedEntities[i]);
+        }
+        this.deletedEntities.length = 0;
+        this.dirtyFull.fill(0);
+        this.dirtyPart.fill(0);
+    }
 }

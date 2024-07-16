@@ -9,6 +9,9 @@ import type { GameBitStream, Packet } from "../net";
 import type { Vector } from "../utils/vector";
 
 export interface EntitiesNetData {
+    [EntityType.Invalid]: {
+        full?: {};
+    };
     [EntityType.Player]: {
         // Partial data should be used for data that changes often
         position: Vector;
@@ -55,6 +58,18 @@ interface EntitySerialization<T extends EntityType> {
 }
 
 export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> } = {
+    [EntityType.Invalid]: {
+        partialSize: 0,
+        fullSize: 0,
+        serializeFull(_stream, _data) {},
+        serializePartial(_stream, _data) {},
+        deserializeFull(_stream) {
+            return {};
+        },
+        deserializePartial(_stream) {
+            return {};
+        }
+    },
     [EntityType.Player]: {
         partialSize: 8,
         fullSize: 2,

@@ -120,10 +120,10 @@ export class WeaponManager {
                 dir,
                 this.player
             );
-            game.grid.addEntity(projectile);
+            game.entityManager.register(projectile);
         }
 
-        game.shots.push({
+        game.bulletManager.shots.push({
             id: this.player.id,
             weapon: this.player.activeWeapon
         });

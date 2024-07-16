@@ -21,6 +21,90 @@ import { ServerEntity } from "./entity";
 import type { Loot } from "./loot";
 import { Obstacle } from "./obstacle";
 
+export class PlayerManager {
+    players: Player[] = [];
+
+    newPlayers: Player[] = [];
+    deletedPlayers: number[] = [];
+
+    constructor(readonly game: Game) {}
+
+    addPlayer(socket: ServerWebSocket<PlayerData>, joinPacket: JoinPacket): Player {
+        const player = new Player(
+            this.game,
+            socket,
+            joinPacket.name.trim() || GameConstants.player.defaultName
+        );
+        this.game.entityManager.register(player);
+
+        this.newPlayers.push(player);
+        this.players.push(player);
+        this.newPlayers.push(player);
+
+        console.log(`"${player.name}" joined the game`);
+        return player;
+    }
+
+    removePlayer(player: Player): void {
+        this.game.entityManager.unregister(player);
+        this.deletedPlayers.push(player.id);
+        console.log(`"${player.name}" left game`);
+    }
+
+    sendPackets() {
+        for (let i = 0; i < this.players.length; i++) {
+            const player = this.players[i];
+            // ignore disconnected sockets
+            if (player.socket.readyState !== 1) continue;
+            player.sendPackets();
+        }
+    }
+
+    processPacket(buff: ArrayBuffer, socket: ServerWebSocket<PlayerData>) {
+        const packetStream = new PacketStream(buff);
+
+        const packet = packetStream.deserializeClientPacket();
+        if (packet === undefined) return;
+
+        let player = socket.data.entity;
+
+        if (!player && packet instanceof JoinPacket) {
+            socket.data.entity = this.addPlayer(socket, packet);
+            return;
+        }
+
+        if (!player) {
+            socket.close();
+            return;
+        }
+
+        switch (true) {
+            case packet instanceof InputPacket: {
+                player.processInput(packet);
+                break;
+            }
+        }
+    }
+
+    flush() {
+        this.deletedPlayers.length = 0;
+        this.newPlayers.length = 0;
+
+        for (let i = 0; i < this.players.length; i++) {
+            const player = this.players[i];
+            for (const key in player.dirty) {
+                player.dirty[key as keyof Player["dirty"]] = false;
+            }
+
+            // delete unregistered players
+            if (!player.__type) {
+                this.players.splice(i, 1);
+                continue;
+            }
+        }
+    }
+}
+
 export class Player extends ServerEntity {
     readonly __type = EntityType.Player;
     readonly hitbox = new CircleHitbox(GameConstants.player.radius);
@@ -124,11 +208,12 @@ export class Player extends ServerEntity {
         this._position = pos;
     }
 
-    constructor(game: Game, socket: ServerWebSocket<PlayerData>) {
+    constructor(game: Game, socket: ServerWebSocket<PlayerData>, name: string) {
         const pos = Random.vector(0, game.map.width, 0, game.map.height);
         super(game, pos);
         this.position = pos;
         this.socket = socket;
+        this.name = name;
     }
 
     tick(dt: number): void {
@@ -281,7 +366,6 @@ export class Player extends ServerEntity {
 
         if (this.health <= 0) {
             this.dead = true;
-            this.game.grid.remove(this);
 
             if (source !== this) {
                 source.kills++;
@@ -296,13 +380,17 @@ export class Player extends ServerEntity {
     }
 
     sendPackets() {
+        const game = this.game;
         // calculate visible, deleted, and dirty entities
         // and send them to the client
         const updatePacket = new UpdatePacket();
 
         const radius = this.zoom + 10;
         const rect = RectHitbox.fromCircle(radius, this.position);
-        const newVisibleEntities = this.game.grid.intersectsHitbox(rect);
+
+        const newVisibleEntities = game.grid.intersectsHitbox(rect);
+
+        newVisibleEntities.add(this);
 
         for (const entity of this.visibleEntities) {
             if (!newVisibleEntities.has(entity)) {
@@ -311,41 +399,29 @@ export class Player extends ServerEntity {
         }
 
         for (const entity of newVisibleEntities) {
-            if (!this.visibleEntities.has(entity)) {
-                updatePacket.serverFullEntities.push(entity);
-            }
-        }
-
-        for (const entity of this.game.fullDirtyEntities) {
             if (
-                newVisibleEntities.has(entity) &&
-                !updatePacket.serverFullEntities.includes(entity) &&
-                !updatePacket.deletedEntities.includes(entity.id)
+                !this.visibleEntities.has(entity) ||
+                game.entityManager.dirtyFull[entity.id]
             ) {
                 updatePacket.serverFullEntities.push(entity);
-            }
-        }
-
-        for (const entity of this.game.partialDirtyEntities) {
-            if (
-                newVisibleEntities.has(entity) &&
-                !updatePacket.serverFullEntities.includes(entity) &&
-                !updatePacket.deletedEntities.includes(entity.id)
-            ) {
+            } else if (game.entityManager.dirtyPart[entity.id]) {
                 updatePacket.serverPartialEntities.push(entity);
             }
         }
+
         this.visibleEntities = newVisibleEntities;
 
         updatePacket.playerData = this;
         updatePacket.playerDataDirty = this.dirty;
 
         updatePacket.newPlayers = this.firstPacket
-            ? [...this.game.players]
-            : this.game.newPlayers;
-        updatePacket.deletedPlayers = this.game.deletedPlayers;
+            ? game.playerManager.players
+            : game.playerManager.newPlayers;
 
-        for (const bullet of this.game.bulletManager.newBullets) {
+        updatePacket.deletedPlayers = game.playerManager.deletedPlayers;
+
+        for (let i = 0; i < game.bulletManager.newBullets.length; i++) {
+            const bullet = game.bulletManager.newBullets[i];
             if (
                 rect.isPointInside(bullet.initialPosition) ||
                 rect.isPointInside(bullet.finalPosition) ||
@@ -355,7 +431,8 @@ export class Player extends ServerEntity {
             }
         }
 
-        for (const explosion of this.game.explosionManager.explosions) {
+        for (let i = 0; i < game.explosionManager.explosions.length; i++) {
+            const explosion = game.explosionManager.explosions[i];
             if (
                 rect.isPointInside(explosion.position) ||
                 rect.collidesWith(explosion.hitbox)
@@ -363,8 +440,10 @@ export class Player extends ServerEntity {
                 updatePacket.explosions.push(explosion);
             }
         }
-        for (const shot of this.game.shots) {
-            const player = this.game.grid.getById(shot.id);
+
+        for (let i = 0; i < game.bulletManager.shots.length; i++) {
+            const shot = game.bulletManager.shots[i];
+            const player = game.entityManager.getById(shot.id);
             if (player && rect.isPointInside(player.position)) {
                 updatePacket.shots.push(shot);
             }
@@ -374,7 +453,7 @@ export class Player extends ServerEntity {
         this.packetStream.serializeServerPacket(updatePacket);
 
         if (this.firstPacket) {
-            const mapStream = this.game.map.serializedData.stream;
+            const mapStream = game.map.serializedData.stream;
             this.packetStream.stream.writeBytes(mapStream, 0, mapStream.byteIndex);
         }
 
@@ -385,6 +464,7 @@ export class Player extends ServerEntity {
         this.packetsToSend.length = 0;
         const buffer = this.packetStream.getBuffer();
         this.sendData(buffer);
+
         this.firstPacket = false;
     }
 
@@ -402,36 +482,6 @@ export class Player extends ServerEntity {
         } catch (error) {
             console.error("Error sending data:", error);
         }
-    }
-
-    processMessage(message: ArrayBuffer): void {
-        const packetStream = new PacketStream(message);
-
-        const packet = packetStream.deserializeClientPacket();
-        if (packet === undefined) return;
-
-        switch (true) {
-            case packet instanceof JoinPacket: {
-                this.join(packet);
-                break;
-            }
-            case packet instanceof InputPacket: {
-                this.processInput(packet);
-                break;
-            }
-        }
-    }
-
-    join(packet: JoinPacket): void {
-        this.name = packet.name.trim();
-        if (!this.name) this.name = GameConstants.player.defaultName;
-        this.socket.data.joined = true;
-
-        this.game.players.add(this);
-        this.game.newPlayers.push(this);
-        this.game.grid.addEntity(this);
-
-        console.log(`"${this.name}" joined the game`);
     }
 
     processInput(packet: InputPacket): void {
