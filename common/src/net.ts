@@ -344,6 +344,34 @@ class PacketRegister {
             this.idToCtor[id] = packet;
         }
     }
+
+    serializePacket(stream: GameBitStream, packet: Packet) {
+        const type = this.typeToId[packet.constructor.name];
+        assert(
+            type !== undefined,
+            `Unknown packet type: ${packet.constructor.name}, did you forget to register it?`
+        );
+
+        stream.writeUint8(type);
+        packet.serialize(stream);
+        stream.writeAlignToNextByte();
+    }
+
+    deserializePacket(stream: GameBitStream): Packet | undefined {
+        if (stream.length - stream.byteIndex * 8 >= 1) {
+            try {
+                const id = stream.readUint8();
+                const packet = new this.idToCtor[id]();
+                packet.deserialize(stream);
+                stream.readAlignToNextByte();
+                return packet;
+            } catch (e) {
+                console.error("Failed deserializing packet: ", e);
+                return undefined;
+            }
+        }
+        return undefined;
+    }
 }
 
 const ClientToServerPackets = new PacketRegister();
@@ -366,47 +394,19 @@ export class PacketStream {
     }
 
     serializeServerPacket(packet: Packet) {
-        this._serializePacket(packet, ServerToClientPackets);
+        ServerToClientPackets.serializePacket(this.stream, packet);
     }
 
     deserializeServerPacket(): Packet | undefined {
-        return this._deserializePacket(ServerToClientPackets);
+        return ServerToClientPackets.deserializePacket(this.stream);
     }
 
     serializeClientPacket(packet: Packet) {
-        this._serializePacket(packet, ClientToServerPackets);
+        ClientToServerPackets.serializePacket(this.stream, packet);
     }
 
     deserializeClientPacket(): Packet | undefined {
-        return this._deserializePacket(ClientToServerPackets);
-    }
-
-    private _deserializePacket(register: PacketRegister): Packet | undefined {
-        if (this.stream.length - this.stream.byteIndex * 8 >= 1) {
-            try {
-                const id = this.stream.readUint8();
-                const packet = new register.idToCtor[id]();
-                packet.deserialize(this.stream);
-                this.stream.readAlignToNextByte();
-                return packet;
-            } catch (e) {
-                console.error("Failed deserializing packet: ", e);
-                return undefined;
-            }
-        }
-        return undefined;
-    }
-
-    private _serializePacket(packet: Packet, register: PacketRegister) {
-        const type = register.typeToId[packet.constructor.name];
-        assert(
-            type !== undefined,
-            `Unknown packet type: ${packet.constructor.name}, did you forget to register it?`
-        );
-
-        this.stream.writeUint8(type);
-        packet.serialize(this.stream);
-        this.stream.writeAlignToNextByte();
+        return ClientToServerPackets.deserializePacket(this.stream);
     }
 
     getBuffer(): ArrayBuffer {
