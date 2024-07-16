@@ -46,7 +46,7 @@ export class PlayerManager {
     }
 
     removePlayer(player: Player): void {
-        this.game.entityManager.unregister(player);
+        player.destroy();
         this.deletedPlayers.push(player.id);
         console.log(`"${player.name}" left game`);
     }
