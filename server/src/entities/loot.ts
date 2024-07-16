@@ -6,6 +6,16 @@ import type { Vector } from "../../../common/src/utils/vector";
 import type { Game } from "../game";
 import { ServerEntity } from "./entity";
 
+export class LootManager {
+    constructor(readonly game: Game) {}
+
+    addLoot(type: LootDefKey, position: Vector) {
+        const loot = new Loot(this.game, type, position);
+        this.game.entityManager.register(loot);
+        return loot;
+    }
+}
+
 export class Loot extends ServerEntity {
     override readonly __type = EntityType.Loot;
 
@@ -15,7 +25,7 @@ export class Loot extends ServerEntity {
 
     respawnTicker = 0;
 
-    constructor(game: Game, position: Vector, type: LootDefKey) {
+    constructor(game: Game, type: LootDefKey, position: Vector) {
         super(game, position);
         this.type = type;
         this.hitbox.position = this.position;

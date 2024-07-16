@@ -2,7 +2,9 @@ import { GameConstants } from "../../common/src/constants";
 import { BulletManager } from "./bullet";
 import type { ServerConfig } from "./config";
 import { EntityManager } from "./entities/entity";
+import { LootManager } from "./entities/loot";
 import { PlayerManager } from "./entities/player";
+import { ProjectileManager } from "./entities/projectile";
 import { ExplosionManager } from "./explosion";
 import { Grid } from "./grid";
 import { GameMap } from "./map";
@@ -14,6 +16,8 @@ export class Game {
     map: GameMap;
 
     playerManager = new PlayerManager(this);
+    lootManager = new LootManager(this);
+    projectileManager = new ProjectileManager(this);
     bulletManager = new BulletManager(this);
     explosionManager = new ExplosionManager(this);
 

@@ -13,6 +13,21 @@ import type { Game } from "../game";
 import { ServerEntity } from "./entity";
 import type { Player } from "./player";
 
+export class ProjectileManager {
+    constructor(readonly game: Game) {}
+
+    addProjectile(
+        type: ProjectileDefKey,
+        position: Vector,
+        direction: Vector,
+        source: Player
+    ) {
+        const projectile = new Projectile(this.game, type, position, direction, source);
+        this.game.entityManager.register(projectile);
+        return projectile;
+    }
+}
+
 export class Projectile extends ServerEntity {
     readonly __type = EntityType.Projectile;
     hitbox: CircleHitbox;

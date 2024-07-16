@@ -8,7 +8,6 @@ import { MathUtils } from "../../common/src/utils/math";
 import { Random } from "../../common/src/utils/random";
 import { Vec2 } from "../../common/src/utils/vector";
 import type { Player } from "./entities/player";
-import { Projectile } from "./entities/projectile";
 
 enum WeaponState {
     Idle,
@@ -113,14 +112,12 @@ export class WeaponManager {
         }
 
         if (weaponDef.projectileType) {
-            const projectile = new Projectile(
-                game,
+            game.projectileManager.addProjectile(
                 weaponDef.projectileType,
                 finalGunPos,
                 dir,
                 this.player
             );
-            game.entityManager.register(projectile);
         }
 
         game.bulletManager.shots.push({
