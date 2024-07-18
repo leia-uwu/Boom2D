@@ -5,6 +5,7 @@ import { EntityType } from "../../../common/src/constants";
 import { BulletDefs } from "../../../common/src/defs/bulletDefs";
 import { ObstacleDefs } from "../../../common/src/defs/obstacleDefs";
 import { MathUtils } from "../../../common/src/utils/math";
+import { Random } from "../../../common/src/utils/random";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { Camera } from "./camera";
 import type { ClientEntity } from "./entities/entity";
@@ -121,9 +122,14 @@ export class ClientBullet extends BaseBullet {
                 tint = def.img.tint;
             }
 
-            this.game.particleManager.addParticle(position, normal, "wall_chip", {
-                tint
-            });
+            this.game.particleManager.addParticle(
+                position,
+                Vec2.add(normal, Random.vector(-0.3, 0.3, -0.3, 0.3)),
+                "wall_chip",
+                {
+                    tint
+                }
+            );
         } else if (entity?.__type === EntityType.Player) {
             this.game.particleManager.addParticle(position, normal, "blood");
         }

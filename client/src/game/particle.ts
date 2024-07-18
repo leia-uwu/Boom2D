@@ -232,15 +232,20 @@ const ParticleDefs = {
         speed: { min: 2, max: 5 }
     },
     wall_chip: {
-        lifeTime: { min: 0.4, max: 0.6 },
+        lifeTime: { min: 0.5, max: 0.8 },
         blendMode: "normal",
         zIndex: 1,
         tint: 0xffffff,
         sprite: "chip-particle.svg",
         rotation: { start: 0, end: 5 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
-        scale: { get start() { return Random.float(1, 2) } , end: 0.5 },
-        speed: { min: 2, max: 4 }
+        scale: {
+            get start() {
+                return Random.float(1, 1.8);
+            },
+            end: 0.5
+        },
+        speed: { min: 3, max: 4 }
     },
     blood: {
         lifeTime: { min: 0.5, max: 0.8 },
