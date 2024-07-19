@@ -3,6 +3,7 @@ import { version } from "../../package.json";
 import { Config } from "./config";
 import type { Player } from "./entities/player";
 import { Game } from "./game";
+import { Logger } from "./logger";
 
 const game = new Game(Config);
 
@@ -89,5 +90,7 @@ Bun.serve<PlayerData>({
     }
 });
 
-console.log(`Boom2D server version ${version}`);
-console.log(`Websocket server running on ${Config.host}:${Config.port}`);
+const logger = new Logger("Server");
+
+logger.log(`Boom2D server version ${version}`);
+logger.log(`Websocket server running on ${Config.host}:${Config.port}`);

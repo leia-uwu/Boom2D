@@ -41,14 +41,14 @@ export class PlayerManager {
         this.players.push(player);
         this.newPlayers.push(player);
 
-        console.log(`"${player.name}" joined the game`);
+        this.game.logger.log(`"${player.name}" joined the game`);
         return player;
     }
 
     removePlayer(player: Player): void {
         player.destroy();
         this.deletedPlayers.push(player.id);
-        console.log(`"${player.name}" left game`);
+        this.game.logger.log(`"${player.name}" left game`);
     }
 
     sendPackets() {

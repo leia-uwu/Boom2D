@@ -7,6 +7,7 @@ import { PlayerManager } from "./entities/player";
 import { ProjectileManager } from "./entities/projectile";
 import { ExplosionManager } from "./explosion";
 import { Grid } from "./grid";
+import { Logger } from "./logger";
 import { GameMap } from "./map";
 
 export class Game {
@@ -23,9 +24,13 @@ export class Game {
 
     now = Date.now();
 
+    tickTimes: number[] = [];
+    perfTicker = 0;
+    logger = new Logger("Game");
+
     timer: Timer;
 
-    constructor(config: ServerConfig) {
+    constructor(readonly config: ServerConfig) {
         this.map = new GameMap(this, config.map);
         this.timer = setInterval(this.tick.bind(this), 1000 / config.tps);
     }
@@ -49,5 +54,23 @@ export class Game {
         this.playerManager.flush();
         this.bulletManager.flush();
         this.explosionManager.flush();
+
+        if (this.config.perfLogging.enabled) {
+            // Record performance and start the next tick
+            // THIS TICK COUNTER IS WORKING CORRECTLY!
+            // It measures the time it takes to calculate a tick, not the time between ticks.
+            const tickTime = Date.now() - this.now;
+            this.tickTimes.push(tickTime);
+
+            this.perfTicker += dt;
+            if (this.perfTicker >= this.config.perfLogging.time) {
+                this.perfTicker = 0;
+                const mspt =
+                    this.tickTimes.reduce((a, b) => a + b) / this.tickTimes.length;
+
+                this.logger.log(`Avg ms/tick: ${mspt.toFixed(2)}`);
+                this.tickTimes = [];
+            }
+        }
     }
 }

@@ -4,7 +4,12 @@ export const Config: ServerConfig = {
     host: "127.0.0.1",
     port: 8000,
     tps: 35,
-    map: "main"
+    map: "main",
+
+    perfLogging: {
+        enabled: true,
+        time: 10
+    }
 };
 
 export interface ServerConfig {
@@ -24,5 +29,16 @@ export interface ServerConfig {
     readonly ssl?: {
         readonly keyFile: string;
         readonly certFile: string;
+    };
+
+    /**
+     * Server logging
+     */
+    readonly perfLogging: {
+        readonly enabled: boolean;
+        /**
+         * Seconds between each game performance log
+         */
+        readonly time: number;
     };
 }
