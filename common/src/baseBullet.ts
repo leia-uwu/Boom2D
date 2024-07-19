@@ -1,7 +1,8 @@
 import type { BaseGameMap, Wall } from "./baseMap";
-import type { EntityType } from "./constants";
+import { EntityType } from "./constants";
 import { type BulletDefKey, BulletDefs } from "./defs/bulletDefs";
 import type { GameBitStream } from "./net";
+import type { EntitiesNetData } from "./packets/updatePacket";
 import type { Hitbox } from "./utils/hitbox";
 import { Vec2, type Vector } from "./utils/vector";
 
@@ -12,10 +13,11 @@ export interface BulletParams {
     type: BulletDefKey;
 }
 
-interface GameEntity {
-    __type: EntityType;
+interface GameEntity<T extends EntityType = EntityType> {
+    __type: T;
     hitbox: Hitbox;
     id: number;
+    data: Required<EntitiesNetData[T]>;
 }
 
 export interface BulletCollision {}
@@ -88,6 +90,12 @@ export class BaseBullet implements BulletParams {
 
         for (const entity of entities) {
             if (entity.id === this.shooterId) continue;
+
+            if (
+                entity.__type === EntityType.Player &&
+                (entity as GameEntity<EntityType.Player>).data.full?.dead
+            )
+                continue;
 
             const intersection = entity.hitbox.intersectsLine(
                 this.lastPosition,

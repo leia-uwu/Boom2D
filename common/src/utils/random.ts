@@ -27,6 +27,10 @@ export const Random = {
         return Math.random() < 0.5;
     },
 
+    itemInArray<T>(array: T[]): T {
+        return array[Random.int(0, array.length - 1)];
+    },
+
     /**
      * Generate a vector of random direction and magnitude.
      * @param minX The minimum length in the x-direction.
@@ -39,6 +43,13 @@ export const Random = {
             x: Random.float(minX, maxX),
             y: Random.float(minY, maxY)
         };
+    },
+
+    /**
+     * Generate a random vector with x and y between -1 and 1
+     */
+    unitVector() {
+        return Random.vector(-1, 1, -1, 1);
     },
 
     /**

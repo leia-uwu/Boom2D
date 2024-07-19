@@ -72,7 +72,7 @@ type ParticleOption = (
 
 interface ParticleDef {
     /** Particle frame id */
-    sprite: TextureSourceLike;
+    sprite: TextureSourceLike[];
     /** Particle sprite zIndex */
     zIndex?: number;
     /** Particle sprite blend mode */
@@ -135,7 +135,7 @@ class Particle {
         this.position = position;
         this.direction = direction;
 
-        this.sprite = Sprite.from(def.sprite);
+        this.sprite = Sprite.from(Random.itemInArray(def.sprite));
         this.sprite.anchor.set(0.5);
 
         if (def.zIndex) {
@@ -199,7 +199,7 @@ const ParticleDefs = {
         get tint() {
             return new Color(`hsl(${Random.int(0, 25)}, 100%, 50%)`);
         },
-        sprite: "glow-particle.svg",
+        sprite: ["glow-particle.svg"],
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 2, end: 0 },
@@ -212,7 +212,7 @@ const ParticleDefs = {
         get tint() {
             return new Color(`hsl(${Random.int(0, 25)}, 100%, 50%)`);
         },
-        sprite: "glow-particle.svg",
+        sprite: ["glow-particle.svg"],
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 6, end: 0 },
@@ -225,7 +225,7 @@ const ParticleDefs = {
         get tint() {
             return new Color(`hsl(${Random.int(160, 200)}, 100%, 50%)`);
         },
-        sprite: "glow-particle.svg",
+        sprite: ["glow-particle.svg"],
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 2, end: 0 },
@@ -236,7 +236,7 @@ const ParticleDefs = {
         blendMode: "normal",
         zIndex: 1,
         tint: 0xffffff,
-        sprite: "chip-particle.svg",
+        sprite: ["chip-particle.svg"],
         rotation: { start: 0, end: 5 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: {
@@ -249,16 +249,36 @@ const ParticleDefs = {
     },
     blood: {
         lifeTime: { min: 0.5, max: 0.8 },
-        blendMode: "normal",
         zIndex: 1,
         get tint() {
             return new Color(`hsl(0, 100%, ${Random.int(30, 50)}%)`);
         },
-        sprite: "blood-particle.svg",
+        sprite: ["blood-particle-01.svg", "blood-particle-02.svg"],
         rotation: { min: 0, max: Math.PI * 2 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 0.5, end: 4 },
         speed: { min: 1, max: 2 }
+    },
+    gib_blood: {
+        lifeTime: { min: 0.8, max: 1.1 },
+        zIndex: 1,
+        get tint() {
+            return new Color(`hsl(0, 100%, ${Random.int(30, 50)}%)`);
+        },
+        sprite: ["blood-particle-01.svg", "blood-particle-02.svg"],
+        rotation: { min: 0, max: Math.PI * 2 },
+        alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
+        scale: { start: 4, end: 0.1 },
+        speed: { min: 5, max: 8 }
+    },
+    gib_bones: {
+        lifeTime: { min: 0.8, max: 1.1 },
+        zIndex: 1,
+        sprite: ["bone-particle.svg"],
+        rotation: { min: 0, max: Math.PI * 2 },
+        alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
+        scale: { min: 1, max: 2 },
+        speed: { min: 5, max: 8 }
     }
 } satisfies Record<string, ParticleDef>;
 

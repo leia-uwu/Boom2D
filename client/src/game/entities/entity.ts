@@ -17,6 +17,8 @@ export abstract class ClientEntity<T extends EntityType = EntityType> {
 
     container = new Container();
 
+    data!: Required<EntitiesNetData[T]>;
+
     constructor(game: Game, id: number) {
         this.game = game;
         this.id = id;
@@ -24,8 +26,17 @@ export abstract class ClientEntity<T extends EntityType = EntityType> {
         this.game.camera.addObject(this.container);
     }
 
-    updateFromData(_data: EntitiesNetData[T], _isNew: boolean): void {
+    updateFromData(data: EntitiesNetData[T], _isNew: boolean): void {
         this.interpolationTick = 0;
+
+        if (data.full) {
+            this.data = data as unknown as Required<EntitiesNetData[T]>;
+        } else {
+            // save old full data to set it back if its not a full update
+            const oldFull = this.data.full;
+            this.data = { ...data } as unknown as Required<EntitiesNetData[T]>;
+            this.data.full = oldFull;
+        }
     }
 
     abstract destroy(): void;

@@ -217,6 +217,8 @@ export class Player extends ServerEntity {
     }
 
     tick(dt: number): void {
+        if (this.dead) return;
+
         const oldPos = Vec2.clone(this.position);
 
         const movement = Vec2.new(0, 0);
@@ -366,6 +368,7 @@ export class Player extends ServerEntity {
 
         if (this.health <= 0) {
             this.dead = true;
+            this.setFullDirty();
 
             if (source !== this) {
                 source.kills++;
@@ -485,6 +488,7 @@ export class Player extends ServerEntity {
     }
 
     processInput(packet: InputPacket): void {
+        if (this.dead) return;
         // if the direction changed set to dirty
         if (!Vec2.equals(this.direction, packet.direction)) {
             this.setDirty();
@@ -507,7 +511,8 @@ export class Player extends ServerEntity {
             position: this.position,
             direction: this.direction,
             full: {
-                activeWeapon: this.activeWeapon
+                activeWeapon: this.activeWeapon,
+                dead: this.dead
             }
         };
     }

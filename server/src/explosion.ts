@@ -3,7 +3,7 @@ import { type ExplosionDefKey, ExplosionDefs } from "../../common/src/defs/explo
 import { CircleHitbox } from "../../common/src/utils/hitbox";
 import { MathUtils } from "../../common/src/utils/math";
 import { Vec2, type Vector } from "../../common/src/utils/vector";
-import { Player } from "./entities/player";
+import type { Player } from "./entities/player";
 import type { Game } from "./game";
 
 export class ExplosionManager {
@@ -44,21 +44,12 @@ class Explosion {
         const entities = game.grid.intersectsHitbox(this.hitbox);
 
         for (const entity of entities) {
+            if (entity.__type !== EntityType.Player) continue;
+            if ((entity as Player).dead) continue;
             if (!entity.hitbox.collidesWith(this.hitbox)) continue;
-            if (
-                !(
-                    entity.__type === EntityType.Player ||
-                    entity.__type === EntityType.Obstacle
-                )
-            )
-                continue;
-
             const dist = Vec2.distance(this.position, entity.position);
             const damage = MathUtils.remap(dist, 0, def.radius, def.damage, 0);
-
-            if (entity instanceof Player) {
-                entity.damage(damage, this.source);
-            }
+            (entity as Player).damage(damage, this.source);
         }
     }
 }

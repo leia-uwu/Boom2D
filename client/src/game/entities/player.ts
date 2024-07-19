@@ -18,6 +18,8 @@ export class Player extends ClientEntity {
 
     activeWeapon!: WeaponDefKey;
 
+    dead = false;
+
     images = {
         base: Sprite.from("player-base.svg"),
         leftFist: Sprite.from("player-fist.svg"),
@@ -112,6 +114,13 @@ export class Player extends ClientEntity {
             }
 
             this.container.sortChildren();
+
+            if (!isNew && data.full.dead && !this.dead) {
+                this.killEffect();
+            }
+
+            this.dead = data.full.dead;
+            this.container.visible = this.nameText.visible = !this.dead;
         }
     }
 
@@ -148,6 +157,27 @@ export class Player extends ClientEntity {
             def.muzzleImgs[Random.int(0, def.muzzleImgs.length - 1)]
         );
         muzzle.position = Camera.vecToScreen(pos);
+    }
+
+    killEffect(): void {
+        this.game.audioManager.play("gib.mp3", {
+            position: this.position
+        });
+
+        for (let i = 0; i < 60; i++) {
+            this.game.particleManager.addParticle(
+                this.position,
+                Random.unitVector(),
+                "gib_blood"
+            );
+        }
+        for (let i = 0; i < 20; i++) {
+            this.game.particleManager.addParticle(
+                this.position,
+                Random.unitVector(),
+                "gib_bones"
+            );
+        }
     }
 
     override destroy(): void {

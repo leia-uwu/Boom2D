@@ -20,6 +20,7 @@ export interface EntitiesNetData {
         // while full data for data that rarely changes
         full?: {
             activeWeapon: WeaponDefKey;
+            dead: boolean;
         };
     };
     [EntityType.Projectile]: {
@@ -79,6 +80,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         },
         serializeFull(stream, data): void {
             WeaponDefs.write(stream, data.activeWeapon);
+            stream.writeBoolean(data.dead);
         },
         deserializePartial(stream) {
             return {
@@ -88,7 +90,8 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         },
         deserializeFull(stream) {
             return {
-                activeWeapon: WeaponDefs.read(stream)
+                activeWeapon: WeaponDefs.read(stream),
+                dead: stream.readBoolean()
             };
         }
     },
