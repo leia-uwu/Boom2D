@@ -12,6 +12,7 @@ import { Vec2 } from "../../../../common/src/utils/vector";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
 import type { Game } from "../game";
+import type { ParticleDefKey } from "../particle";
 import { ClientEntity } from "./entity";
 
 export class Projectile extends ClientEntity {
@@ -69,9 +70,7 @@ export class Projectile extends ClientEntity {
 
     override render(dt: number): void {
         super.render(dt);
-        const pos = Camera.vecToScreen(
-            Vec2.lerp(this.oldPosition, this.position, this.interpolationFactor)
-        );
+        const pos = Vec2.lerp(this.oldPosition, this.position, this.interpolationFactor);
 
         if (this.spin) {
             this.container.rotation += dt * 2;
@@ -90,17 +89,17 @@ export class Projectile extends ClientEntity {
                 for (let i = 0; i < def.particles.amount; i++) {
                     this.game.particleManager.addParticle(
                         Vec2.add(
-                            this.position,
+                            pos,
                             Vec2.rotate(Vec2.new(particles.spawnOffset, 0), rot)
                         ),
                         Vec2.fromPolar(Random.float(rot - 0.2, rot + 0.2)),
-                        def.particles.type
+                        def.particles.type as ParticleDefKey
                     );
                 }
             }
         }
 
-        this.container.position = pos;
+        this.container.position = Camera.vecToScreen(pos);
     }
 
     override destroy(): void {
