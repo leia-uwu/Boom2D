@@ -131,7 +131,13 @@ export class ClientBullet extends BaseBullet {
                 }
             );
         } else if (entity?.__type === EntityType.Player) {
-            this.game.particleManager.addParticle(position, normal, "blood");
+            for (let i = 0; i < 20; i++) {
+                this.game.particleManager.addParticle(
+                    position,
+                    Vec2.add(normal, Random.vector(-0.4, 0.34, -0.4, 0.4)),
+                    "blood"
+                );
+            }
         }
     }
 

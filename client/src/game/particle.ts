@@ -256,8 +256,8 @@ const ParticleDefs = {
         sprite: ["blood-particle-01.svg", "blood-particle-02.svg"],
         rotation: { min: 0, max: Math.PI * 2 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
-        scale: { start: 0.5, end: 4 },
-        speed: { min: 1, max: 2 }
+        scale: { start: 0.3, end: 1.5 },
+        speed: { min: 1.5, max: 2 }
     },
     gib_blood: {
         lifeTime: { min: 0.8, max: 1.1 },
@@ -268,7 +268,7 @@ const ParticleDefs = {
         sprite: ["blood-particle-01.svg", "blood-particle-02.svg"],
         rotation: { min: 0, max: Math.PI * 2 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
-        scale: { start: 4, end: 0.1 },
+        scale: { start: 3, end: 0.1 },
         speed: { min: 5, max: 8 }
     },
     gib_bones: {
