@@ -3,6 +3,7 @@ import {
     Color,
     type ColorSource,
     Sprite,
+    Texture,
     type TextureSourceLike
 } from "pixi.js";
 import { EasinFunctions, MathUtils } from "../../../common/src/utils/math";
@@ -14,7 +15,13 @@ import type { Game } from "./game";
 export class ParticleManager {
     particles: Particle[] = [];
 
-    constructor(public game: Game) {}
+    constructor(public game: Game) {
+        // pre-allocate some particles
+        for (let i = 0; i < 100; i++) {
+            const part = new Particle();
+            this.particles.push(part);
+        }
+    }
 
     addParticle(
         position: Vector,
@@ -27,23 +34,45 @@ export class ParticleManager {
             ...overrides
         };
 
-        const particle = new Particle(position, rotation, def);
+        let particle: Particle | undefined = undefined;
+        for (let i = 0; i < this.particles.length; i++) {
+            const p = this.particles[i];
+            if (!p.active) {
+                particle = p;
+                break;
+            }
+        }
+
+        if (!particle) {
+            particle = new Particle();
+            this.particles.push(particle);
+        }
         this.game.camera.addObject(particle.sprite);
-        this.particles.push(particle);
+        particle.init(position, rotation, def);
         return particle;
     }
 
     render(dt: number) {
+        let activeCount = 0;
         for (let i = 0; i < this.particles.length; i++) {
             const part = this.particles[i];
-
-            if (part.dead) {
-                this.particles.splice(i, 1);
-                part.destroy();
-                continue;
-            }
-
+            if (!part.active) continue;
+            activeCount++;
             part.render(dt);
+        }
+
+        // free some particles if pool is too big
+        if (this.particles.length > 512 && activeCount < this.particles.length / 2) {
+            const compact = [];
+            for (let i = 0; i < this.particles.length; i++) {
+                const part = this.particles[i];
+                if (part.active) {
+                    compact.push(part);
+                } else {
+                    part.sprite.destroy();
+                }
+            }
+            this.particles = compact;
         }
     }
 }
@@ -114,15 +143,15 @@ function getMinMax(option: ParticleOption) {
 type ParticleInterpData = Omit<ParticleDef, "sprite" | "lifeTime">;
 
 class Particle {
-    dead = false;
+    active = false;
     tick = 0;
-    end: number;
-    position: Vector;
-    direction: Vector;
+    end = 0;
+    position = Vec2.new(0, 0);
+    direction = Vec2.new(0, 0);
 
-    sprite: Sprite;
+    sprite = new Sprite();
 
-    data: {
+    data!: {
         [K in keyof ParticleInterpData]: {
             start: number;
             end: number;
@@ -131,22 +160,19 @@ class Particle {
         };
     };
 
-    constructor(position: Vector, direction: Vector, def: ParticleDef) {
+    init(position: Vector, direction: Vector, def: ParticleDef) {
+        this.active = true;
+        this.tick = 0;
         this.position = position;
         this.direction = direction;
-
-        this.sprite = Sprite.from(Random.itemInArray(def.sprite));
+        this.sprite.texture = Texture.from(Random.itemInArray(def.sprite));
         this.sprite.anchor.set(0.5);
 
-        if (def.zIndex) {
-            this.sprite.zIndex = def.zIndex;
-        }
-        if (def.blendMode) {
-            this.sprite.blendMode = def.blendMode;
-        }
-        if (def.tint) {
-            this.sprite.tint = def.tint;
-        }
+        this.sprite.zIndex = def.zIndex ?? 0;
+
+        this.sprite.blendMode = def.blendMode ?? "normal";
+
+        this.sprite.tint = def.tint ?? 0xffffff;
 
         if (typeof def.lifeTime === "number") {
             this.end = def.lifeTime;
@@ -163,9 +189,13 @@ class Particle {
     }
 
     render(dt: number) {
+        this.sprite.visible = true;
+
         this.tick += dt;
         if (this.tick > this.end) {
-            this.dead = true;
+            this.active = false;
+            this.sprite.visible = false;
+            return;
         }
 
         const t = this.tick / this.end;
@@ -184,10 +214,6 @@ class Particle {
             Vec2.mul(this.direction, this.data.speed.value * dt)
         );
         this.sprite.position = Camera.vecToScreen(this.position);
-    }
-
-    destroy() {
-        this.sprite.destroy();
     }
 }
 
