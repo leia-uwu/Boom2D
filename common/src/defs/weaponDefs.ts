@@ -10,7 +10,8 @@ export interface GunDef extends BaseLootDef {
     key: string;
     ammo: AmmoDefKey;
     ammoPerShot: number;
-    fireDelay: number;
+    fireCooldown: number;
+    fireDelay?: number;
     switchDelay: number;
     projectileType?: ProjectileDefKey;
     bulletType?: BulletDefKey;
@@ -34,7 +35,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 0,
         ammo: "bullet",
         ammoPerShot: 1,
-        fireDelay: 0.3,
+        fireCooldown: 0.3,
         switchDelay: 0.5,
         bulletType: "pistol_bullet",
         bulletCount: 1,
@@ -60,7 +61,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 10,
         ammo: "shell",
         ammoPerShot: 1,
-        fireDelay: 0.9,
+        fireCooldown: 0.9,
         switchDelay: 1,
         bulletType: "shotgun_bullet",
         bulletCount: 7,
@@ -88,7 +89,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 10,
         ammo: "bullet",
         ammoPerShot: 1,
-        fireDelay: 0.06,
+        fireCooldown: 0.06,
         switchDelay: 0.5,
         bulletType: "pistol_bullet",
         bulletCount: 1,
@@ -115,7 +116,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 15,
         ammo: "rocket",
         ammoPerShot: 1,
-        fireDelay: 0.5,
+        fireCooldown: 0.5,
         switchDelay: 0.5,
         bulletCount: 1,
         projectileType: "rocket",
@@ -142,7 +143,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 15,
         ammo: "cell",
         ammoPerShot: 1,
-        fireDelay: 0.1,
+        fireCooldown: 0.1,
         switchDelay: 0.5,
         projectileType: "plasma",
         bulletCount: 1,
@@ -162,6 +163,35 @@ export const WeaponDefs = new DefinitionList({
             shoot: "plasma-fire.mp3"
         },
         leftFistPos: Vec2.new(160, 8)
+    },
+    bfg: {
+        type: "gun",
+        key: "6",
+        respawnTime: 25,
+        ammo: "cell",
+        ammoPerShot: 40,
+        fireCooldown: 0,
+        fireDelay: 0,
+        switchDelay: 1,
+        projectileType: "bfg",
+        bulletCount: 1,
+        spread: 0,
+        barrelLength: 2.4,
+        barrelOffset: 0,
+        lootImg: {
+            src: "bfg.svg",
+            scale: 0.8,
+            anchor: Vec2.new(0.55, 0.55)
+        },
+        worldImg: {
+            src: "bfg-world.svg",
+            position: Vec2.new(90, 0)
+        },
+        muzzleImgs: ["muzzle-03.svg"],
+        sfx: {
+            shoot: "bfg-fire.mp3"
+        },
+        leftFistPos: Vec2.new(100, 32)
     }
 } satisfies Record<string, GunDef>);
 

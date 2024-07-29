@@ -13,6 +13,7 @@ export interface ImgDefinition {
     tint?: number;
     zIndex?: number;
     position?: Vector;
+    anchor?: Vector;
 }
 
 //

@@ -3,6 +3,7 @@ import { AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import { type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { MathUtils } from "../../../../common/src/utils/math";
+import { Helpers } from "../../helpers";
 import type { InputManager } from "../inputManager";
 import { HorizontalLayout } from "./uiHelpers";
 
@@ -34,13 +35,12 @@ class WeaponDisplay extends Container {
         this.selectedBg.tint = ammoDef.color;
         this.addChild(this.selectedBg);
 
-        this.weaponIcon.texture = Texture.from(weaponDef.lootImg.src);
-
         this.weaponIcon.on("click", () => {
             inputManager.weaponToSwitch = this.weapon;
         });
 
         this.weaponIcon.anchor.set(0.5, 0.5);
+        Helpers.spriteFromDef(this.weaponIcon, weaponDef.lootImg);
         this.weaponIcon.scale = 0.25;
         this.weaponIcon.angle = -35;
         this.addChild(this.weaponIcon);

@@ -37,6 +37,9 @@ export const Helpers = {
         if (def.position) {
             sprite.position = def.position;
         }
+        if (def.anchor) {
+            sprite.anchor = def.anchor;
+        }
     },
 
     drawHitbox(ctx: Graphics, hitbox: Hitbox) {

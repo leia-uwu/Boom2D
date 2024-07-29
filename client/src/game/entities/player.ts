@@ -1,6 +1,10 @@
 import { Container, Sprite, Text, Texture } from "pixi.js";
 import { EntityType, GameConstants } from "../../../../common/src/constants";
-import { type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
+import {
+    type GunDef,
+    type WeaponDefKey,
+    WeaponDefs
+} from "../../../../common/src/defs/weaponDefs";
 import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../../common/src/utils/math";
@@ -43,7 +47,9 @@ export class Player extends ClientEntity {
     direction = Vec2.new(0, 0);
     oldDirection = Vec2.new(0, 0);
 
-    muzzleTicker = 0;
+    muzzleFading = false;
+    muzzleDuration = 1;
+    muzzleTicker = 1;
 
     constructor(game: Game, id: number) {
         super(game, id);
@@ -102,11 +108,9 @@ export class Player extends ClientEntity {
                 ...weaponDef.worldImg
             });
 
-            if (weaponDef.type === "gun") {
-                this.images.rightFist.position.y = this.images.weapon.position.y;
-                this.images.leftFist.position = weaponDef.leftFistPos;
-                this.images.leftFist.zIndex = -2;
-            }
+            this.images.rightFist.position.y = this.images.weapon.position.y;
+            this.images.leftFist.position = weaponDef.leftFistPos;
+            this.images.leftFist.zIndex = -2;
 
             if (this.id === this.game.activePlayerID) {
                 this.game.ui.updateActiveWeapon();
@@ -138,12 +142,21 @@ export class Player extends ClientEntity {
         );
         this.container.rotation = Math.atan2(direction.y, direction.x);
 
-        this.muzzleTicker -= dt;
-        this.images.muzzle.alpha = MathUtils.lerp(0, 1, this.muzzleTicker / 0.2);
+        if (this.muzzleFading && this.muzzleTicker >= 0) this.muzzleTicker -= dt;
+        else if (this.muzzleTicker <= 1) this.muzzleTicker += dt;
+
+        this.muzzleTicker = MathUtils.clamp(this.muzzleTicker, 0, 1);
+
+        if (this.muzzleTicker >= 1 && !this.muzzleFading) {
+            this.muzzleFading = true;
+        }
+        this.images.muzzle.alpha = MathUtils.lerp(0, 1, this.muzzleTicker);
+        this.images.weapon.scale.x = MathUtils.lerp(1, 1.2, this.muzzleTicker * 2);
+        this.images.weapon.scale.y = MathUtils.lerp(1, 0.9, this.muzzleTicker * 2);
     }
 
     shootEffect(weapon: WeaponDefKey): void {
-        const def = WeaponDefs.typeToDef(weapon);
+        const def = WeaponDefs.typeToDef(weapon) as GunDef;
 
         this.game.audioManager.play(def.sfx.shoot, {
             position: this.position,
@@ -151,10 +164,14 @@ export class Player extends ClientEntity {
         });
         const pos = Vec2.new(def.barrelLength, 0);
         const muzzle = this.images.muzzle;
-        this.muzzleTicker = 0.2;
+
+        this.muzzleDuration = (def.fireDelay ?? 0) + 0.2;
+        this.muzzleTicker = 0;
+        this.muzzleFading = false;
         muzzle.texture = Texture.from(
             def.muzzleImgs[Random.int(0, def.muzzleImgs.length - 1)]
         );
+
         muzzle.position = Camera.vecToScreen(pos);
     }
 

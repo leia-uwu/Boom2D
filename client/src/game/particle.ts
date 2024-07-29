@@ -231,6 +231,32 @@ const ParticleDefs = {
         scale: { start: 2, end: 0 },
         speed: { min: 2, max: 5 }
     },
+    bfg_trail: {
+        lifeTime: { min: 0.5, max: 1 },
+        blendMode: "add",
+        zIndex: -1,
+        get tint() {
+            return new Color(`hsl(${Random.int(90, 140)}, 100%, 50%)`);
+        },
+        sprite: ["glow-particle.svg"],
+        rotation: { value: 0 },
+        alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
+        scale: { start: 2, end: 0 },
+        speed: { min: 2, max: 5 }
+    },
+    bfg_explosion: {
+        lifeTime: { min: 1, max: 1.5 },
+        blendMode: "add",
+        zIndex: -1,
+        get tint() {
+            return new Color(`hsl(${Random.int(90, 140)}, 100%, 50%)`);
+        },
+        sprite: ["glow-particle.svg"],
+        rotation: { value: 0 },
+        alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
+        scale: { start: 4, end: 0 },
+        speed: { min: 2, max: 5 }
+    },
     wall_chip: {
         lifeTime: { min: 0.5, max: 0.8 },
         blendMode: "normal",

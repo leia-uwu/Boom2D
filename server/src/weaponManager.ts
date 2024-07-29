@@ -12,6 +12,7 @@ import type { Player } from "./entities/player";
 enum WeaponState {
     Idle,
     Firing,
+    Cooldown,
     Switching
 }
 
@@ -27,8 +28,6 @@ export class WeaponManager {
     fireGun() {
         const game = this.player.game;
         const weaponDef = this.getCurrentWeapDef();
-
-        if (this.player.ammo[weaponDef.ammo] < weaponDef.ammoPerShot) return;
 
         this.player.ammo[weaponDef.ammo] -= weaponDef.ammoPerShot;
         this.player.dirty.ammo = true;
@@ -119,11 +118,6 @@ export class WeaponManager {
                 this.player
             );
         }
-
-        game.bulletManager.shots.push({
-            id: this.player.id,
-            weapon: this.player.activeWeapon
-        });
     }
 
     tick(dt: number) {
@@ -132,22 +126,33 @@ export class WeaponManager {
         }
 
         if (this.stateTicker <= 0) {
-            this.state = WeaponState.Idle;
+            if (this.state === WeaponState.Firing) {
+                this.fireGun();
+                this.state = WeaponState.Cooldown;
+                this.stateTicker = this.getCurrentWeapDef().fireCooldown;
+            } else {
+                this.state = WeaponState.Idle;
+            }
         }
 
         if (this.stateTicker <= 0 && this.weaponToSwitch) {
             this.weaponToSwitch = "" as WeaponDefKey;
 
-            const def = this.getCurrentWeapDef();
-            this.stateTicker = def.switchDelay;
+            this.stateTicker = this.getCurrentWeapDef().switchDelay;
             this.state = WeaponState.Switching;
             this.player.setFullDirty();
         }
 
         if (this.player.mouseDown && this.state === WeaponState.Idle) {
-            this.stateTicker = this.getCurrentWeapDef().fireDelay;
-            this.state = WeaponState.Firing;
-            this.fireGun();
+            const weapDef = this.getCurrentWeapDef();
+            this.stateTicker = weapDef.fireDelay ?? 0;
+            if (this.player.ammo[weapDef.ammo] >= weapDef.ammoPerShot) {
+                this.player.game.bulletManager.shots.push({
+                    id: this.player.id,
+                    weapon: this.player.activeWeapon
+                });
+                this.state = WeaponState.Firing;
+            }
         }
     }
 

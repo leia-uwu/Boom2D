@@ -28,7 +28,7 @@ export const ExplosionDefs = new DefinitionList({
             type: "rocket_explosion",
             amount: 50
         },
-        sound: "rocket_explosion.mp3"
+        sound: "rocket-explosion.mp3"
     },
     plasma: {
         radius: 3,
@@ -43,6 +43,21 @@ export const ExplosionDefs = new DefinitionList({
             type: "plasma_explosion",
             amount: 4
         }
+    },
+    bfg: {
+        radius: 10,
+        damage: 100,
+        img: {
+            animDuration: 1,
+            animScale: 2,
+            src: "glow-particle.svg",
+            tint: 0x00ff00
+        },
+        particles: {
+            type: "bfg_explosion",
+            amount: 100
+        },
+        sound: "bfg-explosion.mp3"
     }
 } satisfies Record<string, ExplosionDef>);
 
