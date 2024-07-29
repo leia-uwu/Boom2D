@@ -1,5 +1,6 @@
 import { BaseBullet, type BulletParams } from "../baseBullet";
-import { type AmmoType, EntityType, GameConstants } from "../constants";
+import { EntityType, GameConstants } from "../constants";
+import { type AmmoDefKey, AmmoDefs } from "../defs/ammoDefs";
 import { type ExplosionDefKey, ExplosionDefs } from "../defs/explosionDefs";
 import { type LootDefKey, LootDefs } from "../defs/lootDefs";
 import { type ObstacleDefKey, ObstacleDefs } from "../defs/obstacleDefs";
@@ -213,7 +214,7 @@ function serializeActivePlayerData(
 
     stream.writeBoolean(dirty.ammo);
     if (dirty.ammo) {
-        for (const ammo of GameConstants.ammoTypes) {
+        for (const ammo of AmmoDefs) {
             stream.writeBits(data.ammo[ammo], 10);
         }
     }
@@ -255,7 +256,7 @@ function deserializePlayerData(
 
     if (stream.readBoolean()) {
         dirty.ammo = true;
-        for (const ammo of GameConstants.ammoTypes) {
+        for (const ammo of AmmoDefs) {
             data.ammo[ammo] = stream.readBits(10);
         }
     }
@@ -303,7 +304,7 @@ export class UpdatePacket implements Packet {
         health: 0,
         armor: 0,
         weapons: {} as Record<WeaponDefKey, boolean>,
-        ammo: {} as Record<AmmoType, number>
+        ammo: {} as Record<AmmoDefKey, number>
     };
 
     bullets: BulletParams[] = [];

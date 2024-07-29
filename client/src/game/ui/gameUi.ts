@@ -1,5 +1,5 @@
 import { Container } from "pixi.js";
-import type { AmmoType } from "../../../../common/src/constants";
+import type { AmmoDefKey } from "../../../../common/src/defs/ammoDefs";
 import { WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import type { GameOverPacket } from "../../../../common/src/packets/gameOverPacket";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
@@ -22,7 +22,7 @@ export class GameUi {
     gameOverDamageDone = Helpers.getElem("#game-over-damage-done");
     gameOverDamageTaken = Helpers.getElem("#game-over-damage-taken");
 
-    ammo = {} as Record<AmmoType, number>;
+    ammo = {} as Record<AmmoDefKey, number>;
 
     constructor(readonly game: Game) {}
 
@@ -76,7 +76,7 @@ export class GameUi {
     updateActiveWeapon() {
         const activeWeapon = this.game.activePlayer!.activeWeapon;
         const def = WeaponDefs.typeToDef(activeWeapon);
-        this.statusUi.updateActiveWeaponAmmo(this.ammo[def.ammo] ?? 0);
+        this.statusUi.updateActiveWeaponAmmo(def.ammo, this.ammo[def.ammo] ?? 0);
         this.weaponsUi.updateActiveWeapon(activeWeapon);
     }
 

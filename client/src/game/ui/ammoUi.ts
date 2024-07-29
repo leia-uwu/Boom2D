@@ -1,6 +1,7 @@
-import { Container, Sprite, Text, type TextOptions, Texture } from "pixi.js";
-import { type AmmoType, GameConstants } from "../../../../common/src/constants";
+import { Container, Sprite, Text, type TextOptions } from "pixi.js";
+import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
+import { Helpers } from "../../helpers";
 import { UiTextStyle, VerticalLayout } from "./uiHelpers";
 
 const itemHeight = 24;
@@ -26,21 +27,24 @@ export class AmmoUi extends Container {
     screenHeight = 0;
     screenWidth = 0;
 
-    ammoTexts = {} as Record<AmmoType, Text>;
+    ammoTexts = {} as Record<AmmoDefKey, Text>;
 
     init() {
         let i = 0;
-        for (const ammo of GameConstants.ammoTypes) {
+        for (const ammo of AmmoDefs) {
             const text = new Text(AmmoTextStyle);
             text.zIndex = i--;
             this.ammoTexts[ammo] = text;
             this.textLayout.addChild(text);
 
+            const def = AmmoDefs.typeToDef(ammo);
             const icon = new Sprite();
-            icon.texture = Texture.from(`ui-${ammo}.svg`);
+            Helpers.spriteFromDef(icon, def.inventoryImg);
             icon.zIndex = i;
             icon.width = icon.height = itemHeight;
             this.iconsLayout.addChild(icon);
+
+            icon.tint = text.tint = def.color;
         }
         this.textLayout.sortChildren();
         this.iconsLayout.sortChildren();
@@ -48,8 +52,8 @@ export class AmmoUi extends Container {
     }
 
     updateUi(data: UpdatePacket["playerData"]["ammo"]) {
-        for (const ammo of GameConstants.ammoTypes) {
-            this.ammoTexts[ammo].text = data[ammo];
+        for (const ammo in this.ammoTexts) {
+            this.ammoTexts[ammo as AmmoDefKey].text = data[ammo as AmmoDefKey];
         }
         this.layoutText();
     }

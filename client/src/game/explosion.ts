@@ -10,6 +10,7 @@ import type { Vector } from "../../../common/src/utils/vector";
 import { Helpers } from "../helpers";
 import { Camera } from "./camera";
 import type { Game } from "./game";
+import type { ParticleDefKey } from "./particle";
 
 export class ExplosionManager {
     explosions: Explosion[] = [];
@@ -28,7 +29,7 @@ export class ExplosionManager {
                 this.game.particleManager.addParticle(
                     position,
                     Random.vector(-1, 1, -1, 1),
-                    def.particles.type
+                    def.particles.type as ParticleDefKey
                 );
             }
         }

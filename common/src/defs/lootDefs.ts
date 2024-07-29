@@ -1,5 +1,5 @@
-import type { AmmoType } from "../constants";
 import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
+import type { AmmoDefKey } from "./ammoDefs";
 import { type GunDef, WeaponDefs } from "./weaponDefs";
 
 export interface BaseLootDef {
@@ -9,7 +9,7 @@ export interface BaseLootDef {
 
 export interface AmmoPickupDef extends BaseLootDef {
     type: "ammo-pickup";
-    ammo: Partial<Record<AmmoType, number>>;
+    ammo: Partial<Record<AmmoDefKey, number>>;
 }
 
 export interface PowerUpDef extends BaseLootDef {

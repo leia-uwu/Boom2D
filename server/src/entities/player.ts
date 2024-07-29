@@ -1,5 +1,6 @@
 import type { ServerWebSocket } from "bun";
-import { type AmmoType, EntityType, GameConstants } from "../../../common/src/constants";
+import { EntityType, GameConstants } from "../../../common/src/constants";
+import { type AmmoDefKey, AmmoDefs } from "../../../common/src/defs/ammoDefs";
 import { type LootDef, LootDefs } from "../../../common/src/defs/lootDefs";
 import type { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
 import { type Packet, PacketStream } from "../../../common/src/net";
@@ -155,7 +156,7 @@ export class Player extends ServerEntity {
         plasma_rifle: false
     };
 
-    ammo: Record<AmmoType, number> = {
+    ammo: Record<AmmoDefKey, number> = {
         bullet: 200,
         shell: 50,
         rocket: 50,
@@ -311,10 +312,10 @@ export class Player extends ServerEntity {
                 break;
             }
             case "ammo-pickup": {
-                for (const ammo of GameConstants.ammoTypes) {
-                    const amount = def.ammo[ammo];
+                for (const ammo in AmmoDefs.definitions) {
+                    const amount = def.ammo[ammo as AmmoDefKey];
                     if (amount !== undefined) {
-                        this.ammo[ammo] += amount;
+                        this.ammo[ammo as AmmoDefKey] += amount;
                     }
                 }
                 this.dirty.ammo = true;

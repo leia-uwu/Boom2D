@@ -1,6 +1,6 @@
-import type { AmmoType } from "../constants";
 import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
 import { Vec2, type Vector } from "../utils/vector";
+import type { AmmoDefKey } from "./ammoDefs";
 import type { BulletDefKey } from "./bulletDefs";
 import type { BaseLootDef } from "./lootDefs";
 import type { ProjectileDefKey } from "./projectileDefs";
@@ -8,7 +8,7 @@ import type { ProjectileDefKey } from "./projectileDefs";
 export interface GunDef extends BaseLootDef {
     type: "gun";
     key: string;
-    ammo: AmmoType;
+    ammo: AmmoDefKey;
     ammoPerShot: number;
     fireDelay: number;
     switchDelay: number;

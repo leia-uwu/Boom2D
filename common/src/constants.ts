@@ -21,10 +21,7 @@ export const GameConstants = {
         maxArmor: 200,
         defaultArmor: 0
     },
-    ammoTypes: ["bullet", "shell", "rocket", "cell"],
     loot: {
         radius: 1
     }
 } as const;
-
-export type AmmoType = (typeof GameConstants)["ammoTypes"][number];
