@@ -3,8 +3,8 @@ import { GameConstants } from "../../../../common/src/constants";
 import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { MathUtils } from "../../../../common/src/utils/math";
-import { UiTextStyle, VerticalLayout } from "./uiHelpers";
 import { Helpers } from "../../helpers";
+import { UiTextStyle, VerticalLayout } from "./uiHelpers";
 
 const StatusTextStyle: TextOptions = {
     style: {
