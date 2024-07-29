@@ -16,11 +16,11 @@ import { Obstacle } from "./entities/obstacle";
 import { Player } from "./entities/player";
 import { Projectile } from "./entities/projectile";
 import { ExplosionManager } from "./explosion";
-import { GameUi } from "./gameUi";
 import { InputManager } from "./inputManager";
 import { GameMap } from "./map";
 import { ParticleManager } from "./particle";
 import { ResourceManager } from "./resourceManager";
+import { GameUi } from "./ui/gameUi";
 
 export class Game {
     app: App;
@@ -61,11 +61,13 @@ export class Game {
 
     async init(): Promise<void> {
         await this.loadAssets();
-        this.ui.setupUi();
+        this.ui.init();
         this.pixi.ticker.add(this.render.bind(this));
         this.pixi.renderer.on("resize", this.resize.bind(this));
-        this.pixi.stage.addChild(this.camera.container);
-        this.camera.resize();
+
+        this.pixi.stage.addChild(this.camera.container, this.ui.container);
+
+        this.resize();
     }
 
     async loadAssets(): Promise<void> {
@@ -227,6 +229,7 @@ export class Game {
 
     resize(): void {
         this.camera.resize();
+        this.ui.resize();
     }
 
     now = Date.now();
@@ -237,6 +240,8 @@ export class Game {
         const now = Date.now();
         const dt = (now - this.now) / 1000;
         this.now = now;
+
+        this.ui.render(dt);
 
         this.entityManager.render(dt);
         this.bulletManager.tick(dt);

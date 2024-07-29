@@ -136,7 +136,6 @@ export class WeaponManager {
         }
 
         if (this.stateTicker <= 0 && this.weaponToSwitch) {
-            this.player.activeWeapon = this.weaponToSwitch;
             this.weaponToSwitch = "" as WeaponDefKey;
 
             const def = this.getCurrentWeapDef();

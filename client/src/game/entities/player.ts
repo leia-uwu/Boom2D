@@ -109,8 +109,7 @@ export class Player extends ClientEntity {
             }
 
             if (this.id === this.game.activePlayerID) {
-                this.game.ui.updateWeaponsUi();
-                this.game.ui.updateActiveWeaponAmmo();
+                this.game.ui.updateActiveWeapon();
             }
 
             this.container.sortChildren();
