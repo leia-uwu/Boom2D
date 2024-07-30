@@ -1,4 +1,5 @@
 import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
+import type { BulletDefKey } from "./bulletDefs";
 import type { ExplosionDefKey } from "./explosionDefs";
 
 export interface ProjectileDef {
@@ -16,6 +17,11 @@ export interface ProjectileDef {
         amount: number;
         type: string;
         randomPlacement?: boolean;
+    };
+    tracers?: {
+        type: BulletDefKey;
+        radius: number;
+        rate: number;
     };
 }
 
@@ -71,6 +77,11 @@ export const ProjectileDefs = new DefinitionList({
             amount: 10,
             type: "bfg_trail",
             randomPlacement: true
+        },
+        tracers: {
+            type: "bfg_tracer",
+            radius: 5,
+            rate: 0.2
         }
     }
 } satisfies Record<string, ProjectileDef>);

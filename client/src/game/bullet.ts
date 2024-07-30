@@ -2,7 +2,7 @@ import { Sprite } from "pixi.js";
 import { BaseBullet, type BulletParams } from "../../../common/src/baseBullet";
 import type { Wall } from "../../../common/src/baseMap";
 import { EntityType } from "../../../common/src/constants";
-import { BulletDefs } from "../../../common/src/defs/bulletDefs";
+import { type BulletDef, BulletDefs } from "../../../common/src/defs/bulletDefs";
 import { ObstacleDefs } from "../../../common/src/defs/obstacleDefs";
 import { MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
@@ -50,6 +50,11 @@ export class ClientBullet extends BaseBullet {
         this.trailSprite.anchor.set(1, 0.5);
         this.trailSprite.rotation = Math.atan2(this.direction.y, this.direction.x);
         this.trailSprite.position = Camera.vecToScreen(this.position);
+
+        const def = BulletDefs.typeToDef(this.type) as BulletDef;
+
+        this.trailSprite.tint = def.trailColor ?? 0xffffff;
+
         game.camera.addObject(this.trailSprite);
     }
 
@@ -76,12 +81,12 @@ export class ClientBullet extends BaseBullet {
             }
         }
 
-        const def = BulletDefs.typeToDef(this.type);
+        const def = BulletDefs.typeToDef(this.type) as BulletDef;
 
         if (!this.dead && !this.trailReachedMaxLength) {
             this.trailTicks += dt;
         } else if (this.dead) {
-            this.trailTicks -= dt;
+            this.trailTicks -= dt * (def.trailFadeSpeed ?? 1);
         }
 
         if (this.distanceTraveled > def.maxDistance) {

@@ -8,6 +8,8 @@ export interface BulletDef {
     speed: number;
     maxDistance: number;
     trailMaxLength: number;
+    trailColor?: number;
+    trailFadeSpeed?: number;
 }
 
 export const BulletDefs = new DefinitionList({
@@ -28,6 +30,17 @@ export const BulletDefs = new DefinitionList({
         speed: 80,
         maxDistance: 80,
         trailMaxLength: 15
+    },
+    bfg_tracer: {
+        damage: {
+            min: 20,
+            max: 80
+        },
+        speed: 200,
+        maxDistance: 200,
+        trailMaxLength: 200,
+        trailColor: 0x00ff00,
+        trailFadeSpeed: 0.1
     }
 } satisfies Record<string, BulletDef>);
 

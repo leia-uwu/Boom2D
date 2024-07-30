@@ -49,6 +49,9 @@ export class Projectile extends ServerEntity {
         this._position = pos;
     }
 
+    tracerTicker = 0;
+    damagedEntities = new Set<ServerEntity>();
+
     constructor(
         game: Game,
         type: ProjectileDefKey,
@@ -75,7 +78,7 @@ export class Projectile extends ServerEntity {
             return;
         }
 
-        const def = ProjectileDefs.typeToDef(this.type);
+        const def = ProjectileDefs.typeToDef(this.type) as ProjectileDef;
 
         const speed = Vec2.mul(this.direction, def.speed);
         this.position = Vec2.add(this.position, Vec2.mul(speed, dt));
@@ -124,6 +127,38 @@ export class Projectile extends ServerEntity {
                         Vec2.mul(this.direction, intersection.pen)
                     );
                     break;
+                }
+            }
+        }
+
+        if (def.tracers && !this.dead) {
+            this.tracerTicker += dt;
+
+            if (this.tracerTicker > def.tracers.rate) {
+                this.tracerTicker = 0;
+
+                const hitbox = new CircleHitbox(def.tracers.radius, this.position);
+                const entities = this.game.grid.intersectsHitbox(hitbox);
+
+                for (const entity of entities) {
+                    if (!entity.hitbox.collidesWith(hitbox)) continue;
+                    if (entity.__type !== EntityType.Player) continue;
+                    if (entity === this.source) continue;
+                    if (this.damagedEntities.has(entity)) continue;
+
+                    this.damagedEntities.add(entity);
+
+                    const angle = MathUtils.angleBetweenPoints(
+                        entity.position,
+                        this.position
+                    );
+                    const direction = Vec2.new(Math.cos(angle), Math.sin(angle));
+                    this.game.bulletManager.fireBullet(this.source, {
+                        initialPosition: this.position,
+                        direction,
+                        type: def.tracers.type,
+                        shooterId: this.source.id
+                    });
                 }
             }
         }

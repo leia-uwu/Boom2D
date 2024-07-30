@@ -81,7 +81,6 @@ export class WeaponManager {
 
         if (weaponDef.bulletType) {
             const jitter = weaponDef.jitterRadius ?? 0;
-
             for (let i = 0; i < weaponDef.bulletCount; i++) {
                 const deviation = Random.float(-0.5, 0.5) * weaponDef.spread;
 

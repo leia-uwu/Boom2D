@@ -91,10 +91,11 @@ export class BaseBullet implements BulletParams {
         for (const entity of entities) {
             if (entity.id === this.shooterId) continue;
 
-            if (
-                entity.__type === EntityType.Player &&
-                (entity as GameEntity<EntityType.Player>).data.full?.dead
-            )
+            const isPlayer = entity.__type === EntityType.Player;
+            const isObstacle = entity.__type === EntityType.Obstacle;
+            if (!(isObstacle || isPlayer)) continue;
+
+            if (isPlayer && (entity as GameEntity<EntityType.Player>).data.full?.dead)
                 continue;
 
             const intersection = entity.hitbox.intersectsLine(

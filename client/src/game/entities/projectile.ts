@@ -57,14 +57,11 @@ export class Projectile extends ClientEntity {
             this.spin = !!def.img.spin;
 
             this.direction = data.full.direction;
-
+            this.rotation = Math.atan2(data.full.direction.y, data.full.direction.x);
             if (this.spin) {
                 this.container.rotation = Random.float(0, Math.PI * 2);
             } else {
-                this.container.rotation = this.rotation = Math.atan2(
-                    data.full.direction.y,
-                    data.full.direction.x
-                );
+                this.container.rotation = this.rotation;
             }
 
             this.hitbox = new CircleHitbox(def.radius);

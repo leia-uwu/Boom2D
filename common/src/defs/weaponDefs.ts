@@ -180,8 +180,8 @@ export const WeaponDefs = new DefinitionList({
         fireDelay: 1.5,
         switchDelay: 1,
         projectileType: "bfg",
-        bulletCount: 1,
-        spread: 0,
+        bulletCount: 0,
+        spread: 80,
         barrelLength: 2.4,
         barrelOffset: 0,
         lootImg: {
