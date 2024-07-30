@@ -126,33 +126,44 @@ export class WeaponManager {
         }
 
         if (this.stateTicker <= 0) {
-            if (this.state === WeaponState.Firing) {
-                this.fireGun();
-                this.state = WeaponState.Cooldown;
-                this.stateTicker = this.getCurrentWeapDef().fireCooldown;
-            } else {
-                this.state = WeaponState.Idle;
+            switch (this.state) {
+                case WeaponState.Switching:
+                    this.state = WeaponState.Idle;
+                    break;
+                case WeaponState.Firing:
+                    this.fireGun();
+                    this.state = WeaponState.Cooldown;
+                    this.stateTicker = this.getCurrentWeapDef().fireCooldown;
+                    break;
+                case WeaponState.Cooldown:
+                    this.state = WeaponState.Idle;
+                    break;
             }
-        }
+            // separated from switch case to avoid waiting for next tick to fire guns
+            // so the fire rate is more accurate
+            if (this.state === WeaponState.Idle && this.player.mouseDown) {
+                this.state = WeaponState.Firing;
+                this.stateTicker = this.getCurrentWeapDef().fireDelay ?? 0;
 
-        if (this.stateTicker <= 0 && this.weaponToSwitch) {
-            this.weaponToSwitch = "" as WeaponDefKey;
+                if (this.stateTicker <= 0) {
+                    this.fireGun();
+                    this.state = WeaponState.Cooldown;
+                    this.stateTicker = this.getCurrentWeapDef().fireCooldown;
+                }
 
-            this.stateTicker = this.getCurrentWeapDef().switchDelay;
-            this.state = WeaponState.Switching;
-            this.player.setFullDirty();
-        }
-
-        if (this.player.mouseDown && this.state === WeaponState.Idle) {
-            const weapDef = this.getCurrentWeapDef();
-            this.stateTicker = weapDef.fireDelay ?? 0;
-            if (this.player.ammo[weapDef.ammo] >= weapDef.ammoPerShot) {
                 this.player.game.bulletManager.shots.push({
                     id: this.player.id,
                     weapon: this.player.activeWeapon
                 });
-                this.state = WeaponState.Firing;
             }
+        }
+
+        if (this.weaponToSwitch) {
+            this.player.activeWeapon = this.weaponToSwitch;
+            this.weaponToSwitch = "" as WeaponDefKey;
+            this.player.setFullDirty();
+            this.state = WeaponState.Switching;
+            this.stateTicker = this.getCurrentWeapDef().switchDelay;
         }
     }
 

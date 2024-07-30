@@ -129,6 +129,7 @@ export class Game {
         ui.gameDiv.style.display = "";
         ui.homeDiv.style.display = "none";
         this.running = true;
+        this.particleManager.init();
     }
 
     endGame(): void {
@@ -142,6 +143,7 @@ export class Game {
         // reset stuff
         this.entityManager.clear();
         this.camera.clear();
+        this.particleManager.clear();
     }
 
     lastUpdateTime = 0;

@@ -11,8 +11,10 @@ import { MathUtils } from "../../../../common/src/utils/math";
 import { Random } from "../../../../common/src/utils/random";
 import { Vec2 } from "../../../../common/src/utils/vector";
 import { Helpers } from "../../helpers";
+import type { GameSound } from "../audioManager";
 import { Camera } from "../camera";
 import type { Game } from "../game";
+import type { ParticleDefKey } from "../particle";
 import { ClientEntity } from "./entity";
 
 export class Player extends ClientEntity {
@@ -20,7 +22,7 @@ export class Player extends ClientEntity {
 
     readonly hitbox = new CircleHitbox(GameConstants.player.radius);
 
-    activeWeapon!: WeaponDefKey;
+    activeWeapon: WeaponDefKey = "pistol";
 
     dead = false;
 
@@ -47,9 +49,10 @@ export class Player extends ClientEntity {
     direction = Vec2.new(0, 0);
     oldDirection = Vec2.new(0, 0);
 
-    muzzleFading = false;
-    muzzleDuration = 1;
-    muzzleTicker = 1;
+    muzzleTicker = 0;
+    shotParticlesTicker = 0;
+
+    shotSound?: GameSound;
 
     constructor(game: Game, id: number) {
         super(game, id);
@@ -100,8 +103,16 @@ export class Player extends ClientEntity {
         this.direction = data.direction;
 
         if (data.full) {
+            let weaponDef = WeaponDefs.typeToDef(this.activeWeapon) as GunDef;
+            if (this.activeWeapon !== data.full.activeWeapon) {
+                if (weaponDef.sfx.stopOnSwitch) {
+                    this.shotSound?.stop();
+                }
+                this.muzzleTicker = 0;
+                this.shotParticlesTicker = 0;
+            }
             this.activeWeapon = data.full.activeWeapon;
-            const weaponDef = WeaponDefs.typeToDef(this.activeWeapon);
+            weaponDef = WeaponDefs.typeToDef(this.activeWeapon);
             Helpers.spriteFromDef(this.images.weapon, {
                 zIndex: -1,
                 rotation: Math.PI / 2,
@@ -142,35 +153,54 @@ export class Player extends ClientEntity {
         );
         this.container.rotation = Math.atan2(direction.y, direction.x);
 
-        if (this.muzzleFading && this.muzzleTicker >= 0) this.muzzleTicker -= dt;
-        else if (this.muzzleTicker <= 1) this.muzzleTicker += dt;
+        this.muzzleTicker -= dt;
 
         this.muzzleTicker = MathUtils.clamp(this.muzzleTicker, 0, 1);
 
-        if (this.muzzleTicker >= 1 && !this.muzzleFading) {
-            this.muzzleFading = true;
+        const weaponDef = WeaponDefs.typeToDef(this.activeWeapon) as GunDef;
+
+        if (weaponDef.shotParticles && this.muzzleTicker > 0) {
+            this.shotParticlesTicker += dt;
+
+            if (this.shotParticlesTicker > weaponDef.shotParticles.spawnDelay) {
+                this.shotParticlesTicker = 0;
+
+                const position = Vec2.add(
+                    this.position,
+                    Vec2.mul(this.direction, weaponDef.barrelLength)
+                );
+                for (let i = 0; i < weaponDef.shotParticles.amount; i++) {
+                    this.game.particleManager.addParticle(
+                        position,
+                        Vec2.add(this.direction, Random.vector(-1, 1, -1, 1)),
+                        weaponDef.shotParticles.type as ParticleDefKey
+                    );
+                }
+            }
         }
         this.images.muzzle.alpha = MathUtils.lerp(0, 1, this.muzzleTicker);
-        this.images.weapon.scale.x = MathUtils.lerp(1, 1.2, this.muzzleTicker * 2);
-        this.images.weapon.scale.y = MathUtils.lerp(1, 0.9, this.muzzleTicker * 2);
     }
 
     shootEffect(weapon: WeaponDefKey): void {
         const def = WeaponDefs.typeToDef(weapon) as GunDef;
 
-        this.game.audioManager.play(def.sfx.shoot, {
+        this.shotSound = this.game.audioManager.play(def.sfx.shoot, {
             position: this.position,
             maxRange: 96
         });
         const pos = Vec2.new(def.barrelLength, 0);
         const muzzle = this.images.muzzle;
 
-        this.muzzleDuration = (def.fireDelay ?? 0) + 0.2;
-        this.muzzleTicker = 0;
-        this.muzzleFading = false;
-        muzzle.texture = Texture.from(
-            def.muzzleImgs[Random.int(0, def.muzzleImgs.length - 1)]
-        );
+        this.muzzleTicker = (def.fireDelay ?? 0) + 0.3;
+
+        if (def.muzzleImgs.length) {
+            muzzle.visible = true;
+            muzzle.texture = Texture.from(
+                def.muzzleImgs[Random.int(0, def.muzzleImgs.length - 1)]
+            );
+        } else {
+            muzzle.visible = false;
+        }
 
         muzzle.position = Camera.vecToScreen(pos);
     }

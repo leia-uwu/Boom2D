@@ -503,9 +503,8 @@ export class Player extends ServerEntity {
         this.direction = packet.direction;
         this.mouseDown = packet.mouseDown;
 
-        if (packet.weaponToSwitch && this.weapons[packet.weaponToSwitch]) {
+        if (this.weapons[packet.weaponToSwitch]) {
             this.weaponManager.weaponToSwitch = packet.weaponToSwitch;
-            this.activeWeapon = packet.weaponToSwitch;
         }
     }
 

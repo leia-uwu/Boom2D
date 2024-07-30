@@ -27,6 +27,9 @@ export class Projectile extends ClientEntity {
 
     particleTicker = 0;
 
+    direction = Vec2.new(0, 0);
+    rotation = 0;
+
     constructor(game: Game, id: number) {
         super(game, id);
 
@@ -53,10 +56,12 @@ export class Projectile extends ClientEntity {
             const def = ProjectileDefs.typeToDef(this.type) as ProjectileDef;
             this.spin = !!def.img.spin;
 
+            this.direction = data.full.direction;
+
             if (this.spin) {
                 this.container.rotation = Random.float(0, Math.PI * 2);
             } else {
-                this.container.rotation = Math.atan2(
+                this.container.rotation = this.rotation = Math.atan2(
                     data.full.direction.y,
                     data.full.direction.x
                 );
@@ -84,14 +89,21 @@ export class Projectile extends ClientEntity {
             if (this.particleTicker > def.particles.spawnDelay) {
                 this.particleTicker = 0;
 
-                const rot = this.container.rotation - Math.PI;
+                const rot = this.rotation - Math.PI;
 
                 for (let i = 0; i < def.particles.amount; i++) {
+                    const particlePos = Vec2.add(
+                        pos,
+                        Vec2.rotate(Vec2.new(particles.spawnOffset, 0), rot)
+                    );
+                    if (def.particles.randomPlacement) {
+                        Vec2.set(
+                            particlePos,
+                            Random.pointInsideCircle(particlePos, def.radius)
+                        );
+                    }
                     this.game.particleManager.addParticle(
-                        Vec2.add(
-                            pos,
-                            Vec2.rotate(Vec2.new(particles.spawnOffset, 0), rot)
-                        ),
+                        particlePos,
                         Vec2.fromPolar(Random.float(rot - 0.2, rot + 0.2)),
                         def.particles.type as ParticleDefKey
                     );

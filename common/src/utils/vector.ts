@@ -21,6 +21,16 @@ export const Vec2 = {
     },
 
     /**
+     * Sets Vector a to Vector b
+     * @param a - The first Vector
+     * @param b - The second Vector
+     */
+    set(a: Vector, b: Vector) {
+        a.x = b.x;
+        a.y = b.y;
+    },
+
+    /**
      * Adds two Vectors together
      * @param a - The first Vector
      * @param b - The second Vector

@@ -26,6 +26,12 @@ export interface GunDef extends BaseLootDef {
     barrelOffset: number;
     sfx: {
         shoot: string;
+        stopOnSwitch?: boolean;
+    };
+    shotParticles?: {
+        type: string;
+        amount: number;
+        spawnDelay: number;
     };
 }
 export const WeaponDefs = new DefinitionList({
@@ -170,8 +176,8 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 25,
         ammo: "cell",
         ammoPerShot: 40,
-        fireCooldown: 0,
-        fireDelay: 0,
+        fireCooldown: 2,
+        fireDelay: 1.5,
         switchDelay: 1,
         projectileType: "bfg",
         bulletCount: 1,
@@ -187,11 +193,17 @@ export const WeaponDefs = new DefinitionList({
             src: "bfg-world.svg",
             position: Vec2.new(90, 0)
         },
-        muzzleImgs: ["muzzle-03.svg"],
+        muzzleImgs: [],
         sfx: {
-            shoot: "bfg-fire.mp3"
+            shoot: "bfg-fire.mp3",
+            stopOnSwitch: true
         },
-        leftFistPos: Vec2.new(100, 32)
+        leftFistPos: Vec2.new(100, 32),
+        shotParticles: {
+            type: "bfg_trail",
+            amount: 10,
+            spawnDelay: 0.03
+        }
     }
 } satisfies Record<string, GunDef>);
 

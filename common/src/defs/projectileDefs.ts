@@ -15,6 +15,7 @@ export interface ProjectileDef {
         spawnOffset: number;
         amount: number;
         type: string;
+        randomPlacement?: boolean;
     };
 }
 
@@ -68,7 +69,8 @@ export const ProjectileDefs = new DefinitionList({
             spawnDelay: 0.01,
             spawnOffset: 0,
             amount: 10,
-            type: "bfg_trail"
+            type: "bfg_trail",
+            randomPlacement: true
         }
     }
 } satisfies Record<string, ProjectileDef>);

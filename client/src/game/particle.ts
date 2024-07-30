@@ -15,10 +15,13 @@ import type { Game } from "./game";
 export class ParticleManager {
     particles: Particle[] = [];
 
-    constructor(public game: Game) {
+    constructor(public game: Game) {}
+
+    init() {
         // pre-allocate some particles
         for (let i = 0; i < 100; i++) {
             const part = new Particle();
+            this.game.camera.addObject(part.sprite);
             this.particles.push(part);
         }
     }
@@ -36,9 +39,9 @@ export class ParticleManager {
 
         let particle: Particle | undefined = undefined;
         for (let i = 0; i < this.particles.length; i++) {
-            const p = this.particles[i];
-            if (!p.active) {
-                particle = p;
+            const part = this.particles[i];
+            if (!part.active) {
+                particle = part;
                 break;
             }
         }
@@ -46,8 +49,8 @@ export class ParticleManager {
         if (!particle) {
             particle = new Particle();
             this.particles.push(particle);
+            this.game.camera.addObject(particle.sprite);
         }
-        this.game.camera.addObject(particle.sprite);
         particle.init(position, rotation, def);
         return particle;
     }
@@ -56,9 +59,10 @@ export class ParticleManager {
         let activeCount = 0;
         for (let i = 0; i < this.particles.length; i++) {
             const part = this.particles[i];
-            if (!part.active) continue;
-            activeCount++;
-            part.render(dt);
+            if (part.active) {
+                activeCount++;
+                part.render(dt);
+            }
         }
 
         // free some particles if pool is too big
@@ -74,6 +78,13 @@ export class ParticleManager {
             }
             this.particles = compact;
         }
+    }
+
+    clear() {
+        for (let i = 0; i < this.particles.length; i++) {
+            this.particles[i].sprite.destroy();
+        }
+        this.particles.length = 0;
     }
 }
 
