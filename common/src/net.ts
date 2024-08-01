@@ -1,9 +1,10 @@
 import { BitStream } from "bit-buffer";
 import { GameConstants } from "./constants";
-import { GameOverPacket } from "./packets/gameOverPacket";
+import { DeathPacket } from "./packets/deathPacket";
 import { InputPacket } from "./packets/inputPacket";
 import { JoinPacket } from "./packets/joinPacket";
 import { MapPacket } from "./packets/mapPacke";
+import { RespawnPacket } from "./packets/respawnPacket";
 import { UpdatePacket } from "./packets/updatePacket";
 import {
     CircleHitbox,
@@ -375,10 +376,10 @@ class PacketRegister {
 }
 
 const ClientToServerPackets = new PacketRegister();
-ClientToServerPackets.register(JoinPacket, InputPacket);
+ClientToServerPackets.register(JoinPacket, InputPacket, RespawnPacket);
 
 const ServerToClientPackets = new PacketRegister();
-ServerToClientPackets.register(UpdatePacket, GameOverPacket, MapPacket);
+ServerToClientPackets.register(UpdatePacket, DeathPacket, MapPacket);
 
 export class PacketStream {
     stream: GameBitStream;

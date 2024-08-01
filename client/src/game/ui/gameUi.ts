@@ -1,58 +1,52 @@
 import { Container } from "pixi.js";
 import type { AmmoDefKey } from "../../../../common/src/defs/ammoDefs";
 import { WeaponDefs } from "../../../../common/src/defs/weaponDefs";
-import type { GameOverPacket } from "../../../../common/src/packets/gameOverPacket";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { Helpers } from "../../helpers";
 import type { Game } from ".././game";
 import { AmmoUi } from "./ammoUi";
+import { DeathUi } from "./deathUi";
 import { StatusUi } from "./statusUi";
 import { WeaponsUi } from "./weaponsUi";
 
-export class GameUi {
-    container = new Container();
-
+export class GameUi extends Container {
     statusUi = new StatusUi();
     weaponsUi = new WeaponsUi();
     ammoUi = new AmmoUi();
-
-    playAgainButton = Helpers.getElem("#play-again-btn");
-    gameOverScreen = Helpers.getElem("#game-over-screen");
-    gameOverKills = Helpers.getElem("#game-over-kill-count");
-    gameOverDamageDone = Helpers.getElem("#game-over-damage-done");
-    gameOverDamageTaken = Helpers.getElem("#game-over-damage-taken");
+    deathUi = new DeathUi();
 
     ammo = {} as Record<AmmoDefKey, number>;
 
-    constructor(readonly game: Game) {}
+    constructor(readonly game: Game) {
+        super();
+    }
 
     init() {
-        this.playAgainButton.addEventListener("click", () => {
-            this.game.endGame();
-            this.gameOverScreen.style.display = "none";
-        });
-
-        Helpers.getElem("#game-ui").addEventListener("contextmenu", (e) => {
+        Helpers.getElem("#game").addEventListener("contextmenu", (e) => {
             e.preventDefault();
         });
 
+        this.deathUi.init(this.game);
         this.statusUi.init();
         this.weaponsUi.init(this.game.inputManager);
         this.ammoUi.init();
 
-        this.container.addChild(this.statusUi, this.weaponsUi, this.ammoUi);
+        this.addChild(this.statusUi, this.weaponsUi, this.ammoUi, this.deathUi);
     }
 
     render(dt: number) {
         this.weaponsUi.render(dt);
+        this.deathUi.render(dt);
     }
 
     resize(): void {
-        const { width, height } = this.game.pixi.renderer;
+        const width = this.game.pixi.renderer.width / this.scale.x;
+        const height = this.game.pixi.renderer.height / this.scale.y;
 
         this.statusUi.resize(width, height);
         this.weaponsUi.resize(width, height);
         this.ammoUi.resize(width, height);
+        this.deathUi.resize(width, height);
     }
 
     updateUi(
@@ -78,12 +72,5 @@ export class GameUi {
         const def = WeaponDefs.typeToDef(activeWeapon);
         this.statusUi.updateActiveWeaponAmmo(def.ammo, this.ammo[def.ammo] ?? 0);
         this.weaponsUi.updateActiveWeapon(activeWeapon);
-    }
-
-    showGameOverScreen(packet: GameOverPacket): void {
-        this.gameOverScreen.style.display = "block";
-        this.gameOverKills.innerText = `${packet.kills}`;
-        this.gameOverDamageDone.innerText = `${packet.damageDone}`;
-        this.gameOverDamageTaken.innerText = `${packet.damageTaken}`;
     }
 }

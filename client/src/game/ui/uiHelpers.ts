@@ -1,15 +1,20 @@
-import { Container, type TextOptions } from "pixi.js";
+import {
+    Color,
+    type ColorSource,
+    Container,
+    type ContainerOptions,
+    Graphics,
+    Text,
+    type TextStyleOptions
+} from "pixi.js";
 
-export const UiTextStyle: TextOptions = {
-    style: {
-        fill: 0xffffff,
-        fontFamily: "Rubik Mono One",
-        dropShadow: {
-            color: 0,
-            alpha: 0.6,
-            distance: 2
-        },
-        align: "right"
+export const UiTextStyle: TextStyleOptions = {
+    fill: 0xffffff,
+    fontFamily: "Rubik Mono One",
+    dropShadow: {
+        color: 0,
+        alpha: 0.6,
+        distance: 2
     }
 };
 
@@ -21,8 +26,8 @@ interface LayoutOptions {
 
 class Layout extends Container {
     layout: LayoutOptions;
-    constructor(layout?: Partial<LayoutOptions>) {
-        super();
+    constructor(layout?: Partial<LayoutOptions>, containerOptions?: ContainerOptions) {
+        super(containerOptions);
         this.layout = {
             width: 0,
             height: 0,
@@ -34,7 +39,7 @@ class Layout extends Container {
 
 export class VerticalLayout extends Layout {
     relayout() {
-        for (let y = 0, i = this.children.length - 1; i >= 0; i--) {
+        for (let i = 0, y = 0; i < this.children.length; i++) {
             const child = this.children[i];
             child.y = y;
             y += (this.layout.height || child.height) + this.layout.margin;
@@ -44,10 +49,57 @@ export class VerticalLayout extends Layout {
 
 export class HorizontalLayout extends Layout {
     relayout() {
-        for (let x = 0, i = this.children.length - 1; i >= 0; i--) {
+        for (let i = 0, x = 0; i < this.children.length; i++) {
             const child = this.children[i];
             child.x = x;
             x += (this.layout.width || child.width) + this.layout.margin;
         }
+    }
+}
+
+interface ButtonOptions {
+    text: string;
+    width: number;
+    color: ColorSource;
+    fontSize?: number;
+}
+
+export class Button extends Container {
+    bg = new Graphics({
+        cursor: "pointer"
+    });
+    text = new Text({
+        cursor: "pointer",
+        style: UiTextStyle
+    });
+
+    constructor(public options: ButtonOptions) {
+        super();
+
+        this.addChild(this.bg, this.text);
+
+        this.text.style.fontSize = options.fontSize ?? 14;
+        this.text.text = options.text;
+
+        this.draw();
+    }
+
+    draw() {
+        const padding = 16;
+        const height = this.text.height + padding;
+        const width = this.options.width;
+
+        this.text.anchor.x = 0.5;
+        this.text.x = width / 2;
+
+        this.bg.roundRect(0, -padding / 2, width, height, 4);
+
+        this.bg.fill(this.options.color);
+        this.bg.stroke({
+            color: new Color(this.options.color).multiply(0x444444),
+            width: 4
+        });
+        this.pivot.x = this.width / 2;
+        this.pivot.y = this.height / 2;
     }
 }

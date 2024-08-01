@@ -8,7 +8,7 @@ import { UiTextStyle, VerticalLayout } from "./uiHelpers";
 
 const StatusTextStyle: TextOptions = {
     style: {
-        ...UiTextStyle.style,
+        ...UiTextStyle,
         fontSize: 30
     }
 };
@@ -59,9 +59,14 @@ export class StatusUi extends Container {
     ammoIcon = new Sprite();
 
     init() {
-        this.textLayout.addChild(this.healthText, this.armorText, this.ammoText);
-        this.iconsLayout.addChild(this.healthIcon, this.armorIcon, this.ammoIcon);
+        this.textLayout.addChild(this.ammoText, this.armorText, this.healthText);
+        this.iconsLayout.addChild(this.ammoIcon, this.armorIcon, this.healthIcon);
         this.addChild(this.textLayout, this.iconsLayout);
+
+        for (const text of this.textLayout.children) {
+            (text as Text).anchor.x = 1;
+            text.x = 116;
+        }
 
         this.healthIcon.texture = Texture.from("ui-health.svg");
         this.armorIcon.texture = Texture.from("ui-armor.svg");
@@ -96,13 +101,6 @@ export class StatusUi extends Container {
             this.armor = data.armor;
             this.armorText.text = `${this.armor}%`;
         }
-        this.layoutText();
-    }
-
-    layoutText() {
-        for (const text of this.textLayout.children) {
-            text.x = 116 - text.width;
-        }
     }
 
     updateActiveWeaponAmmo(type: AmmoDefKey, ammo: number) {
@@ -110,7 +108,6 @@ export class StatusUi extends Container {
         this.ammoText.tint = this.ammoIcon.tint = def.color;
         Helpers.spriteFromDef(this.ammoIcon, def.inventoryImg);
         this.ammoText.text = ammo;
-        this.layoutText();
     }
 
     resize(_width: number, height: number) {
@@ -120,7 +117,5 @@ export class StatusUi extends Container {
         this.y = height - this.height - 8;
 
         this.textLayout.x = 46;
-
-        this.layoutText();
     }
 }

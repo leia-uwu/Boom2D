@@ -16,7 +16,8 @@ export class App {
             resolution: window.devicePixelRatio ?? 1,
             antialias: true,
             preference: "webgl",
-            background: "#3b3b3b"
+            background: "#3b3b3b",
+            eventMode: "static"
         });
 
         await this.game.init();

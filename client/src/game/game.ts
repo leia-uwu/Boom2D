@@ -1,7 +1,7 @@
 import type { Application } from "pixi.js";
 import { EntityType } from "../../../common/src/constants";
 import { type Packet, PacketStream } from "../../../common/src/net";
-import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
+import { DeathPacket } from "../../../common/src/packets/deathPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { MapPacket } from "../../../common/src/packets/mapPacke";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
@@ -65,7 +65,7 @@ export class Game {
         this.pixi.ticker.add(this.render.bind(this));
         this.pixi.renderer.on("resize", this.resize.bind(this));
 
-        this.pixi.stage.addChild(this.camera.container, this.ui.container);
+        this.pixi.stage.addChild(this.camera.container, this.ui);
 
         this.resize();
     }
@@ -113,8 +113,11 @@ export class Game {
                     this.updateFromPacket(packet);
                     this.startGame();
                     break;
-                case packet instanceof GameOverPacket:
-                    this.ui.showGameOverScreen(packet);
+                case packet instanceof DeathPacket:
+                    this.ui.deathUi.show(
+                        this.playerNames.get(this.activePlayerID)!,
+                        packet
+                    );
                     break;
                 case packet instanceof MapPacket:
                     this.map.updateFromPacket(packet);
@@ -130,10 +133,13 @@ export class Game {
         ui.homeDiv.style.display = "none";
         this.running = true;
         this.particleManager.init();
+        this.ui.deathUi.hide();
     }
 
     endGame(): void {
-        if (this.socket?.readyState !== this.socket?.CLOSED) this.socket?.close();
+        if (this.socket?.readyState !== this.socket?.CLOSED) {
+            this.socket?.close();
+        }
         const ui = this.app.uiManager;
         ui.gameDiv.style.display = "none";
         ui.homeDiv.style.display = "";
@@ -144,6 +150,7 @@ export class Game {
         this.entityManager.clear();
         this.camera.clear();
         this.particleManager.clear();
+        this.ui.deathUi.hide();
     }
 
     lastUpdateTime = 0;

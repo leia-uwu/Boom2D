@@ -1,6 +1,10 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import { AmmoDefs } from "../../../../common/src/defs/ammoDefs";
-import { type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
+import {
+    type GunDef,
+    type WeaponDefKey,
+    WeaponDefs
+} from "../../../../common/src/defs/weaponDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
@@ -13,6 +17,8 @@ class WeaponDisplay extends Container {
     bg = new Sprite();
     selectedBg = new Sprite();
     weaponIcon = new Sprite();
+
+    selectedTicker = 0;
 
     constructor(
         readonly weapon: WeaponDefKey,
@@ -35,7 +41,7 @@ class WeaponDisplay extends Container {
         this.selectedBg.tint = ammoDef.color;
         this.addChild(this.selectedBg);
 
-        this.weaponIcon.on("click", () => {
+        this.on("click", () => {
             inputManager.weaponToSwitch = this.weapon;
         });
 
@@ -53,25 +59,18 @@ export class WeaponsUi extends Container {
         margin: 4
     });
 
-    typeToDisplay = {} as Record<WeaponDefKey, WeaponDisplay>;
+    weaponDisplays = {} as Record<WeaponDefKey, WeaponDisplay>;
 
-    oldActiveWeap: WeaponDefKey = "pistol";
     activeWeapon: WeaponDefKey = "pistol";
-    activeBgTicker = 0;
 
     init(inputManager: InputManager) {
-        let i = 0;
-
         this.addChild(this.layout);
 
         for (const weapon of WeaponDefs) {
             const weaponDisplay = new WeaponDisplay(weapon, inputManager);
-            weaponDisplay.zIndex = i--;
             this.layout.addChild(weaponDisplay);
-            this.typeToDisplay[weapon] = weaponDisplay;
+            this.weaponDisplays[weapon] = weaponDisplay;
         }
-
-        this.layout.sortChildren();
     }
 
     resize(width: number, height: number) {
@@ -83,35 +82,30 @@ export class WeaponsUi extends Container {
 
     updateUi(data: UpdatePacket["playerData"]["weapons"]) {
         for (const weapon of WeaponDefs) {
-            this.typeToDisplay[weapon].weaponIcon.alpha = data[weapon] ? 1 : 0.1;
+            this.weaponDisplays[weapon].weaponIcon.alpha = data[weapon] ? 1 : 0.1;
         }
     }
 
     render(dt: number) {
-        if (this.activeWeapon !== this.oldActiveWeap) {
-            const def = WeaponDefs.typeToDef(this.activeWeapon);
-            this.activeBgTicker += dt / def.switchDelay;
-            const oldWeap = this.typeToDisplay[this.oldActiveWeap];
-            const newWeap = this.typeToDisplay[this.activeWeapon];
-            oldWeap.selectedBg.alpha = MathUtils.lerp(1, 0, this.activeBgTicker);
-            newWeap.selectedBg.alpha = MathUtils.lerp(0, 1, this.activeBgTicker);
+        const activeDef = WeaponDefs.typeToDef(this.activeWeapon) as GunDef;
+        for (const weaponType in this.weaponDisplays) {
+            const weaponDisplay = this.weaponDisplays[weaponType as WeaponDefKey];
 
-            if (this.activeBgTicker >= 1) {
-                this.oldActiveWeap = this.activeWeapon;
-                newWeap.selectedBg.alpha = 1;
-                oldWeap.selectedBg.alpha = 0;
+            if (weaponType === this.activeWeapon) {
+                weaponDisplay.selectedTicker += dt / activeDef.switchDelay;
+            } else {
+                weaponDisplay.selectedTicker -= dt / activeDef.switchDelay;
             }
+            weaponDisplay.selectedTicker = MathUtils.clamp(
+                weaponDisplay.selectedTicker,
+                0,
+                1
+            );
+            weaponDisplay.selectedBg.alpha = weaponDisplay.selectedTicker;
         }
     }
 
     updateActiveWeapon(weap: WeaponDefKey) {
-        if (this.activeWeapon === weap) {
-            this.typeToDisplay[weap].selectedBg.alpha = 1;
-            return;
-        }
-
-        this.oldActiveWeap = this.activeWeapon;
         this.activeWeapon = weap;
-        this.activeBgTicker = 0;
     }
 }

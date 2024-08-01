@@ -4,9 +4,10 @@ import { type AmmoDefKey, AmmoDefs } from "../../../common/src/defs/ammoDefs";
 import { type LootDef, LootDefs } from "../../../common/src/defs/lootDefs";
 import type { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
 import { type Packet, PacketStream } from "../../../common/src/net";
-import { GameOverPacket } from "../../../common/src/packets/gameOverPacket";
+import { DeathPacket } from "../../../common/src/packets/deathPacket";
 import { InputPacket } from "../../../common/src/packets/inputPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
+import { RespawnPacket } from "../../../common/src/packets/respawnPacket";
 import {
     type EntitiesNetData,
     UpdatePacket
@@ -42,8 +43,19 @@ export class PlayerManager {
         this.players.push(player);
         this.newPlayers.push(player);
 
+        this.resetPlayer(player);
+
         this.game.logger.log(`"${player.name}" joined the game`);
         return player;
+    }
+
+    resetPlayer(player: Player) {
+        player.position = Random.vector(0, this.game.map.width, 0, this.game.map.height);
+        player.health = GameConstants.player.defaultHealth;
+        player.armor = GameConstants.player.defaultArmor;
+        player.dead = false;
+        this.game.grid.updateEntity(player);
+        player.setFullDirty();
     }
 
     removePlayer(player: Player): void {
@@ -82,6 +94,11 @@ export class PlayerManager {
         switch (true) {
             case packet instanceof InputPacket: {
                 player.processInput(packet);
+                break;
+            }
+            case packet instanceof RespawnPacket: {
+                if (!player.dead) break;
+                this.resetPlayer(player);
                 break;
             }
         }
@@ -211,7 +228,7 @@ export class Player extends ServerEntity {
     }
 
     constructor(game: Game, socket: ServerWebSocket<PlayerData>, name: string) {
-        const pos = Random.vector(0, game.map.width, 0, game.map.height);
+        const pos = Vec2.new(0, 0);
         super(game, pos);
         this.position = pos;
         this.socket = socket;
@@ -376,11 +393,11 @@ export class Player extends ServerEntity {
                 source.kills++;
             }
 
-            const gameOverPacket = new GameOverPacket();
-            gameOverPacket.kills = this.kills;
-            gameOverPacket.damageDone = this.damageDone;
-            gameOverPacket.damageTaken = this.damageTaken;
-            this.sendPacket(gameOverPacket);
+            const deathPacket = new DeathPacket();
+            deathPacket.kills = this.kills;
+            deathPacket.damageDone = this.damageDone;
+            deathPacket.damageTaken = this.damageTaken;
+            this.sendPacket(deathPacket);
         }
     }
 

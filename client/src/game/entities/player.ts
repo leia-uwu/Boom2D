@@ -134,6 +134,11 @@ export class Player extends ClientEntity {
             }
 
             this.dead = data.full.dead;
+
+            if (!this.dead && this.id === this.game.activePlayerID) {
+                this.game.ui.deathUi.hide();
+            }
+
             this.container.visible = this.nameText.visible = !this.dead;
         }
     }

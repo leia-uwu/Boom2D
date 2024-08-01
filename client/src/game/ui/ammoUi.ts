@@ -8,7 +8,7 @@ const itemHeight = 24;
 const margin = 8;
 const AmmoTextStyle: TextOptions = {
     style: {
-        ...UiTextStyle.style,
+        ...UiTextStyle,
         fontSize: itemHeight
     }
 };
@@ -30,24 +30,19 @@ export class AmmoUi extends Container {
     ammoTexts = {} as Record<AmmoDefKey, Text>;
 
     init() {
-        let i = 0;
         for (const ammo of AmmoDefs) {
             const text = new Text(AmmoTextStyle);
-            text.zIndex = i--;
             this.ammoTexts[ammo] = text;
             this.textLayout.addChild(text);
 
             const def = AmmoDefs.typeToDef(ammo);
             const icon = new Sprite();
             Helpers.spriteFromDef(icon, def.inventoryImg);
-            icon.zIndex = i;
             icon.width = icon.height = itemHeight;
             this.iconsLayout.addChild(icon);
 
             icon.tint = text.tint = def.color;
         }
-        this.textLayout.sortChildren();
-        this.iconsLayout.sortChildren();
         this.addChild(this.iconsLayout, this.textLayout);
     }
 

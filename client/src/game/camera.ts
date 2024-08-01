@@ -7,7 +7,8 @@ import type { Game } from "./game";
 export class Camera {
     readonly container = new Container({
         sortableChildren: true,
-        isRenderGroup: true
+        isRenderGroup: true,
+        eventMode: "none"
     });
 
     readonly game: Game;

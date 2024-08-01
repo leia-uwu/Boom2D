@@ -1,6 +1,6 @@
 import type { GameBitStream, Packet } from "../net";
 
-export class GameOverPacket implements Packet {
+export class DeathPacket implements Packet {
     kills = 0;
     damageDone = 0;
     damageTaken = 0;
