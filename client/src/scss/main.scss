@@ -1,7 +1,7 @@
 @font-face {
-    font-family: "Rubik Mono One";
+    font-family: "Roboto Mono Semi Bold";
     font-display: swap;
-    src: url("../../assets/fonts/RubikMonoOne-Regular.ttf") format("truetype");
+    src: url("../../assets/fonts/RobotoMono-SemiBold.ttf") format("truetype");
 }
 
 
@@ -9,6 +9,6 @@
 @import "./game.scss";
 
 * {
-    font-family: "Rubik Mono One";
+    font-family: "Roboto Mono Semi Bold";
     font-size: 1rem;
 }

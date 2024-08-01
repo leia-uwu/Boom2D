@@ -65,7 +65,7 @@ export class StatusUi extends Container {
 
         for (const text of this.textLayout.children) {
             (text as Text).anchor.x = 1;
-            text.x = 116;
+            text.x = 96;
         }
 
         this.healthIcon.texture = Texture.from("ui-health.svg");

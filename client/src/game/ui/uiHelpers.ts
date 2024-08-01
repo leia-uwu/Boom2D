@@ -10,7 +10,7 @@ import {
 
 export const UiTextStyle: TextStyleOptions = {
     fill: 0xffffff,
-    fontFamily: "Rubik Mono One",
+    fontFamily: "Roboto Mono Semi Bold",
     dropShadow: {
         color: 0,
         alpha: 0.6,
