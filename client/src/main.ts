@@ -5,7 +5,7 @@ import { Helpers } from "./helpers";
 import { UiManager } from "./ui";
 
 export class App {
-    uiManager = new UiManager(this);
+    ui = new UiManager(this);
     pixi = new Application();
     game = new Game(this);
 
@@ -22,7 +22,7 @@ export class App {
 
         await this.game.init();
 
-        app.uiManager.playButton.disabled = false;
+        app.ui.playButton.disabled = false;
     }
 }
 
@@ -30,4 +30,8 @@ const app = new App();
 
 (async () => {
     await app.init();
+
+    app.pixi.canvas.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+    });
 })();

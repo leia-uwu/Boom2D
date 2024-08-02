@@ -10,7 +10,6 @@ export class UiManager {
     nameInput = Helpers.getElem<HTMLInputElement>("#name-input");
     serverSelect = Helpers.getElem<HTMLSelectElement>("#server-selector");
     homeDiv = Helpers.getElem<HTMLDivElement>("#home");
-    gameDiv = Helpers.getElem<HTMLDivElement>("#game");
 
     constructor(readonly app: App) {
         this.setupMainMenu();

@@ -76,7 +76,7 @@ export class Game {
     }
 
     connect(address: string): void {
-        this.app.uiManager.playButton.disabled = true;
+        this.app.ui.playButton.disabled = true;
 
         this.socket = new WebSocket(address);
 
@@ -88,7 +88,7 @@ export class Game {
 
         this.socket.onopen = () => {
             const joinPacket = new JoinPacket();
-            joinPacket.name = this.app.uiManager.nameInput.value;
+            joinPacket.name = this.app.ui.nameInput.value;
             this.sendPacket(joinPacket);
         };
 
@@ -128,9 +128,8 @@ export class Game {
 
     startGame(): void {
         if (this.running) return;
-        const ui = this.app.uiManager;
-        ui.gameDiv.style.display = "";
-        ui.homeDiv.style.display = "none";
+        this.app.ui.homeDiv.style.display = "none";
+        this.ui.visible = true;
         this.running = true;
         this.particleManager.init();
         this.ui.deathUi.hide();
@@ -140,8 +139,8 @@ export class Game {
         if (this.socket?.readyState !== this.socket?.CLOSED) {
             this.socket?.close();
         }
-        const ui = this.app.uiManager;
-        ui.gameDiv.style.display = "none";
+        this.ui.visible = false;
+        const ui = this.app.ui;
         ui.homeDiv.style.display = "";
         ui.playButton.disabled = false;
         this.running = false;

@@ -4,11 +4,48 @@
     src: url("../../assets/fonts/RobotoMono-SemiBold.ttf") format("truetype");
 }
 
-
 @import "./home.scss";
-@import "./game.scss";
 
 * {
     font-family: "Roboto Mono Semi Bold";
-    font-size: 1rem;
+}
+
+
+*::-webkit-scrollbar {
+    width: 10px;
+    background-color: #aaa;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: #444444;
+}
+
+button,
+input[type="text"],
+select {
+    border-width: 4px;
+    border-radius: 4px;
+    border-style: solid;
+    font-size: 1.1rem;
+}
+
+button {
+    cursor: pointer;
+
+    &.btn-green {
+        background-color: #29a25f;
+        border-color: #092A18;
+    }
+}
+
+input[type="text"],
+select {
+    border-color: #444444
+}
+
+#game-canvas {
+    cursor: crosshair;
+    position: absolute;
+    top: 0;
+    left: 0;
 }

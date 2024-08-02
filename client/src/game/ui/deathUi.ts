@@ -53,7 +53,7 @@ export class DeathUi extends Container {
     });
     quitBtn = new Button({
         text: "Quit Game",
-        color: 0x999999,
+        color: 0xaa0000,
         width: 150
     });
 
@@ -70,8 +70,6 @@ export class DeathUi extends Container {
     stats = {} as Record<StatKey, Text>;
 
     init(game: Game) {
-        // this.visible = false;
-
         this.addChild(this.overlay, this.statsContainer, this.respawnBtn, this.quitBtn);
 
         this.overlay.tint = 0;
@@ -170,7 +168,7 @@ export class DeathUi extends Container {
     render(dt: number) {
         if (!this.visible) return;
 
-        this.alpha += dt / 2;
+        this.alpha += dt;
     }
 
     show(playerName: string, stats: DeathPacket) {

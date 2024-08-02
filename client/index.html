@@ -7,20 +7,27 @@
     <title>Boom2D</title>
   </head>
   <body>
-    <div id="app">
-      <div id="home">
-        <img id="logo" src="./img/logo.svg"/>
-        <div id="center-container">
-          <div id="play-container">
-            <input id="name-input" type="text" placeholder="Enter your name...">
-            <select id="server-selector">
-            </select>
-            <button id="play-btn">Play</button>
-          </div>
+    <canvas id="game-canvas"></canvas>
+    <div id="home">
+      <img id="logo" src="./img/logo.svg"/>
+      <div id="panels">
+        <div class="panel">
+          <h1>Changelog</h1>
+          <h2>v0.0.1</h2>
+          <ul>
+            <li>First release.</li>
+          </ul>
         </div>
-      </div>
-      <div id="game" style="display: none;">
-        <canvas id="game-canvas"></canvas>
+        <div id="play-container" class="panel">
+          <input id="name-input" type="text" placeholder="Enter your name...">
+          <select id="server-selector">
+          </select>
+          <button id="play-btn" class="btn-green">Play</button>
+        </div>
+        <div class="panel">
+        <h1>How to play</h1>
+          <p>Use WASD to move, left click to fire :)</p>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

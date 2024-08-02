@@ -2,7 +2,6 @@ import { Container } from "pixi.js";
 import type { AmmoDefKey } from "../../../../common/src/defs/ammoDefs";
 import { WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
-import { Helpers } from "../../helpers";
 import type { Game } from ".././game";
 import { AmmoUi } from "./ammoUi";
 import { DeathUi } from "./deathUi";
@@ -18,14 +17,10 @@ export class GameUi extends Container {
     ammo = {} as Record<AmmoDefKey, number>;
 
     constructor(readonly game: Game) {
-        super();
+        super({ visible: false });
     }
 
     init() {
-        Helpers.getElem("#game").addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-        });
-
         this.deathUi.init(this.game);
         this.statusUi.init();
         this.weaponsUi.init(this.game.inputManager);
