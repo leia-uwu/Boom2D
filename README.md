@@ -1,7 +1,7 @@
 <img src="client/public/img/logo.svg">
 
 ## About
-2D Multiplayer deathmatch game inspired by Doom an Surviv.io
+2D Multiplayer deathmatch game inspired by Doom and Surviv.io
 
 # Installing and setup
 This project requires [Bun](https://bun.sh/)
