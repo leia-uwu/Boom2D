@@ -80,7 +80,7 @@ export class InputManager {
 
         inputPacket.direction = this.mouseDir;
 
-        if (inputPacket.didChange(this.inputPacket) || this.ticker > 0) {
+        if (inputPacket.didChange(this.inputPacket) || this.ticker > 1) {
             this.ticker = 0;
             this.game.sendPacket(inputPacket);
         }
