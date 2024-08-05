@@ -1,4 +1,5 @@
 import { GameConstants } from "../../common/src/constants";
+import { type Packet, PacketStream } from "../../common/src/net";
 import { BulletManager } from "./bullet";
 import type { ServerConfig } from "./config";
 import { EntityManager } from "./entities/entity";
@@ -21,6 +22,8 @@ export class Game {
     projectileManager = new ProjectileManager(this);
     bulletManager = new BulletManager(this);
     explosionManager = new ExplosionManager(this);
+
+    packetStream = new PacketStream(new ArrayBuffer(1 << 10));
 
     now = Date.now();
 
@@ -50,6 +53,7 @@ export class Game {
         this.playerManager.sendPackets();
 
         // reset stuff
+        this.packetStream.stream.index = 0;
         this.entityManager.flush();
         this.playerManager.flush();
         this.bulletManager.flush();
@@ -72,5 +76,9 @@ export class Game {
                 this.tickTimes = [];
             }
         }
+    }
+
+    sendPacket(packet: Packet) {
+        this.packetStream.serializeServerPacket(packet);
     }
 }

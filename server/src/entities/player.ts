@@ -7,6 +7,7 @@ import { type Packet, PacketStream } from "../../../common/src/net";
 import { DeathPacket } from "../../../common/src/packets/deathPacket";
 import { InputPacket } from "../../../common/src/packets/inputPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
+import { KillPacket } from "../../../common/src/packets/killPacket";
 import { RespawnPacket } from "../../../common/src/packets/respawnPacket";
 import {
     type EntitiesNetData,
@@ -439,6 +440,11 @@ export class Player extends ServerEntity {
             deathPacket.damageDone = this.damageDone;
             deathPacket.damageTaken = this.damageTaken;
             this.sendPacket(deathPacket);
+
+            const killPacket = new KillPacket();
+            killPacket.killedId = this.id;
+            killPacket.killerId = source.id;
+            this.game.sendPacket(killPacket);
         }
     }
 
@@ -528,6 +534,12 @@ export class Player extends ServerEntity {
         for (const packet of this.packetsToSend) {
             this.packetStream.serializeServerPacket(packet);
         }
+
+        this.packetStream.stream.writeBytes(
+            this.game.packetStream.stream,
+            0,
+            this.game.packetStream.stream.byteIndex
+        );
 
         this.packetsToSend.length = 0;
         const buffer = this.packetStream.getBuffer();

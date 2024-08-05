@@ -3,6 +3,7 @@ import { GameConstants } from "./constants";
 import { DeathPacket } from "./packets/deathPacket";
 import { InputPacket } from "./packets/inputPacket";
 import { JoinPacket } from "./packets/joinPacket";
+import { KillPacket } from "./packets/killPacket";
 import { MapPacket } from "./packets/mapPacke";
 import { RespawnPacket } from "./packets/respawnPacket";
 import { UpdatePacket } from "./packets/updatePacket";
@@ -379,7 +380,7 @@ const ClientToServerPackets = new PacketRegister();
 ClientToServerPackets.register(JoinPacket, InputPacket, RespawnPacket);
 
 const ServerToClientPackets = new PacketRegister();
-ServerToClientPackets.register(UpdatePacket, DeathPacket, MapPacket);
+ServerToClientPackets.register(UpdatePacket, DeathPacket, MapPacket, KillPacket);
 
 export class PacketStream {
     stream: GameBitStream;

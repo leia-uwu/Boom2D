@@ -19,11 +19,11 @@ const Stats = {
 
 type StatKey = keyof typeof Stats;
 
-const Height = 200;
-const Width = 340;
-
 export class DeathUi extends Container {
     ticker = 0;
+
+    static Height = 200;
+    static Width = 340;
 
     overlay = new Sprite(Texture.WHITE);
 
@@ -83,7 +83,7 @@ export class DeathUi extends Container {
             this.textsLayout,
             this.statsLayout
         );
-        this.statsContainer.pivot.set(Width / 2, Height / 2);
+        this.statsContainer.pivot.set(DeathUi.Width / 2, DeathUi.Height / 2);
 
         this.respawnBtn.onclick = () => {
             game.sendPacket(new RespawnPacket());
@@ -93,9 +93,9 @@ export class DeathUi extends Container {
             game.endGame();
         };
 
-        UiHelpers.drawPanel(this.bg, Width, Height);
+        UiHelpers.drawPanel(this.bg, DeathUi.Width, DeathUi.Height);
 
-        this.title.x = Width / 2;
+        this.title.x = DeathUi.Width / 2;
         this.title.y = -45;
         this.title.anchor.x = 0.5;
 
@@ -105,14 +105,14 @@ export class DeathUi extends Container {
         this.respawnBtn.x = -btnX;
         this.quitBtn.x = btnX;
 
-        this.playerName.x = Width / 2;
+        this.playerName.x = DeathUi.Width / 2;
         this.playerName.y = 16;
         this.playerName.anchor.x = 0.5;
 
         this.textsLayout.y = 80;
         this.statsLayout.y = 80;
         this.textsLayout.x = -8;
-        this.statsLayout.x = Width / 2 + 16;
+        this.statsLayout.x = DeathUi.Width / 2 + 16;
         const keys = Object.keys(Stats) as StatKey[];
 
         for (const key of keys) {
@@ -124,7 +124,7 @@ export class DeathUi extends Container {
                 }
             });
             this.texts[key] = text;
-            text.x = Width / 2;
+            text.x = DeathUi.Width / 2;
             text.anchor.x = 1;
             this.textsLayout.addChild(text);
 

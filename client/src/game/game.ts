@@ -3,6 +3,7 @@ import { EntityType } from "../../../common/src/constants";
 import { type Packet, PacketStream } from "../../../common/src/net";
 import { DeathPacket } from "../../../common/src/packets/deathPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
+import { KillPacket } from "../../../common/src/packets/killPacket";
 import { MapPacket } from "../../../common/src/packets/mapPacke";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
 import { assert } from "../../../common/src/utils/util";
@@ -122,6 +123,13 @@ export class Game {
                 case packet instanceof MapPacket:
                     this.map.updateFromPacket(packet);
                     break;
+                case packet instanceof KillPacket:
+                    this.ui.killFeedUi.addMsg(
+                        packet,
+                        this.playerNames,
+                        this.activePlayerID
+                    );
+                    break;
             }
         }
     }
@@ -149,7 +157,7 @@ export class Game {
         this.entityManager.clear();
         this.camera.clear();
         this.particleManager.clear();
-        this.ui.deathUi.hide();
+        this.ui.clear();
     }
 
     lastUpdateTime = 0;
