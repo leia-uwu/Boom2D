@@ -1,7 +1,7 @@
 import { Container, Graphics, Text, type TextStyleOptions } from "pixi.js";
 import { GameConstants } from "../../../../common/src/constants";
 import type { LeaderboardEntry } from "../../../../common/src/packets/updatePacket";
-import type { Game } from "../game";
+import type { PlayerManager } from "../entities/player";
 import { UiHelpers, UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 
 const LineTextStyle = {
@@ -72,7 +72,7 @@ export class LeaderBoardUi extends Container {
 
     update(
         data: LeaderboardEntry[],
-        nameCache: Game["playerNames"],
+        playerManager: PlayerManager,
         activePlayerId: number
     ) {
         for (let i = 0; i < GameConstants.leaderboardMaxEntries; i++) {
@@ -83,7 +83,7 @@ export class LeaderBoardUi extends Container {
                 continue;
             }
             entryDisplay.visible = true;
-            const name = nameCache.get(entry.playerId) ?? "Unknown Player";
+            const name = playerManager.getPlayerInfo(entry.playerId).name;
             const isActivePlayer = entry.playerId === activePlayerId;
             entryDisplay.setData(name, entry.kills, isActivePlayer);
         }

@@ -8,8 +8,13 @@ import type { EntitiesNetData } from "../../../../common/src/packets/updatePacke
 import { BaseHitbox, type Hitbox } from "../../../../common/src/utils/hitbox";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
-import type { Game } from "../game";
-import { ClientEntity } from "./entity";
+import { ClientEntity, EntityPool } from "./entity";
+
+export class ObstacleManager extends EntityPool<Obstacle> {
+    constructor() {
+        super(Obstacle);
+    }
+}
 
 export class Obstacle extends ClientEntity {
     readonly __type = EntityType.Obstacle;
@@ -17,11 +22,10 @@ export class Obstacle extends ClientEntity {
     type = "" as ObstacleDefKey;
     sprite = new Sprite();
 
-    constructor(game: Game, id: number) {
-        super(game, id);
-
+    override init() {
         this.container.addChild(this.sprite);
         this.sprite.anchor.set(0.5, 0.5);
+        this.container.visible = true;
     }
 
     override updateFromData(
@@ -45,6 +49,10 @@ export class Obstacle extends ClientEntity {
         super.render(dt);
         const pos = Camera.vecToScreen(this.position);
         this.container.position = pos;
+    }
+
+    override free(): void {
+        this.container.visible = false;
     }
 
     override destroy(): void {

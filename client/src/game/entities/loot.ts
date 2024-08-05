@@ -6,8 +6,13 @@ import { CircleHitbox } from "../../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
-import type { Game } from "../game";
-import { ClientEntity } from "./entity";
+import { ClientEntity, EntityPool } from "./entity";
+
+export class LootManager extends EntityPool<Loot> {
+    constructor() {
+        super(Loot);
+    }
+}
 
 export class Loot extends ClientEntity {
     readonly __type = EntityType.Loot;
@@ -19,9 +24,8 @@ export class Loot extends ClientEntity {
     background = new Sprite(Texture.from("glow-particle.svg"));
     hitbox = new CircleHitbox(GameConstants.loot.radius);
 
-    constructor(game: Game, id: number) {
-        super(game, id);
-
+    override init() {
+        this.container.visible = true;
         this.container.addChild(this.background, this.sprite);
         this.sprite.anchor.set(0.5, 0.5);
 
@@ -75,6 +79,10 @@ export class Loot extends ClientEntity {
         }
         const pos = Camera.vecToScreen(this.position);
         this.container.position = pos;
+    }
+
+    override free() {
+        this.container.visible = false;
     }
 
     override destroy(): void {

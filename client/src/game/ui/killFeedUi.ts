@@ -1,4 +1,5 @@
 import type { KillPacket } from "../../../../common/src/packets/killPacket";
+import type { PlayerManager } from "../entities/player";
 import { LeaderBoardUi } from "./leaderBoardUi";
 import { MsgFeed } from "./msgFeed";
 import { UiStyle } from "./uiHelpers";
@@ -15,9 +16,9 @@ export class KillFeedUi extends MsgFeed {
         this.y = UiStyle.margin;
     }
 
-    addMsg(packet: KillPacket, nameCache: Map<number, string>, activePlayerId: number) {
-        const killedName = nameCache.get(packet.killedId)!;
-        const killerName = nameCache.get(packet.killerId)!;
+    addMsg(packet: KillPacket, playerManager: PlayerManager, activePlayerId: number) {
+        const killedName = playerManager.getPlayerInfo(packet.killedId).name;
+        const killerName = playerManager.getPlayerInfo(packet.killerId).name;
 
         let color = 0x333333;
         if (packet.killerId === activePlayerId) {

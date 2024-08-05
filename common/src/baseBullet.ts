@@ -17,6 +17,7 @@ interface GameEntity<T extends EntityType = EntityType> {
     __type: T;
     hitbox: Hitbox;
     id: number;
+    active: boolean;
     data: Required<EntitiesNetData[T]>;
 }
 
@@ -90,6 +91,7 @@ export class BaseBullet implements BulletParams {
 
         for (const entity of entities) {
             if (entity.id === this.shooterId) continue;
+            if (!entity.active) continue;
 
             const isPlayer = entity.__type === EntityType.Player;
             const isObstacle = entity.__type === EntityType.Obstacle;

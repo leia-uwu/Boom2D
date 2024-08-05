@@ -11,9 +11,14 @@ import { Random } from "../../../../common/src/utils/random";
 import { Vec2 } from "../../../../common/src/utils/vector";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
-import type { Game } from "../game";
 import type { ParticleDefKey } from "../particle";
-import { ClientEntity } from "./entity";
+import { ClientEntity, EntityPool } from "./entity";
+
+export class ProjectileManager extends EntityPool<Projectile> {
+    constructor() {
+        super(Projectile);
+    }
+}
 
 export class Projectile extends ClientEntity {
     readonly __type = EntityType.Projectile;
@@ -30,9 +35,7 @@ export class Projectile extends ClientEntity {
     direction = Vec2.new(0, 0);
     rotation = 0;
 
-    constructor(game: Game, id: number) {
-        super(game, id);
-
+    override init() {
         this.container.addChild(this.sprite);
         this.sprite.anchor.set(0.5, 0.5);
     }
@@ -109,6 +112,10 @@ export class Projectile extends ClientEntity {
         }
 
         this.container.position = Camera.vecToScreen(pos);
+    }
+
+    override free(): void {
+        this.container.visible = false;
     }
 
     override destroy(): void {

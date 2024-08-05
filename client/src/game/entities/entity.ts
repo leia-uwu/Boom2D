@@ -1,5 +1,5 @@
 import { Container } from "pixi.js";
-import type { EntityType } from "../../../../common/src/constants";
+import { type EntityType, GameConstants } from "../../../../common/src/constants";
 import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import type { Hitbox } from "../../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../../common/src/utils/math";
@@ -9,8 +9,10 @@ import type { Game } from "../game";
 
 export abstract class ClientEntity<T extends EntityType = EntityType> {
     abstract __type: T;
+    declare id: number;
     declare __arrayIdx: number;
-    id: number;
+    active = false;
+
     abstract hitbox: Hitbox;
     game: Game;
     position = Vec2.new(0, 0);
@@ -19,10 +21,8 @@ export abstract class ClientEntity<T extends EntityType = EntityType> {
 
     data!: Required<EntitiesNetData[T]>;
 
-    constructor(game: Game, id: number) {
+    constructor(game: Game) {
         this.game = game;
-        this.id = id;
-
         this.game.camera.addObject(this.container);
     }
 
@@ -39,6 +39,8 @@ export abstract class ClientEntity<T extends EntityType = EntityType> {
         }
     }
 
+    abstract init(): void;
+    abstract free(): void;
     abstract destroy(): void;
 
     oldPosition = Vec2.new(0, 0);
@@ -55,25 +57,66 @@ export abstract class ClientEntity<T extends EntityType = EntityType> {
     }
 }
 
-const MAX_ID = 1 << 16;
-
 type ValidEntityType = Exclude<EntityType, EntityType.Invalid>;
 
-export class EntityManager<
-    T extends Record<ValidEntityType, new (game: Game, id: number) => ClientEntity>
-> {
-    typeToCtr: T;
+export class EntityPool<T extends ClientEntity = ClientEntity> {
+    pool: Array<T> = [];
+    activeCount = 0;
 
+    entityCtr: new (
+        game: Game
+    ) => T;
+
+    constructor(entityCtr: new (game: Game) => T) {
+        this.entityCtr = entityCtr;
+    }
+
+    allocEntity(game: Game, id: number) {
+        let entity: T | undefined = undefined;
+        for (let i = 0; i < this.pool.length; i++) {
+            if (!this.pool[i].active) {
+                entity = this.pool[i];
+                break;
+            }
+        }
+        if (!entity) {
+            entity = new this.entityCtr(game);
+        }
+        entity.active = true;
+        entity.id = id;
+        entity.init();
+        return entity;
+    }
+
+    freeEntity(entity: ClientEntity) {
+        entity.free();
+        entity.active = false;
+        this.activeCount--;
+
+        // free some entities
+        if (this.pool.length > 128 && this.activeCount < this.pool.length / 2) {
+            const compact = [];
+            for (let i = 0; i < this.pool.length; i++) {
+                if (this.pool[i].active) {
+                    compact.push(this.pool[i]);
+                } else {
+                    this.pool[i].destroy();
+                }
+            }
+            this.pool = compact;
+        }
+    }
+}
+
+export class EntityManager {
     entities: Array<ClientEntity> = [];
     idToEntity: Array<ClientEntity | null> = [];
 
     constructor(
         readonly game: Game,
-        typeToActr: T
+        readonly typeToPool: Record<ValidEntityType, EntityPool>
     ) {
-        this.typeToCtr = typeToActr;
-
-        for (let i = 0; i < MAX_ID; i++) {
+        for (let i = 0; i < GameConstants.maxEntityId; i++) {
             this.idToEntity[i] = null;
         }
     }
@@ -88,7 +131,7 @@ export class EntityManager<
         data: Required<EntitiesNetData[EntityType]>
     ) {
         assert(!this.getById(id), "Entity already created");
-        const entity = new this.typeToCtr[type](this.game, id);
+        const entity = this.typeToPool[type].allocEntity(this.game, id);
 
         entity.__arrayIdx = this.entities.length;
         this.entities[entity.__arrayIdx] = entity;
@@ -121,9 +164,7 @@ export class EntityManager<
             this.entities[entity.__arrayIdx] = lastEntity;
             lastEntity.__arrayIdx = entity.__arrayIdx;
         }
-
-        entity.destroy();
-
+        this.typeToPool[entity.__type as ValidEntityType].freeEntity(entity);
         this.idToEntity[id] = null;
     }
 
@@ -132,14 +173,16 @@ export class EntityManager<
             this.entities[i]?.destroy();
         }
         this.entities.length = 0;
-        for (let i = 0; i < MAX_ID; i++) {
+        for (let i = 0; i < GameConstants.maxEntityId; i++) {
             this.idToEntity[i] = null;
         }
     }
 
     render(dt: number) {
         for (let i = 0; i < this.entities.length; i++) {
-            this.entities[i].render(dt);
+            if (this.entities[i].active) {
+                this.entities[i].render(dt);
+            }
         }
     }
 }

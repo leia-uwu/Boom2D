@@ -12,10 +12,10 @@ import { AudioManager } from "./audioManager";
 import { BulletManager } from "./bullet";
 import { Camera } from "./camera";
 import { type ClientEntity, EntityManager } from "./entities/entity";
-import { Loot } from "./entities/loot";
-import { Obstacle } from "./entities/obstacle";
-import { Player } from "./entities/player";
-import { Projectile } from "./entities/projectile";
+import { LootManager } from "./entities/loot";
+import { ObstacleManager } from "./entities/obstacle";
+import { type Player, PlayerManager } from "./entities/player";
+import { ProjectileManager } from "./entities/projectile";
 import { ExplosionManager } from "./explosion";
 import { InputManager } from "./inputManager";
 import { GameMap } from "./map";
@@ -30,34 +30,40 @@ export class Game {
 
     running = false;
 
-    entityManager = new EntityManager(this, {
-        [EntityType.Player]: Player,
-        [EntityType.Loot]: Loot,
-        [EntityType.Obstacle]: Obstacle,
-        [EntityType.Projectile]: Projectile
-    });
-
     activePlayerID = 0;
 
     get activePlayer(): Player | undefined {
         return this.entityManager.getById(this.activePlayerID) as Player;
     }
 
-    playerNames = new Map<number, string>();
-
     resourceManager = new ResourceManager();
     ui = new GameUi(this);
     camera = new Camera(this);
     map = new GameMap(this);
+
     inputManager = new InputManager(this);
     audioManager = new AudioManager(this);
     particleManager = new ParticleManager(this);
     bulletManager = new BulletManager(this);
     explosionManager = new ExplosionManager(this);
 
+    playerManager = new PlayerManager();
+    lootManager = new LootManager();
+    obstacleManager = new ObstacleManager();
+    projectileManager = new ProjectileManager();
+
+    entityManager: EntityManager;
+
     constructor(app: App) {
         this.app = app;
         this.pixi = app.pixi;
+
+        this.entityManager = new EntityManager(this, {
+            [EntityType.Player]: this.playerManager,
+            [EntityType.Loot]: this.lootManager,
+            [EntityType.Obstacle]: this.obstacleManager,
+            [EntityType.Projectile]: this.projectileManager
+        });
     }
 
     async init(): Promise<void> {
@@ -116,7 +122,7 @@ export class Game {
                     break;
                 case packet instanceof DeathPacket:
                     this.ui.deathUi.show(
-                        this.playerNames.get(this.activePlayerID)!,
+                        this.playerManager.getPlayerInfo(this.activePlayerID).name,
                         packet
                     );
                     break;
@@ -126,7 +132,7 @@ export class Game {
                 case packet instanceof KillPacket:
                     this.ui.killFeedUi.addMsg(
                         packet,
-                        this.playerNames,
+                        this.playerManager,
                         this.activePlayerID
                     );
                     break;
@@ -155,6 +161,7 @@ export class Game {
 
         // reset stuff
         this.entityManager.clear();
+        this.playerManager.clear();
         this.camera.clear();
         this.particleManager.clear();
         this.ui.clear();
@@ -185,11 +192,13 @@ export class Game {
 
         for (let i = 0; i < packet.newPlayers.length; i++) {
             const newPlayer = packet.newPlayers[i];
-            this.playerNames.set(newPlayer.id, newPlayer.name);
+            this.playerManager.playerInfos.set(newPlayer.id, {
+                name: newPlayer.name
+            });
         }
 
         for (let i = 0; i < packet.deletedPlayers.length; i++) {
-            this.playerNames.delete(packet.deletedPlayers[i]);
+            this.playerManager.playerInfos.delete(packet.deletedPlayers[i]);
         }
 
         for (let i = 0; i < packet.fullEntities.length; i++) {
@@ -237,7 +246,7 @@ export class Game {
         if (packet.leaderboardDirty) {
             this.ui.leaderBoardUi.update(
                 packet.leaderboard,
-                this.playerNames,
+                this.playerManager,
                 this.activePlayerID
             );
         }

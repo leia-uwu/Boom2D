@@ -13,9 +13,27 @@ import { Vec2 } from "../../../../common/src/utils/vector";
 import { Helpers } from "../../helpers";
 import type { GameSound } from "../audioManager";
 import { Camera } from "../camera";
-import type { Game } from "../game";
 import type { ParticleDefKey } from "../particle";
-import { ClientEntity } from "./entity";
+import { ClientEntity, EntityPool } from "./entity";
+
+export class PlayerManager extends EntityPool<Player> {
+    playerInfos = new Map<number, { name: string }>();
+
+    constructor() {
+        super(Player);
+    }
+
+    getPlayerInfo(id: number) {
+        const info = this.playerInfos.get(id) ?? {
+            name: "Unknown Player"
+        };
+        return info;
+    }
+
+    clear() {
+        this.playerInfos.clear();
+    }
+}
 
 export class Player extends ClientEntity {
     readonly __type = EntityType.Player;
@@ -35,7 +53,9 @@ export class Player extends ClientEntity {
     };
 
     // container for stuff that doesn't rotate
-    staticContainer = new Container();
+    staticContainer = new Container({
+        visible: false
+    });
 
     nameText = new Text({
         style: {
@@ -54,8 +74,9 @@ export class Player extends ClientEntity {
 
     shotSound?: GameSound;
 
-    constructor(game: Game, id: number) {
-        super(game, id);
+    override init() {
+        this.container.visible = true;
+        this.staticContainer.visible = true;
 
         const images = Object.values(this.images);
         for (const image of images) {
@@ -77,7 +98,7 @@ export class Player extends ClientEntity {
         this.staticContainer.zIndex = 3;
         this.game.camera.addObject(this.staticContainer);
 
-        this.nameText.text = this.game.playerNames.get(this.id) ?? "Unknown Player";
+        this.nameText.text = this.game.playerManager.getPlayerInfo(this.id).name;
         this.nameText.position.set(0, 90);
         this.staticContainer.addChild(this.nameText);
 
@@ -229,6 +250,11 @@ export class Player extends ClientEntity {
                 "gib_bones"
             );
         }
+    }
+
+    override free(): void {
+        this.container.visible = false;
+        this.staticContainer.visible = false;
     }
 
     override destroy(): void {

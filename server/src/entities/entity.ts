@@ -1,4 +1,4 @@
-import { EntityType } from "../../../common/src/constants";
+import { EntityType, GameConstants } from "../../../common/src/constants";
 import { GameBitStream } from "../../../common/src/net";
 import {
     type EntitiesNetData,
@@ -12,6 +12,8 @@ import type { Grid } from "../grid";
 
 export abstract class ServerEntity<T extends EntityType = EntityType> {
     abstract readonly __type: T;
+
+    active = true;
 
     declare id: number;
     declare __arrayIdx: number;
@@ -83,6 +85,7 @@ export abstract class ServerEntity<T extends EntityType = EntityType> {
             console.warn("Tried to destroy object twice");
             return;
         }
+        this.active = false;
         this.game.grid.removeFromGrid(this);
         this.game.entityManager.deletedEntities.push(this);
         this.destroyed = true;
@@ -91,15 +94,13 @@ export abstract class ServerEntity<T extends EntityType = EntityType> {
     abstract get data(): Required<EntitiesNetData[EntityType]>;
 }
 
-const MAX_ID = 1 << 16;
-
 export class EntityManager {
     entities: Array<ServerEntity | undefined> = [];
     idToEntity: Array<ServerEntity | null> = [];
 
-    idToType = new Uint8Array(MAX_ID);
-    dirtyPart = new Uint8Array(MAX_ID);
-    dirtyFull = new Uint8Array(MAX_ID);
+    idToType = new Uint8Array(GameConstants.maxEntityId);
+    dirtyPart = new Uint8Array(GameConstants.maxEntityId);
+    dirtyFull = new Uint8Array(GameConstants.maxEntityId);
 
     deletedEntities: ServerEntity[] = [];
 
@@ -107,7 +108,7 @@ export class EntityManager {
     freeIds: number[] = [];
 
     constructor(readonly grid: Grid) {
-        for (let i = 0; i < MAX_ID; i++) {
+        for (let i = 0; i < GameConstants.maxEntityId; i++) {
             this.idToEntity[i] = null;
         }
     }
@@ -118,7 +119,7 @@ export class EntityManager {
 
     allocId() {
         let id = 1;
-        if (this.idNext < MAX_ID) {
+        if (this.idNext < GameConstants.maxEntityId) {
             id = this.idNext++;
         } else {
             if (this.freeIds.length > 0) {

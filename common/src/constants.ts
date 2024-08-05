@@ -8,6 +8,7 @@ export enum EntityType {
 
 export const GameConstants = {
     maxPosition: 512,
+    maxEntityId: 1 << 16,
     leaderboardMaxEntries: 10,
     player: {
         nameMaxLength: 16,
@@ -26,3 +27,4 @@ export const GameConstants = {
         radius: 1
     }
 } as const;
+console.log(GameConstants.maxEntityId);
