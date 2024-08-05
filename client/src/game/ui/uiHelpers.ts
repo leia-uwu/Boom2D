@@ -18,6 +18,43 @@ export const UiTextStyle: TextStyleOptions = {
     }
 };
 
+export const UiStyle = {
+    margin: 8,
+    panels: {
+        borderWidth: 5,
+        backgroundColor: 0,
+        backgroundAlpha: 0.3,
+        borderRadius: 4,
+        strokeColor: 0x333333,
+        strokeWidth: 5,
+        stroleAlpha: 0.5
+    }
+};
+
+export const UiHelpers = {
+    drawPanel(ctx: Graphics, width: number, height: number) {
+        const style = UiStyle.panels;
+        ctx.clear();
+        ctx.roundRect(0, 0, width, height, style.borderRadius);
+        ctx.fill({
+            color: UiStyle.panels.backgroundColor,
+            alpha: UiStyle.panels.backgroundAlpha
+        });
+        ctx.roundRect(
+            -style.strokeWidth / 2,
+            -style.strokeWidth / 2,
+            width + style.strokeWidth,
+            height + style.strokeWidth,
+            style.borderRadius
+        );
+        ctx.stroke({
+            color: UiStyle.panels.strokeColor,
+            width: style.strokeWidth,
+            alpha: style.stroleAlpha
+        });
+    }
+};
+
 interface LayoutOptions {
     margin: number;
     width: number;

@@ -4,7 +4,7 @@ import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs"
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
-import { UiTextStyle, VerticalLayout } from "./uiHelpers";
+import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 
 const StatusTextStyle: TextOptions = {
     style: {
@@ -113,8 +113,8 @@ export class StatusUi extends Container {
     resize(_width: number, height: number) {
         this.textLayout.relayout();
         this.iconsLayout.relayout();
-        this.x = 8;
-        this.y = height - this.height - 8;
+        this.x = UiStyle.margin;
+        this.y = height - this.height - UiStyle.margin;
 
         this.textLayout.x = 46;
     }

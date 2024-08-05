@@ -225,6 +225,14 @@ export class Game {
             if (player?.__type !== EntityType.Player) continue;
             (player as Player).shootEffect(shot.weapon);
         }
+
+        if (packet.leaderboardDirty) {
+            this.ui.leaderBoardUi.update(
+                packet.leaderboard,
+                this.playerNames,
+                this.activePlayerID
+            );
+        }
     }
 
     sendPacket(packet: Packet) {

@@ -9,7 +9,7 @@ import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
 import type { InputManager } from "../inputManager";
-import { HorizontalLayout } from "./uiHelpers";
+import { HorizontalLayout, UiStyle } from "./uiHelpers";
 
 const iconSize = 96;
 
@@ -77,7 +77,7 @@ export class WeaponsUi extends Container {
         this.layout.relayout();
 
         this.x = width / 2 - this.layout.width / 2 + iconSize / 2;
-        this.y = height - this.layout.height / 2;
+        this.y = height - this.layout.height / 2 - UiStyle.margin;
     }
 
     updateUi(data: UpdatePacket["playerData"]["weapons"]) {

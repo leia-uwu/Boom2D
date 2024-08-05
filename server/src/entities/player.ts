@@ -10,6 +10,7 @@ import { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { RespawnPacket } from "../../../common/src/packets/respawnPacket";
 import {
     type EntitiesNetData,
+    type LeaderboardEntry,
     UpdatePacket
 } from "../../../common/src/packets/updatePacket";
 import { CircleHitbox, RectHitbox } from "../../../common/src/utils/hitbox";
@@ -29,6 +30,9 @@ export class PlayerManager {
     newPlayers: Player[] = [];
     deletedPlayers: number[] = [];
 
+    leaderBoardDirty = true;
+    leaderBoard: LeaderboardEntry[] = [];
+
     constructor(readonly game: Game) {}
 
     addPlayer(socket: ServerWebSocket<PlayerData>, joinPacket: JoinPacket): Player {
@@ -44,6 +48,7 @@ export class PlayerManager {
         this.newPlayers.push(player);
 
         this.resetPlayer(player);
+        this.updateLeaderBoard();
 
         this.game.logger.log(`"${player.name}" joined the game`);
         return player;
@@ -104,9 +109,44 @@ export class PlayerManager {
         }
     }
 
+    updateLeaderBoard() {
+        const count = Math.min(this.players.length, GameConstants.leaderboardMaxEntries);
+
+        const newBoard = [...this.players]
+            .sort((a, b) => {
+                return b.kills - a.kills;
+            })
+            .map((p) => {
+                return {
+                    kills: p.kills,
+                    playerId: p.id
+                };
+            })
+            .slice(0, count);
+
+        if (this.isLeaderBoardDirty(newBoard)) {
+            this.leaderBoardDirty = true;
+            this.leaderBoard = newBoard;
+        }
+    }
+
+    isLeaderBoardDirty(newBoard: LeaderboardEntry[]) {
+        if (this.leaderBoard.length !== newBoard.length) {
+            return true;
+        }
+        for (let i = 0; i < newBoard.length; i++) {
+            const newItem = newBoard[i];
+            const oldItem = this.leaderBoard[i];
+            if (oldItem.kills !== newItem.kills) return true;
+            if (oldItem.playerId !== newItem.playerId) return true;
+        }
+        return false;
+    }
+
     flush() {
         this.deletedPlayers.length = 0;
         this.newPlayers.length = 0;
+        this.leaderBoardDirty = false;
 
         for (let i = 0; i < this.players.length; i++) {
             const player = this.players[i];
@@ -392,6 +432,7 @@ export class Player extends ServerEntity {
             if (source !== this) {
                 source.kills++;
             }
+            this.game.playerManager.updateLeaderBoard();
 
             const deathPacket = new DeathPacket();
             deathPacket.kills = this.kills;
@@ -469,6 +510,11 @@ export class Player extends ServerEntity {
             if (player && rect.isPointInside(player.position)) {
                 updatePacket.shots.push(shot);
             }
+        }
+
+        if (this.firstPacket || this.game.playerManager.leaderBoardDirty) {
+            updatePacket.leaderboardDirty = true;
+            updatePacket.leaderboard = this.game.playerManager.leaderBoard;
         }
 
         this.packetStream.stream.index = 0;

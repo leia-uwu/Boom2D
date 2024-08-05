@@ -9,7 +9,7 @@ import {
 import type { DeathPacket } from "../../../../common/src/packets/deathPacket";
 import { RespawnPacket } from "../../../../common/src/packets/respawnPacket";
 import type { Game } from "../game";
-import { Button, UiTextStyle, VerticalLayout } from "./uiHelpers";
+import { Button, UiHelpers, UiTextStyle, VerticalLayout } from "./uiHelpers";
 
 const Stats = {
     kills: "Kills",
@@ -93,21 +93,7 @@ export class DeathUi extends Container {
             game.endGame();
         };
 
-        this.bg.roundRect(0, 0, Width, Height, 4);
-        this.bg.fill({ color: 0, alpha: 0.3 });
-        const borderWidth = 5;
-        this.bg.roundRect(
-            -borderWidth / 2,
-            -borderWidth / 2,
-            Width + borderWidth,
-            Height + borderWidth,
-            4
-        );
-        this.bg.stroke({
-            color: 0x333333,
-            width: borderWidth,
-            alpha: 0.5
-        });
+        UiHelpers.drawPanel(this.bg, Width, Height);
 
         this.title.x = Width / 2;
         this.title.y = -45;

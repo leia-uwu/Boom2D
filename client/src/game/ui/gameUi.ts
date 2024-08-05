@@ -5,6 +5,7 @@ import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import type { Game } from ".././game";
 import { AmmoUi } from "./ammoUi";
 import { DeathUi } from "./deathUi";
+import { LeaderBoardUi } from "./leaderBoardUi";
 import { StatusUi } from "./statusUi";
 import { WeaponsUi } from "./weaponsUi";
 
@@ -12,6 +13,7 @@ export class GameUi extends Container {
     statusUi = new StatusUi();
     weaponsUi = new WeaponsUi();
     ammoUi = new AmmoUi();
+    leaderBoardUi = new LeaderBoardUi();
     deathUi = new DeathUi();
 
     ammo = {} as Record<AmmoDefKey, number>;
@@ -21,12 +23,19 @@ export class GameUi extends Container {
     }
 
     init() {
-        this.deathUi.init(this.game);
         this.statusUi.init();
         this.weaponsUi.init(this.game.inputManager);
         this.ammoUi.init();
+        this.deathUi.init(this.game);
+        this.leaderBoardUi.init();
 
-        this.addChild(this.statusUi, this.weaponsUi, this.ammoUi, this.deathUi);
+        this.addChild(
+            this.statusUi,
+            this.weaponsUi,
+            this.ammoUi,
+            this.leaderBoardUi,
+            this.deathUi
+        );
     }
 
     render(dt: number) {
@@ -41,6 +50,7 @@ export class GameUi extends Container {
         this.statusUi.resize(width, height);
         this.weaponsUi.resize(width, height);
         this.ammoUi.resize(width, height);
+        this.leaderBoardUi.resize(width, height);
         this.deathUi.resize(width, height);
     }
 
