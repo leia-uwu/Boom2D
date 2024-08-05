@@ -5,32 +5,35 @@ import type { Game } from "../game";
 import { UiHelpers, UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 
 const LineHeight = 20;
-const Width = 200;
-const Height = GameConstants.leaderboardMaxEntries * LineHeight + UiStyle.margin * 2;
+const Width = 250;
+const Height = GameConstants.leaderboardMaxEntries * LineHeight + 24 + UiStyle.margin * 2;
 
-const LineTextStyle: TextStyleOptions = {
+const LineTextStyle = {
     ...UiTextStyle,
     fontSize: 16
-};
+} satisfies TextStyleOptions;
 
 class LeaderboardEntryDisplay extends Container {
+    index = new Text({ style: LineTextStyle });
     playerName = new Text({ style: LineTextStyle });
     kills = new Text({ style: LineTextStyle });
-    constructor() {
+    constructor(index: number) {
         super();
-        this.addChild(this.playerName, this.kills);
+        this.addChild(this.index, this.playerName, this.kills);
         this.kills.anchor.x = 1;
         this.kills.x = Width - UiStyle.margin;
-        this.playerName.y = this.kills.y = UiStyle.margin;
-        this.playerName.x = UiStyle.margin;
+        this.playerName.y = UiStyle.margin;
+        this.kills.y = UiStyle.margin;
+        this.playerName.x = UiStyle.margin + LineTextStyle.fontSize * 2.2;
+        this.index.text = `${index + 1}.`;
+        this.index.x = UiStyle.margin;
+        this.index.y = UiStyle.margin;
     }
 
     setData(name: string, kills: number, isActivePlayer: boolean) {
+        this.index.tint = isActivePlayer ? 0xffff00 : 0xffffff;
         this.playerName.text = name;
         this.kills.text = kills;
-        const tint = isActivePlayer ? 0xff0000 : 0xffffff;
-        this.playerName.tint = tint;
-        this.kills.tint = tint;
     }
 }
 
@@ -41,11 +44,19 @@ export class LeaderBoardUi extends Container {
         height: LineHeight
     });
 
+    title = new Text({ text: "Kills", style: { ...LineTextStyle, fontSize: 18 } });
+
     init() {
-        this.addChild(this.bg, this.layout);
+        this.addChild(this.bg, this.title, this.layout);
+
+        this.title.anchor.x = 0.5;
+        this.title.x = Width / 2;
+        this.title.y = UiStyle.margin;
+
+        this.layout.y = 24;
 
         for (let i = 0; i < GameConstants.leaderboardMaxEntries; i++) {
-            const entry = new LeaderboardEntryDisplay();
+            const entry = new LeaderboardEntryDisplay(i);
             this.layout.addChild(entry);
         }
         this.layout.relayout();
@@ -70,11 +81,9 @@ export class LeaderBoardUi extends Container {
                 continue;
             }
             entryDisplay.visible = true;
-            entryDisplay.setData(
-                nameCache.get(entry.playerId) ?? "Unknown Player",
-                entry.kills,
-                entry.playerId === activePlayerId
-            );
+            const name = nameCache.get(entry.playerId) ?? "Unknown Player";
+            const isActivePlayer = entry.playerId === activePlayerId;
+            entryDisplay.setData(name, entry.kills, isActivePlayer);
         }
     }
 
