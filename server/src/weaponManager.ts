@@ -125,6 +125,8 @@ export class WeaponManager {
         }
 
         if (this.stateTicker <= 0) {
+            const weaponDef = this.getCurrentWeapDef();
+
             switch (this.state) {
                 case WeaponState.Switching:
                     this.state = WeaponState.Idle;
@@ -132,7 +134,7 @@ export class WeaponManager {
                 case WeaponState.Firing:
                     this.fireGun();
                     this.state = WeaponState.Cooldown;
-                    this.stateTicker = this.getCurrentWeapDef().fireCooldown;
+                    this.stateTicker = weaponDef.fireCooldown;
                     break;
                 case WeaponState.Cooldown:
                     this.state = WeaponState.Idle;
@@ -140,14 +142,18 @@ export class WeaponManager {
             }
             // separated from switch case to avoid waiting for next tick to fire guns
             // so the fire rate is more accurate
-            if (this.state === WeaponState.Idle && this.player.mouseDown) {
+            if (
+                this.state === WeaponState.Idle &&
+                this.player.mouseDown &&
+                this.player.ammo[weaponDef.ammo] >= weaponDef.ammoPerShot
+            ) {
                 this.state = WeaponState.Firing;
-                this.stateTicker = this.getCurrentWeapDef().fireDelay ?? 0;
+                this.stateTicker = weaponDef.fireDelay ?? 0;
 
                 if (this.stateTicker <= 0) {
                     this.fireGun();
                     this.state = WeaponState.Cooldown;
-                    this.stateTicker = this.getCurrentWeapDef().fireCooldown;
+                    this.stateTicker = weaponDef.fireCooldown;
                 }
 
                 this.player.game.bulletManager.shots.push({
