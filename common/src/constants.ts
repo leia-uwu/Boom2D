@@ -27,4 +27,3 @@ export const GameConstants = {
         radius: 1
     }
 } as const;
-console.log(GameConstants.maxEntityId);

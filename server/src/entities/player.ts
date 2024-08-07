@@ -212,14 +212,14 @@ export class Player extends ServerEntity {
         ak: false,
         rocket_launcher: false,
         plasma_rifle: false,
-        bfg: true
+        bfg: false
     };
 
     ammo: Record<AmmoDefKey, number> = {
-        bullet: 200,
-        shell: 50,
-        rocket: 50,
-        cell: Infinity
+        bullet: 50,
+        shell: 0,
+        rocket: 0,
+        cell: 0
     };
 
     activeWeapon: WeaponDefKey = "pistol";
