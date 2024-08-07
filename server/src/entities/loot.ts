@@ -21,7 +21,7 @@ export class Loot extends ServerEntity {
 
     type: LootDefKey;
     override hitbox = new CircleHitbox(GameConstants.loot.radius);
-    active = true;
+    canPickup = true;
 
     respawnTicker = 0;
 
@@ -32,7 +32,7 @@ export class Loot extends ServerEntity {
     }
 
     tick(dt: number) {
-        if (this.respawnTicker <= 0 && !this.active) {
+        if (this.respawnTicker <= 0 && !this.canPickup) {
             this.respawnTicker = LootDefs.typeToDef(this.type).respawnTime;
         }
 
@@ -40,15 +40,15 @@ export class Loot extends ServerEntity {
             this.respawnTicker -= dt;
         }
 
-        if (!this.active && this.respawnTicker <= 0) {
-            this.active = true;
+        if (!this.canPickup && this.respawnTicker <= 0) {
+            this.canPickup = true;
             this.setDirty();
         }
     }
 
     get data(): Required<EntitiesNetData[EntityType.Loot]> {
         return {
-            active: this.active,
+            canPickup: this.canPickup,
             full: {
                 position: this.position,
                 type: this.type

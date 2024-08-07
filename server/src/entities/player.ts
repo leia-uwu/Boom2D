@@ -354,7 +354,7 @@ export class Player extends ServerEntity {
     }
 
     pickupLoot(loot: Loot) {
-        if (!loot.active) return;
+        if (!loot.canPickup) return;
 
         const def = LootDefs.typeToDef(loot.type) as LootDef;
 
@@ -399,7 +399,7 @@ export class Player extends ServerEntity {
         }
 
         if (sucess) {
-            loot.active = false;
+            loot.canPickup = false;
             loot.setDirty();
         }
     }

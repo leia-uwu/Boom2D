@@ -38,7 +38,7 @@ export interface EntitiesNetData {
         };
     };
     [EntityType.Loot]: {
-        active: boolean;
+        canPickup: boolean;
         full?: {
             position: Vector;
             type: LootDefKey;
@@ -140,7 +140,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         partialSize: 7,
         fullSize: 6,
         serializePartial(stream, data) {
-            stream.writeBoolean(data.active);
+            stream.writeBoolean(data.canPickup);
         },
         serializeFull(stream, data) {
             stream.writePosition(data.position);
@@ -148,7 +148,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
         },
         deserializePartial(stream) {
             return {
-                active: stream.readBoolean()
+                canPickup: stream.readBoolean()
             };
         },
         deserializeFull(stream) {

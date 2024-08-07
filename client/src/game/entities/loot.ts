@@ -17,12 +17,15 @@ export class LootManager extends EntityPool<Loot> {
 export class Loot extends ClientEntity {
     readonly __type = EntityType.Loot;
 
-    active = true;
+    canPickup = true;
     type = "" as LootDefKey;
 
     sprite = new Sprite();
     background = new Sprite(Texture.from("glow-particle.svg"));
     hitbox = new CircleHitbox(GameConstants.loot.radius);
+
+    scaleTicker!: number;
+    scalingDown!: boolean;
 
     override init() {
         this.container.visible = true;
@@ -30,6 +33,8 @@ export class Loot extends ClientEntity {
         this.sprite.anchor.set(0.5, 0.5);
 
         this.background.anchor.set(0.5, 0.5);
+        this.scaleTicker = Math.random();
+        this.scalingDown = false;
     }
 
     override updateFromData(
@@ -38,7 +43,7 @@ export class Loot extends ClientEntity {
     ): void {
         super.updateFromData(data, isNew);
 
-        this.active = data.active;
+        this.canPickup = data.canPickup;
 
         if (data.full) {
             this.position = data.full.position;
@@ -50,15 +55,12 @@ export class Loot extends ClientEntity {
         }
     }
 
-    scaleTicker = Math.random();
-    scalingDown = false;
-
     override render(dt: number): void {
         super.render(dt);
-        this.container.alpha = this.active ? 1 : 0.3;
-        this.background.visible = this.active;
+        this.container.alpha = this.canPickup ? 1 : 0.3;
+        this.background.visible = this.canPickup;
 
-        if (this.active) {
+        if (this.canPickup) {
             if (this.scalingDown) {
                 this.scaleTicker -= dt;
             } else {
