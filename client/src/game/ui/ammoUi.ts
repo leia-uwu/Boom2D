@@ -12,58 +12,50 @@ const AmmoTextStyle: TextOptions = {
     }
 };
 
-export class AmmoUi extends Container {
-    textLayout = new VerticalLayout({
-        height: itemHeight,
-        margin: UiStyle.margin
-    });
-
-    iconsLayout = new VerticalLayout({
-        height: itemHeight,
-        margin: UiStyle.margin
-    });
-
+export class AmmoUi extends VerticalLayout {
     screenHeight = 0;
     screenWidth = 0;
 
     ammoTexts = {} as Record<AmmoDefKey, Text>;
 
+    constructor() {
+        super({
+            height: itemHeight,
+            margin: UiStyle.margin
+        });
+    }
+
     init() {
         for (const ammo of AmmoDefs) {
+            const container = new Container();
             const text = new Text(AmmoTextStyle);
             this.ammoTexts[ammo] = text;
-            this.textLayout.addChild(text);
+            container.addChild(text);
 
             const def = AmmoDefs.typeToDef(ammo);
             const icon = new Sprite();
             Helpers.spriteFromDef(icon, def.inventoryImg);
             icon.width = icon.height = itemHeight;
-            this.iconsLayout.addChild(icon);
+            icon.x = -itemHeight - UiStyle.margin;
+            container.addChild(icon);
 
             icon.tint = text.tint = def.color;
+            this.addChild(container);
         }
-        this.addChild(this.iconsLayout, this.textLayout);
+        this.relayout();
     }
 
     updateUi(data: UpdatePacket["playerData"]["ammo"]) {
-        for (const ammo in this.ammoTexts) {
-            this.ammoTexts[ammo as AmmoDefKey].text = data[ammo as AmmoDefKey];
+        for (const ammo of AmmoDefs) {
+            this.ammoTexts[ammo].text = data[ammo];
         }
-        this.layoutText();
-    }
-
-    layoutText() {
-        this.x = this.screenWidth - itemHeight * 3 - UiStyle.margin;
-        this.y = this.screenHeight - this.textLayout.height - UiStyle.margin;
-        this.iconsLayout.x = -itemHeight - UiStyle.margin;
     }
 
     resize(width: number, height: number) {
         this.screenWidth = width;
         this.screenHeight = height;
-        this.textLayout.relayout();
-        this.iconsLayout.relayout();
 
-        this.layoutText();
+        this.x = this.screenWidth - itemHeight * 3 - UiStyle.margin;
+        this.y = this.screenHeight - this.height - UiStyle.margin;
     }
 }

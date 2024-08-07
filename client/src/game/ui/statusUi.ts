@@ -36,86 +36,82 @@ const healthColorSteps = [
     }
 ];
 
-export class StatusUi extends Container {
-    textLayout = new VerticalLayout({
-        height: 32,
-        margin: 8
-    });
+class StatusValue extends Container {
+    text = new Text(StatusTextStyle);
+    icon = new Sprite();
 
-    iconsLayout = new VerticalLayout({
-        height: 32,
-        margin: 8
-    });
+    constructor() {
+        super();
+        this.addChild(this.text, this.icon);
+        this.text.anchor.x = 1;
+        this.text.x = 138;
+    }
 
-    health = 0;
-    healthText = new Text(StatusTextStyle);
-    healthIcon = new Sprite();
+    setText(text: string | number) {
+        this.text.text = text;
+    }
+    setIcon(icon: string) {
+        this.icon.texture = Texture.from(icon);
+    }
+}
 
-    armor = 0;
-    armorText = new Text(StatusTextStyle);
-    armorIcon = new Sprite();
+export class StatusUi extends VerticalLayout {
+    ammo = new StatusValue();
+    health = new StatusValue();
+    armor = new StatusValue();
 
-    ammoText = new Text(StatusTextStyle);
-    ammoIcon = new Sprite();
+    constructor() {
+        super({
+            height: 32,
+            margin: 8
+        });
+    }
 
     init() {
-        this.textLayout.addChild(this.ammoText, this.armorText, this.healthText);
-        this.iconsLayout.addChild(this.ammoIcon, this.armorIcon, this.healthIcon);
-        this.addChild(this.textLayout, this.iconsLayout);
+        this.health.setIcon("ui-health.svg");
+        this.armor.setIcon("ui-armor.svg");
 
-        for (const text of this.textLayout.children) {
-            (text as Text).anchor.x = 1;
-            text.x = 96;
-        }
-
-        this.healthIcon.texture = Texture.from("ui-health.svg");
-        this.armorIcon.texture = Texture.from("ui-armor.svg");
+        this.addChild(this.ammo, this.armor, this.health);
+        this.relayout();
     }
 
     updateUi(data: UpdatePacket["playerData"], dirty: UpdatePacket["playerDataDirty"]) {
         if (dirty.health) {
-            this.health = data.health;
-            this.healthText.text = `${this.health}%`;
+            this.health.setText(`${data.health}%`);
 
             let idx = 0;
             while (
-                healthColorSteps[idx].health > this.health &&
+                healthColorSteps[idx].health > data.health &&
                 idx < healthColorSteps.length - 1
             ) {
                 idx++;
             }
             const stepA = healthColorSteps[MathUtils.max(idx - 1, 0)];
             const stepB = healthColorSteps[idx];
-            const t = MathUtils.remap(this.health, stepA.health, stepB.health, 0, 1);
+            const t = MathUtils.remap(data.health, stepA.health, stepB.health, 0, 1);
             const rgb = [
                 MathUtils.lerp(stepA.color[0], stepB.color[0], t),
                 MathUtils.lerp(stepA.color[1], stepB.color[1], t),
                 MathUtils.lerp(stepA.color[2], stepB.color[2], t)
             ];
 
-            this.healthIcon.tint =
-                this.healthText.tint = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+            this.health.tint = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
         }
 
         if (dirty.armor) {
-            this.armor = data.armor;
-            this.armorText.text = `${this.armor}%`;
+            this.armor.setText(`${data.armor}%`);
         }
     }
 
     updateActiveWeaponAmmo(type: AmmoDefKey, ammo: number) {
         const def = AmmoDefs.typeToDef(type);
-        this.ammoText.tint = this.ammoIcon.tint = def.color;
-        Helpers.spriteFromDef(this.ammoIcon, def.inventoryImg);
-        this.ammoText.text = ammo;
+        this.ammo.tint = def.color;
+        Helpers.spriteFromDef(this.ammo.icon, def.inventoryImg);
+        this.ammo.setText(ammo);
     }
 
     resize(_width: number, height: number) {
-        this.textLayout.relayout();
-        this.iconsLayout.relayout();
         this.x = UiStyle.margin;
         this.y = height - this.height - UiStyle.margin;
-
-        this.textLayout.x = 46;
     }
 }
