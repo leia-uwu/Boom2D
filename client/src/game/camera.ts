@@ -13,7 +13,23 @@ export class Camera {
 
     readonly game: Game;
 
-    position = Vec2.new(0, 0);
+    constructor(game: Game) {
+        this.game = game;
+    }
+
+    _position = Vec2.new(0, 0);
+    oldPosition = Vec2.new(0, 0);
+    interpolationTicker = 0;
+
+    set position(pos: Vector) {
+        this.oldPosition = Vec2.clone(this._position);
+        this._position = Vec2.clone(pos);
+        this.interpolationTicker = 0;
+    }
+
+    get position() {
+        return this._position;
+    }
 
     width = 1;
     height = 1;
@@ -48,10 +64,6 @@ export class Camera {
         this.resize();
     }
 
-    constructor(game: Game) {
-        this.game = game;
-    }
-
     resize(): void {
         this.width = this.game.pixi.screen.width;
         this.height = this.game.pixi.screen.height;
@@ -61,16 +73,28 @@ export class Camera {
         const maxScreenDim = MathUtils.max(minDim * (16 / 9), maxDim);
 
         this.container.scale.set((maxScreenDim * 0.5) / (this._zoom * Camera.scale));
-        this.render();
     }
 
-    render(): void {
-        const position = this.position;
-        const cameraPos = Vec2.add(
-            Vec2.mul(position, this.container.scale.x),
-            Vec2.new(-this.width / 2, -this.height / 2)
+    render(dt: number): void {
+        this.interpolationTicker += dt;
+        const interpT = MathUtils.clamp(
+            this.interpolationTicker / this.game.serverDt,
+            0,
+            1
         );
-        this.container.position.set(-cameraPos.x, -cameraPos.y);
+
+        const position = Camera.vecToScreen(
+            Vec2.lerp(this.oldPosition, this.position, interpT)
+        );
+
+        const cameraPos = Vec2.invert(
+            Vec2.add(
+                Vec2.mul(position, this.container.scale.x),
+                Vec2.new(-this.width / 2, -this.height / 2)
+            )
+        );
+
+        this.container.position.copyFrom(cameraPos);
     }
 
     addObject(object: Container): void {

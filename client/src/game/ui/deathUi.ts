@@ -90,7 +90,7 @@ export class DeathUi extends Container {
         };
 
         this.quitBtn.onclick = () => {
-            game.endGame();
+            game.quitGame();
         };
 
         UiHelpers.drawPanel(this.bg, DeathUi.Width, DeathUi.Height);

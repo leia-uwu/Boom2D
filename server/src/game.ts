@@ -1,6 +1,7 @@
 import { GameConstants } from "../../common/src/constants";
 import { type Packet, PacketStream } from "../../common/src/net";
 import { BulletManager } from "./bullet";
+import { ClientManager } from "./client";
 import type { ServerConfig } from "./config";
 import { EntityManager } from "./entities/entity";
 import { LootManager } from "./entities/loot";
@@ -13,6 +14,9 @@ import { GameMap } from "./map";
 
 export class Game {
     grid = new Grid(GameConstants.maxPosition, GameConstants.maxPosition);
+
+    clientManager = new ClientManager(this);
+
     entityManager = new EntityManager(this.grid);
 
     map: GameMap;
@@ -50,7 +54,7 @@ export class Game {
 
         // Cache entity serializations, calculate visible objects for players, send packets etc
         this.entityManager.serializeEntities();
-        this.playerManager.sendPackets();
+        this.clientManager.sendPackets(dt);
 
         // reset stuff
         this.packetStream.stream.index = 0;

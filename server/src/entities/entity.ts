@@ -1,4 +1,8 @@
-import { EntityType, GameConstants } from "../../../common/src/constants";
+import {
+    EntityType,
+    GameConstants,
+    type ValidEntityType
+} from "../../../common/src/constants";
 import { GameBitStream } from "../../../common/src/net";
 import {
     type EntitiesNetData,
@@ -10,7 +14,7 @@ import type { Vector } from "../../../common/src/utils/vector";
 import type { Game } from "../game";
 import type { Grid } from "../grid";
 
-export abstract class ServerEntity<T extends EntityType = EntityType> {
+export abstract class ServerEntity<T extends ValidEntityType = ValidEntityType> {
     abstract readonly __type: T;
 
     active = true;
@@ -91,7 +95,7 @@ export abstract class ServerEntity<T extends EntityType = EntityType> {
         this.destroyed = true;
     }
 
-    abstract get data(): Required<EntitiesNetData[EntityType]>;
+    abstract get data(): Required<EntitiesNetData[ValidEntityType]>;
 }
 
 export class EntityManager {

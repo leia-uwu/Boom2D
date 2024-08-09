@@ -1,5 +1,5 @@
 import { Container } from "pixi.js";
-import { type EntityType, GameConstants } from "../../../../common/src/constants";
+import { GameConstants, type ValidEntityType } from "../../../../common/src/constants";
 import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import type { Hitbox } from "../../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../../common/src/utils/math";
@@ -7,7 +7,7 @@ import { assert } from "../../../../common/src/utils/util";
 import { Vec2 } from "../../../../common/src/utils/vector";
 import type { Game } from "../game";
 
-export abstract class ClientEntity<T extends EntityType = EntityType> {
+export abstract class ClientEntity<T extends ValidEntityType = ValidEntityType> {
     abstract __type: T;
     declare id: number;
     declare __arrayIdx: number;
@@ -56,8 +56,6 @@ export abstract class ClientEntity<T extends EntityType = EntityType> {
         );
     }
 }
-
-type ValidEntityType = Exclude<EntityType, EntityType.Invalid>;
 
 export class EntityPool<T extends ClientEntity = ClientEntity> {
     pool: Array<T> = [];
@@ -128,7 +126,7 @@ export class EntityManager {
     createEntity(
         type: ValidEntityType,
         id: number,
-        data: Required<EntitiesNetData[EntityType]>
+        data: Required<EntitiesNetData[ValidEntityType]>
     ) {
         assert(!this.getById(id), "Entity already created");
         const entity = this.typeToPool[type].allocEntity(this.game, id);
@@ -141,7 +139,7 @@ export class EntityManager {
         return entity;
     }
 
-    updateFullEntity(id: number, data: Required<EntitiesNetData[EntityType]>) {
+    updateFullEntity(id: number, data: Required<EntitiesNetData[ValidEntityType]>) {
         const entity = this.getById(id);
 
         assert(entity, "Tried to fully update invalid entity");
@@ -149,7 +147,7 @@ export class EntityManager {
         entity.updateFromData(data, false);
     }
 
-    updatePartialEntity(id: number, data: EntitiesNetData[EntityType]) {
+    updatePartialEntity(id: number, data: EntitiesNetData[ValidEntityType]) {
         const entity = this.getById(id);
         assert(entity, "Tried to partially update invalid entity");
         entity.updateFromData(data, false);

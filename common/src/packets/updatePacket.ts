@@ -1,5 +1,5 @@
 import { BaseBullet, type BulletParams } from "../baseBullet";
-import { EntityType, GameConstants } from "../constants";
+import { EntityType, GameConstants, type ValidEntityType } from "../constants";
 import { type AmmoDefKey, AmmoDefs } from "../defs/ammoDefs";
 import { type ExplosionDefKey, ExplosionDefs } from "../defs/explosionDefs";
 import { type LootDefKey, LootDefs } from "../defs/lootDefs";
@@ -7,12 +7,9 @@ import { type ObstacleDefKey, ObstacleDefs } from "../defs/obstacleDefs";
 import { type ProjectileDefKey, ProjectileDefs } from "../defs/projectileDefs";
 import { type WeaponDefKey, WeaponDefs } from "../defs/weaponDefs";
 import type { GameBitStream, Packet } from "../net";
-import type { Vector } from "../utils/vector";
+import { Vec2, type Vector } from "../utils/vector";
 
 export interface EntitiesNetData {
-    [EntityType.Invalid]: {
-        full?: {};
-    };
     [EntityType.Player]: {
         // Partial data should be used for data that changes often
         position: Vector;
@@ -46,7 +43,7 @@ export interface EntitiesNetData {
     };
 }
 
-interface EntitySerialization<T extends EntityType> {
+interface EntitySerialization<T extends ValidEntityType> {
     // how many bytes to alloc for the entity serialized data cache
     partialSize: number;
     fullSize: number;
@@ -59,19 +56,7 @@ interface EntitySerialization<T extends EntityType> {
     deserializeFull: (stream: GameBitStream) => Required<EntitiesNetData[T]>["full"];
 }
 
-export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> } = {
-    [EntityType.Invalid]: {
-        partialSize: 0,
-        fullSize: 0,
-        serializeFull(_stream, _data) {},
-        serializePartial(_stream, _data) {},
-        deserializeFull(_stream) {
-            return {};
-        },
-        deserializePartial(_stream) {
-            return {};
-        }
-    },
+export const EntitySerializations: { [K in ValidEntityType]: EntitySerialization<K> } = {
     [EntityType.Player]: {
         partialSize: 8,
         fullSize: 2,
@@ -161,7 +146,7 @@ export const EntitySerializations: { [K in EntityType]: EntitySerialization<K> }
 };
 
 interface Entity {
-    __type: EntityType;
+    __type: ValidEntityType;
     id: number;
     data: EntitiesNetData[Entity["__type"]];
 }
@@ -190,11 +175,6 @@ function serializeActivePlayerData(
     data: UpdatePacket["playerData"],
     dirty: UpdatePacket["playerDataDirty"]
 ) {
-    stream.writeBoolean(dirty.id);
-    if (dirty.id) {
-        stream.writeUint16(data.id);
-    }
-
     stream.writeBoolean(dirty.zoom);
     if (dirty.zoom) {
         stream.writeUint8(data.zoom);
@@ -233,11 +213,6 @@ function deserializePlayerData(
     dirty: UpdatePacket["playerDataDirty"]
 ) {
     if (stream.readBoolean()) {
-        dirty.id = true;
-        data.id = stream.readUint16();
-    }
-
-    if (stream.readBoolean()) {
         dirty.zoom = true;
         data.zoom = stream.readUint8();
     }
@@ -275,11 +250,12 @@ enum UpdateFlags {
     PartialEntities = 1 << 2,
     NewPlayers = 1 << 3,
     DeletedPlayers = 1 << 4,
-    PlayerData = 1 << 5,
-    Bullets = 1 << 6,
-    Explosions = 1 << 7,
-    Shots = 1 << 8,
-    LeaderBoard = 1 << 9
+    CameraPosition = 1 << 5,
+    PlayerData = 1 << 6,
+    Bullets = 1 << 7,
+    Explosions = 1 << 8,
+    Shots = 1 << 9,
+    LeaderBoard = 1 << 10
 }
 
 export class UpdatePacket implements Packet {
@@ -296,7 +272,6 @@ export class UpdatePacket implements Packet {
     deletedPlayers: number[] = [];
 
     playerDataDirty = {
-        id: false,
         zoom: false,
         health: false,
         armor: false,
@@ -304,8 +279,10 @@ export class UpdatePacket implements Packet {
         ammo: false
     };
 
+    cameraPositionDirty = false;
+    cameraPosition = Vec2.new(0, 0);
+
     playerData = {
-        id: 0,
         zoom: 0,
         health: 0,
         armor: 0,
@@ -388,6 +365,11 @@ export class UpdatePacket implements Packet {
             flags |= UpdateFlags.DeletedPlayers;
         }
 
+        if (this.cameraPositionDirty) {
+            stream.writePosition(this.cameraPosition);
+            flags |= UpdateFlags.CameraPosition;
+        }
+
         if (Object.values(this.playerDataDirty).includes(true)) {
             serializeActivePlayerData(stream, this.playerData, this.playerDataDirty);
 
@@ -447,7 +429,7 @@ export class UpdatePacket implements Packet {
         if (flags & UpdateFlags.FullEntities) {
             stream.readArray(this.fullEntities, 16, () => {
                 const id = stream.readUint16();
-                const entityType = stream.readUint8() as EntityType;
+                const entityType = stream.readUint8() as ValidEntityType;
                 const data = EntitySerializations[entityType].deserializePartial(stream);
                 stream.readAlignToNextByte();
                 data.full = EntitySerializations[entityType].deserializeFull(stream);
@@ -463,7 +445,7 @@ export class UpdatePacket implements Packet {
         if (flags & UpdateFlags.PartialEntities) {
             stream.readArray(this.partialEntities, 16, () => {
                 const id = stream.readUint16();
-                const entityType = stream.readUint8() as EntityType;
+                const entityType = stream.readUint8() as ValidEntityType;
                 const data = EntitySerializations[entityType].deserializePartial(stream);
                 stream.readAlignToNextByte();
                 return {
@@ -487,6 +469,11 @@ export class UpdatePacket implements Packet {
             stream.readArray(this.deletedPlayers, 8, () => {
                 return stream.readUint16();
             });
+        }
+
+        if (flags & UpdateFlags.CameraPosition) {
+            this.cameraPositionDirty = true;
+            this.cameraPosition = stream.readPosition();
         }
 
         if (flags & UpdateFlags.PlayerData) {

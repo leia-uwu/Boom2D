@@ -6,6 +6,8 @@ export enum EntityType {
     Loot
 }
 
+export type ValidEntityType = Exclude<EntityType, EntityType.Invalid>;
+
 export const GameConstants = {
     maxPosition: 512,
     maxEntityId: 1 << 16,

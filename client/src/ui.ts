@@ -23,13 +23,8 @@ export class UiManager {
             settings.set("name", this.nameInput.value);
         });
 
-        this.playButton.disabled = true;
         this.playButton.addEventListener("click", () => {
-            if (this.playButton.disabled) return;
-            const server = ClientConfig.servers[this.serverSelect.value];
-            this.app.game.connect(
-                `ws${server.https ? "s" : ""}://${server.address}/play`
-            );
+            this.app.game.join();
         });
 
         this.loadServerInfo();
@@ -37,6 +32,7 @@ export class UiManager {
         this.serverSelect.value = settings.get("server");
         this.serverSelect.addEventListener("change", () => {
             settings.set("server", this.serverSelect.value);
+            this.app.game.connect();
         });
     }
 

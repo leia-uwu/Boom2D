@@ -1,5 +1,5 @@
 import type { BaseGameMap, Wall } from "./baseMap";
-import { EntityType } from "./constants";
+import { EntityType, type ValidEntityType } from "./constants";
 import { type BulletDefKey, BulletDefs } from "./defs/bulletDefs";
 import type { GameBitStream } from "./net";
 import type { EntitiesNetData } from "./packets/updatePacket";
@@ -13,7 +13,7 @@ export interface BulletParams {
     type: BulletDefKey;
 }
 
-interface GameEntity<T extends EntityType = EntityType> {
+interface GameEntity<T extends ValidEntityType = ValidEntityType> {
     __type: T;
     hitbox: Hitbox;
     id: number;

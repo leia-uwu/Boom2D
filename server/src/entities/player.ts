@@ -1,25 +1,22 @@
-import type { ServerWebSocket } from "bun";
 import { EntityType, GameConstants } from "../../../common/src/constants";
 import { type AmmoDefKey, AmmoDefs } from "../../../common/src/defs/ammoDefs";
 import { type LootDef, LootDefs } from "../../../common/src/defs/lootDefs";
 import type { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
-import { type Packet, PacketStream } from "../../../common/src/net";
 import { DeathPacket } from "../../../common/src/packets/deathPacket";
-import { InputPacket } from "../../../common/src/packets/inputPacket";
-import { JoinPacket } from "../../../common/src/packets/joinPacket";
+import type { InputPacket } from "../../../common/src/packets/inputPacket";
+import type { JoinPacket } from "../../../common/src/packets/joinPacket";
+import { JoinedPacket } from "../../../common/src/packets/joinedPacket";
 import { KillPacket } from "../../../common/src/packets/killPacket";
-import { RespawnPacket } from "../../../common/src/packets/respawnPacket";
-import {
-    type EntitiesNetData,
-    type LeaderboardEntry,
-    UpdatePacket
+import type {
+    EntitiesNetData,
+    LeaderboardEntry
 } from "../../../common/src/packets/updatePacket";
-import { CircleHitbox, RectHitbox } from "../../../common/src/utils/hitbox";
+import { CircleHitbox } from "../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
+import type { Client } from "../client";
 import type { Game } from "../game";
-import type { PlayerData } from "../server";
 import { WeaponManager } from "../weaponManager";
 import { ServerEntity } from "./entity";
 import type { Loot } from "./loot";
@@ -36,10 +33,10 @@ export class PlayerManager {
 
     constructor(readonly game: Game) {}
 
-    addPlayer(socket: ServerWebSocket<PlayerData>, joinPacket: JoinPacket): Player {
+    addPlayer(client: Client, joinPacket: JoinPacket): Player {
         const player = new Player(
             this.game,
-            socket,
+            client,
             joinPacket.name.trim() || GameConstants.player.defaultName
         );
         this.game.entityManager.register(player);
@@ -57,57 +54,37 @@ export class PlayerManager {
 
     resetPlayer(player: Player) {
         player.position = Random.vector(0, this.game.map.width, 0, this.game.map.height);
+        this.game.grid.updateEntity(player);
         player.health = GameConstants.player.defaultHealth;
         player.armor = GameConstants.player.defaultArmor;
         player.dead = false;
-        this.game.grid.updateEntity(player);
         player.setFullDirty();
+
+        player.ammo = {
+            bullet: 50,
+            shell: 0,
+            rocket: 0,
+            cell: 0
+        };
+
+        player.weapons = {
+            pistol: true,
+            shotgun: false,
+            ak: false,
+            rocket_launcher: false,
+            plasma_rifle: false,
+            bfg: false
+        };
+
+        const joinedPacket = new JoinedPacket();
+        joinedPacket.playerId = player.id;
+        player.client.sendPacket(joinedPacket);
     }
 
     removePlayer(player: Player): void {
         player.destroy();
         this.deletedPlayers.push(player.id);
         this.game.logger.log(`"${player.name}" left game`);
-    }
-
-    sendPackets() {
-        for (let i = 0; i < this.players.length; i++) {
-            const player = this.players[i];
-            // ignore disconnected sockets
-            if (player.socket.readyState !== 1) continue;
-            player.sendPackets();
-        }
-    }
-
-    processPacket(buff: ArrayBuffer, socket: ServerWebSocket<PlayerData>) {
-        const packetStream = new PacketStream(buff);
-
-        const packet = packetStream.deserializeClientPacket();
-        if (packet === undefined) return;
-
-        let player = socket.data.entity;
-
-        if (!player && packet instanceof JoinPacket) {
-            socket.data.entity = this.addPlayer(socket, packet);
-            return;
-        }
-
-        if (!player) {
-            socket.close();
-            return;
-        }
-
-        switch (true) {
-            case packet instanceof InputPacket: {
-                player.processInput(packet);
-                break;
-            }
-            case packet instanceof RespawnPacket: {
-                if (!player.dead) break;
-                this.resetPlayer(player);
-                break;
-            }
-        }
     }
 
     updateLeaderBoard() {
@@ -168,7 +145,7 @@ export class Player extends ServerEntity {
     readonly __type = EntityType.Player;
     readonly hitbox = new CircleHitbox(GameConstants.player.radius);
 
-    socket: ServerWebSocket<PlayerData>;
+    client: Client;
     name = "";
 
     direction = Vec2.new(0, 0);
@@ -207,7 +184,7 @@ export class Player extends ServerEntity {
     readonly weaponManager = new WeaponManager(this);
 
     weapons: Record<WeaponDefKey, boolean> = {
-        pistol: true,
+        pistol: false,
         shotgun: false,
         ak: false,
         rocket_launcher: false,
@@ -216,7 +193,7 @@ export class Player extends ServerEntity {
     };
 
     ammo: Record<AmmoDefKey, number> = {
-        bullet: 50,
+        bullet: 0,
         shell: 0,
         rocket: 0,
         cell: 0
@@ -229,13 +206,6 @@ export class Player extends ServerEntity {
     kills = 0;
     damageDone = 0;
     damageTaken = 0;
-
-    firstPacket = true;
-
-    /**
-     * Entities the player can see
-     */
-    visibleEntities = new Set<ServerEntity>();
 
     // what needs to be sent again to the client
     readonly dirty = {
@@ -268,11 +238,11 @@ export class Player extends ServerEntity {
         this._position = pos;
     }
 
-    constructor(game: Game, socket: ServerWebSocket<PlayerData>, name: string) {
+    constructor(game: Game, client: Client, name: string) {
         const pos = Vec2.new(0, 0);
         super(game, pos);
         this.position = pos;
-        this.socket = socket;
+        this.client = client;
         this.name = name;
     }
 
@@ -351,6 +321,9 @@ export class Player extends ServerEntity {
             this.setDirty();
             this.game.grid.updateEntity(this);
         }
+
+        this.client.position = Vec2.clone(this.position);
+        this.client.zoom = this.zoom;
     }
 
     pickupLoot(loot: Loot) {
@@ -439,128 +412,12 @@ export class Player extends ServerEntity {
             deathPacket.kills = this.kills;
             deathPacket.damageDone = this.damageDone;
             deathPacket.damageTaken = this.damageTaken;
-            this.sendPacket(deathPacket);
+            this.client.sendPacket(deathPacket);
 
             const killPacket = new KillPacket();
             killPacket.killedId = this.id;
             killPacket.killerId = source.id;
             this.game.sendPacket(killPacket);
-        }
-    }
-
-    sendPackets() {
-        const game = this.game;
-        // calculate visible, deleted, and dirty entities
-        // and send them to the client
-        const updatePacket = new UpdatePacket();
-
-        const radius = this.zoom + 10;
-        const rect = RectHitbox.fromCircle(radius, this.position);
-
-        const newVisibleEntities = game.grid.intersectsHitbox(rect);
-
-        newVisibleEntities.add(this);
-
-        for (const entity of this.visibleEntities) {
-            if (!newVisibleEntities.has(entity)) {
-                updatePacket.deletedEntities.push(entity.id);
-            }
-        }
-
-        for (const entity of newVisibleEntities) {
-            if (
-                !this.visibleEntities.has(entity) ||
-                game.entityManager.dirtyFull[entity.id]
-            ) {
-                updatePacket.serverFullEntities.push(entity);
-            } else if (game.entityManager.dirtyPart[entity.id]) {
-                updatePacket.serverPartialEntities.push(entity);
-            }
-        }
-
-        this.visibleEntities = newVisibleEntities;
-
-        updatePacket.playerData = this;
-        updatePacket.playerDataDirty = this.dirty;
-
-        updatePacket.newPlayers = this.firstPacket
-            ? game.playerManager.players
-            : game.playerManager.newPlayers;
-
-        updatePacket.deletedPlayers = game.playerManager.deletedPlayers;
-
-        for (let i = 0; i < game.bulletManager.newBullets.length; i++) {
-            const bullet = game.bulletManager.newBullets[i];
-            if (
-                rect.isPointInside(bullet.initialPosition) ||
-                rect.isPointInside(bullet.finalPosition) ||
-                rect.intersectsLine(bullet.initialPosition, bullet.finalPosition)
-            ) {
-                updatePacket.bullets.push(bullet);
-            }
-        }
-
-        for (let i = 0; i < game.explosionManager.explosions.length; i++) {
-            const explosion = game.explosionManager.explosions[i];
-            if (
-                rect.isPointInside(explosion.position) ||
-                rect.collidesWith(explosion.hitbox)
-            ) {
-                updatePacket.explosions.push(explosion);
-            }
-        }
-
-        for (let i = 0; i < game.bulletManager.shots.length; i++) {
-            const shot = game.bulletManager.shots[i];
-            const player = game.entityManager.getById(shot.id);
-            if (player && rect.isPointInside(player.position)) {
-                updatePacket.shots.push(shot);
-            }
-        }
-
-        if (this.firstPacket || this.game.playerManager.leaderBoardDirty) {
-            updatePacket.leaderboardDirty = true;
-            updatePacket.leaderboard = this.game.playerManager.leaderBoard;
-        }
-
-        this.packetStream.stream.index = 0;
-        this.packetStream.serializeServerPacket(updatePacket);
-
-        if (this.firstPacket) {
-            const mapStream = game.map.serializedData.stream;
-            this.packetStream.stream.writeBytes(mapStream, 0, mapStream.byteIndex);
-        }
-
-        for (const packet of this.packetsToSend) {
-            this.packetStream.serializeServerPacket(packet);
-        }
-
-        this.packetStream.stream.writeBytes(
-            this.game.packetStream.stream,
-            0,
-            this.game.packetStream.stream.byteIndex
-        );
-
-        this.packetsToSend.length = 0;
-        const buffer = this.packetStream.getBuffer();
-        this.sendData(buffer);
-
-        this.firstPacket = false;
-    }
-
-    packetStream = PacketStream.alloc(1 << 16);
-
-    readonly packetsToSend: Packet[] = [];
-
-    sendPacket(packet: Packet): void {
-        this.packetsToSend.push(packet);
-    }
-
-    sendData(data: ArrayBuffer | Buffer): void {
-        try {
-            this.socket.sendBinary(data);
-        } catch (error) {
-            console.error("Error sending data:", error);
         }
     }
 

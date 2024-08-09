@@ -78,7 +78,8 @@ export class GameUi extends Container {
     }
 
     updateActiveWeapon() {
-        const activeWeapon = this.game.activePlayer!.activeWeapon;
+        const activeWeapon = this.game.activePlayer?.activeWeapon;
+        if (!activeWeapon) return;
         const def = WeaponDefs.typeToDef(activeWeapon);
         this.statusUi.updateActiveWeaponAmmo(def.ammo, this.ammo[def.ammo] ?? 0);
         this.weaponsUi.updateActiveWeapon(activeWeapon);

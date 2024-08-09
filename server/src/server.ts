@@ -1,21 +1,18 @@
 import type { ServerAPIResponse } from "../../common/src/apiTypings";
 import { version } from "../../package.json";
+import type { Client } from "./client";
 import { Config } from "./config";
-import type { Player } from "./entities/player";
 import { Game } from "./game";
 import { Logger } from "./logger";
 
 const game = new Game(Config);
 
-export interface PlayerData {
-    /**
-     * The player socket game entity
-     */
-    entity?: Player;
+export interface ClientData {
+    client: Client;
 }
 
 // Initialize the server
-Bun.serve<PlayerData>({
+Bun.serve<ClientData>({
     port: Config.port,
     hostname: Config.host,
     tls: Config.ssl
@@ -62,20 +59,12 @@ Bun.serve<PlayerData>({
     websocket: {
         idleTimeout: 30,
         open(socket) {
-            // disconnect players that didn't send a join packet after 1 second
-            setTimeout(() => {
-                if (!socket.data.entity) {
-                    socket.close();
-                }
-            }, 1000);
+            game.clientManager.addClient(socket);
         },
         message(socket, message) {
             try {
                 if (message instanceof Buffer) {
-                    game.playerManager.processPacket(
-                        message.buffer as ArrayBuffer,
-                        socket
-                    );
+                    socket.data.client.processPacket(message.buffer as ArrayBuffer);
                 } else {
                     console.error(`Received invalid message type: ${typeof message}`);
                 }
@@ -84,8 +73,7 @@ Bun.serve<PlayerData>({
             }
         },
         close(socket) {
-            const data = socket.data;
-            if (data.entity) game.playerManager.removePlayer(data.entity);
+            game.clientManager.removeClient(socket);
         }
     }
 });
