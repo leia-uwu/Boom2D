@@ -4,7 +4,7 @@ export const Config: ServerConfig = {
     host: "127.0.0.1",
     port: 8000,
     tps: 35,
-    map: "main",
+    map: "test",
 
     perfLogging: {
         enabled: true,

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg width="255.99998" height="255.99998" viewBox="0 0 67.733321 67.733321" version="1.1" id="svg1" inkscape:version="1.3.2 (091e20ef0f, 2023-11-25, custom)" sodipodi:docname="test-map.svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview id="namedview1" pagecolor="#c3c3c3" bordercolor="#000000" borderopacity="0.25" inkscape:showpageshadow="2" inkscape:pageopacity="0.0" inkscape:pagecheckerboard="true" inkscape:deskcolor="#767676" inkscape:document-units="px" inkscape:zoom="8.214264" inkscape:cx="54.782754" inkscape:cy="163.19174" inkscape:current-layer="svg1" showgrid="true">
+    <inkscape:grid id="grid6" units="px" originx="0" originy="0" spacingx="0.2645833" spacingy="0.2645833" empcolor="#0099e5" empopacity="0.30196078" color="#0099e5" opacity="0.14901961" empspacing="16" dotted="false" gridanglex="30" gridanglez="30" visible="true" />
+  </sodipodi:namedview>
+  <defs id="defs1" />
+  <path id="path11" style="fill:#4d4d4d;stroke-width:0.300111;stroke-linecap:round;stroke-linejoin:round" inkscape:transform-center-y="-2.8222229" d="M 4.2333326,46.56666 21.166667,63.49999 H 4.2333326 Z" sodipodi:nodetypes="cccc" boom2d-wall="true" />
+  <path id="path14" style="fill:#4d4d4d;stroke-width:0.300111;stroke-linecap:round;stroke-linejoin:round" inkscape:transform-center-y="2.8222271" d="M 4.2333326,21.166662 21.166666,4.2333326 H 4.2333326 Z" sodipodi:nodetypes="cccc" boom2d-wall="true" />
+  <path id="path13" style="fill:#4d4d4d;stroke-width:0.300111;stroke-linecap:round;stroke-linejoin:round" inkscape:transform-center-y="-2.8222229" d="M 63.49999,46.56666 46.566658,63.49999 H 63.49999 Z" sodipodi:nodetypes="cccc" boom2d-wall="true" />
+  <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1" transform="translate(-34.255211,-109.32515)" />
+  <rect style="fill:#ff00ff;stroke-width:1.12173;stroke-linecap:round;stroke-linejoin:round" id="rect1" width="8.4666653" height="8.4666653" x="4.2333326" y="29.633327" boom2d-wall="true" />
+  <rect style="fill:#ff00ff;stroke-width:1.12173;stroke-linecap:round;stroke-linejoin:round" id="rect2" width="8.4666643" height="8.4666643" x="16.933331" y="33.841343" boom2d-wall="true" />
+  <rect style="fill:#0000ff;stroke-width:0.962785;stroke-linecap:round;stroke-linejoin:round" id="rect3" width="11.66923" height="4.5254817" x="15.847431" y="46.492649" boom2d-wall="true" />
+  <circle style="fill:#0000ff;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round" id="path3" cx="32.790009" cy="55.594852" r="4.3161707" boom2d-wall="true" />
+  <path id="path4" style="fill:#4d4d4d;stroke-width:0.300111;stroke-linecap:round;stroke-linejoin:round" inkscape:transform-center-y="2.822227" d="M 63.49999,21.166663 46.566657,4.2333326 H 63.49999 Z" sodipodi:nodetypes="cccc" boom2d-wall="true" />
+  <path id="path5" style="fill:#0000ff;stroke-width:1.05833;stroke-linecap:round;stroke-linejoin:round" d="m 45.611398,24.030286 -7.923977,7.923977 -10.824354,-2.900376 -2.900376,-10.824354 7.923977,-7.923977 10.824354,2.900376 z" boom2d-wall="true" />
+</svg>

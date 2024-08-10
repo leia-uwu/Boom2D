@@ -393,6 +393,7 @@ export const Collision = {
         }
         return null;
     },
+
     /**
      * Checks if a circle intersects a polygon
      * @param circleCenter The center of the circle
@@ -476,6 +477,7 @@ export const Collision = {
             dir
         };
     },
+
     findClosestPointOnPolygon(circleCenter: Vector, vertices: Vector[]) {
         let result = -1;
         let minDistance = Number.MAX_VALUE;
@@ -492,6 +494,7 @@ export const Collision = {
 
         return result;
     },
+
     projectCircle(center: Vector, radius: number, axis: Vector) {
         const direction = Vec2.normalize(axis);
         const directionAndRadius = Vec2.mul(direction, radius);
@@ -510,6 +513,7 @@ export const Collision = {
         }
         return { min, max };
     },
+
     projectVertices(vertices: Vector[], axis: Vector) {
         let min = Number.MAX_VALUE;
         let max = Number.MIN_VALUE;
@@ -526,5 +530,18 @@ export const Collision = {
             }
         }
         return { min, max };
+    },
+
+    polygonCenter(vertices: Vector[]): Vector {
+        let center = Vec2.new(0, 0);
+        for (let i = 0; i < vertices.length; i++) {
+            Vec2.set(center, Vec2.add(center, vertices[i]));
+        }
+        Vec2.set(center, Vec2.mul(center, 1 / vertices.length));
+        return center;
+    },
+
+    isTriangleCounterClockWise(a: Vector, b: Vector, c: Vector): boolean {
+        return b.x * a.y + c.x * b.y + a.x * c.y < a.x * b.y + b.x * c.y + c.x * a.y;
     }
 };

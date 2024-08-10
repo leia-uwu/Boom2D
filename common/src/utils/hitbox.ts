@@ -1,5 +1,6 @@
 import { Collision, type CollisionResponse, type LineIntersection } from "./collision";
 import { MathUtils } from "./math";
+import { assert } from "./util";
 import { Vec2, type Vector } from "./vector";
 
 export enum HitboxType {
@@ -42,7 +43,7 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
             case HitboxType.Rect:
                 return new RectHitbox(data.min, data.max);
             case HitboxType.Polygon:
-                return new PolygonHitbox(data.verts, data.center);
+                return new PolygonHitbox(data.verts);
         }
     }
 
@@ -335,15 +336,24 @@ export class RectHitbox extends BaseHitbox {
 export class PolygonHitbox extends BaseHitbox {
     override readonly type = HitboxType.Polygon;
     verts: Vector[];
-    constructor(
-        verts: Vector[],
-        public center = Vec2.new(0, 0)
-    ) {
+    center: Vector;
+    constructor(verts: Vector[]) {
         super();
-        if (verts.length < 3) {
-            throw new Error("Polygons must have at least 3 points");
-        }
+        assert(verts.length >= 3, "Polygons must have at least 3 points");
+
         this.verts = verts.map((p) => Vec2.clone(p));
+
+        if (
+            !Collision.isTriangleCounterClockWise(
+                this.verts[0],
+                this.verts[1],
+                this.verts[2]
+            )
+        ) {
+            this.verts.reverse();
+        }
+
+        this.center = Collision.polygonCenter(this.verts);
     }
 
     override toJSON(): HitboxJSONMapping[HitboxType.Polygon] {
@@ -389,7 +399,7 @@ export class PolygonHitbox extends BaseHitbox {
             points.push(Vec2.add(center, Vec2.rotate(Vec2.new(dist, 0), rot)));
         }
 
-        return new PolygonHitbox(points, center);
+        return new PolygonHitbox(points);
     }
 
     override scale(scale: number): void {
