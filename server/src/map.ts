@@ -86,14 +86,14 @@ export class SvgParser {
         const color = this.parseColor(node);
         switch (node.tagName) {
             case "circle": {
-                this.walls.push({
+                walls.push({
                     hitbox: this.parseCircle(node),
                     color
                 });
                 break;
             }
             case "rect": {
-                this.walls.push({
+                walls.push({
                     hitbox: this.parseRectangle(node),
                     color
                 });
@@ -103,7 +103,7 @@ export class SvgParser {
                 const polygons = this.parsePath(node);
 
                 for (let i = 0; i < polygons.length; i++) {
-                    this.walls.push({
+                    walls.push({
                         hitbox: polygons[i],
                         color
                     });
@@ -112,6 +112,47 @@ export class SvgParser {
             }
         }
         return walls;
+    }
+
+    parseFloor(node: ElementNode) {
+        let floors: BaseFloor[] = [];
+        assert(node.properties, "Node has no properties");
+
+        const texture = node.properties["texture"]?.toString() ?? "";
+
+        const color = this.parseColor(node);
+
+        switch (node.tagName) {
+            case "circle": {
+                floors.push({
+                    hitbox: this.parseCircle(node),
+                    texture,
+                    color
+                });
+                break;
+            }
+            case "rect": {
+                floors.push({
+                    hitbox: this.parseRectangle(node),
+                    texture,
+                    color
+                });
+                break;
+            }
+            case "path": {
+                const polygons = this.parsePath(node);
+
+                for (let i = 0; i < polygons.length; i++) {
+                    floors.push({
+                        hitbox: polygons[i],
+                        texture,
+                        color
+                    });
+                }
+                break;
+            }
+        }
+        return floors;
     }
 
     parseColor(node: ElementNode): number {
@@ -168,72 +209,94 @@ export class SvgParser {
         assert(node.properties);
         assert(node.properties.d, "Path node must have d property");
 
-        const path = node.properties.d as string;
+        // trim it because sometimes inkscape can add an extra space to the end of the path
+        // and that breaks the parser lol
+        const path = (node.properties.d as string).trim();
         const commands = path.split(" ");
 
-        const polygons: PolygonHitbox[] = [];
+        const polygons: HitboxJSONMapping[HitboxType.Polygon][] = [];
 
         let points: Vector[] = [];
-        let lastMIsRelative = false;
+        let lastPointIsRelative = false;
 
+        // console.log(commands)
         for (let i = 0; i < commands.length; i++) {
             const command = commands[i];
-
             // upper case commands mean absolutely positioned
             // lower case commands mean relatively positioned
+
             switch (command) {
                 // new path
                 case "m":
                 case "M": {
-                    lastMIsRelative = command === "m";
+                    lastPointIsRelative = command === "m";
                     const cords = commands[i + 1].split(",");
-                    points = [
-                        {
-                            x: parseFloat(cords[0]),
-                            y: parseFloat(cords[1])
-                        }
-                    ];
-                    i++;
+
+                    // svg coordinates can be separated by comma or spaces
+                    // increment index by 2 if separated by spaces
+
+                    if (cords.length === 2) {
+                        points = [
+                            {
+                                x: parseFloat(cords[0]),
+                                y: parseFloat(cords[1])
+                            }
+                        ];
+                        i++;
+                    } else {
+                        points = [
+                            {
+                                x: parseFloat(commands[i + 1]),
+                                y: parseFloat(commands[i + 2])
+                            }
+                        ];
+                        i += 2;
+                    }
                     break;
                 }
                 // end path
-                case "Z":
                 case "z":
+                case "Z": {
                     points = points.map((p) =>
                         Vec2.mul(p, SvgParser.magicUnitToPixelScale)
                     );
-                    polygons.push(new PolygonHitbox(points));
+                    polygons.push({ type: HitboxType.Polygon, verts: points });
                     break;
-                // horizontalco line
-                case "h":
+                }
+                // horizontal line
+                case "h": {
                     points.push({
                         x: points[points.length - 1].x + parseFloat(commands[i + 1]),
                         y: points[points.length - 1].y
                     });
                     i++;
                     break;
-                case "H":
+                }
+                case "H": {
                     points.push({
                         x: parseFloat(commands[i + 1]),
                         y: points[points.length - 1].y
                     });
                     i++;
                     break;
+                }
                 // vertical line
-                case "v":
+                case "v": {
                     points.push({
                         x: points[points.length - 1].x,
                         y: points[points.length - 1].y + parseFloat(commands[i + 1])
                     });
                     i++;
                     break;
-                case "V":
+                }
+                case "V": {
                     points.push({
                         x: points[points.length - 1].x,
                         y: parseFloat(commands[i + 1])
                     });
                     i++;
                     break;
+                }
                 // unsupported curve lines
                 case "C":
                 case "c":
@@ -248,26 +311,33 @@ export class SvgParser {
                     assert(false, "Svg parser doesn't support curves");
                 // path coordinates
                 case "L":
+                    lastPointIsRelative = false;
+                    break;
                 case "l":
+                    lastPointIsRelative = true;
                     break;
                 default: {
                     const cords = command.split(",");
-                    if (cords[0] && cords[1]) {
-                        let pos: Vector;
-                        if (lastMIsRelative) {
-                            pos = points[points.length - 1];
-                        } else {
-                            pos = Vec2.new(0, 0);
-                        }
-
-                        points.push(
-                            Vec2.add(
-                                pos,
-                                Vec2.new(parseFloat(cords[0]), parseFloat(cords[1]))
-                            )
-                        );
+                    let pos: Vector;
+                    if (lastPointIsRelative) {
+                        pos = points[points.length - 1];
+                    } else {
+                        pos = Vec2.new(0, 0);
                     }
-                    break;
+                    let point: Vector;
+                    if (cords.length === 2) {
+                        point = {
+                            x: parseFloat(cords[0]),
+                            y: parseFloat(cords[1])
+                        };
+                    } else {
+                        point = {
+                            x: parseFloat(commands[i]),
+                            y: parseFloat(commands[i + 1])
+                        };
+                        i++;
+                    }
+                    points.push(Vec2.add(pos, point));
                 }
             }
         }
