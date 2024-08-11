@@ -45,7 +45,7 @@ export const UiHelpers = {
             -style.strokeWidth / 2,
             width + style.strokeWidth,
             height + style.strokeWidth,
-            style.borderRadius
+            style.borderRadius + (style.strokeWidth / 2)
         );
         ctx.stroke({
             color: UiStyle.panels.strokeColor,
