@@ -5,7 +5,7 @@ import { InputPacket } from "./packets/inputPacket";
 import { JoinPacket } from "./packets/joinPacket";
 import { JoinedPacket } from "./packets/joinedPacket";
 import { KillPacket } from "./packets/killPacket";
-import { MapPacket } from "./packets/mapPacke";
+import { MapPacket } from "./packets/mapPacket";
 import { QuitPacket } from "./packets/quitPacket";
 import { RespawnPacket } from "./packets/respawnPacket";
 import { UpdatePacket } from "./packets/updatePacket";

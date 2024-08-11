@@ -10,7 +10,7 @@ export const MapDefs = new DefinitionList({
     test: {
         width: 256,
         height: 256,
-        image: "common/maps/test-map.svg"
+        image: "/client/assets/img/maps/test-map.svg"
     }
 } satisfies Record<string, MapDef>);
 

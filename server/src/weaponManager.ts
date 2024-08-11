@@ -1,3 +1,4 @@
+import { MapObjectType } from "../../common/src/baseMap";
 import { EntityType } from "../../common/src/constants";
 import {
     type GunDef,
@@ -63,9 +64,11 @@ export class WeaponManager {
             }
         }
 
-        const { walls } = game.map.intersectLineSegment(gunStartPos, gunEndPos);
+        const objects = game.map.intersectLineSegment(gunStartPos, gunEndPos);
 
-        for (const wall of walls) {
+        for (const wall of objects) {
+            if (wall.type !== MapObjectType.Wall) continue;
+
             const intersection = wall.hitbox.intersectsLine(gunStartPos, gunEndPos);
             if (intersection) {
                 const intersectionDist = Vec2.distanceSqrt(

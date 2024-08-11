@@ -2,12 +2,12 @@ import assert from "assert";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { type ElementNode, parse } from "svg-parser";
-import { type BaseFloor, BaseGameMap, type BaseWall } from "../../common/src/baseMap";
+import { BaseGameMap, BaseMapObject, MapObjectType, } from "../../common/src/baseMap";
 import { type LootDefKey, LootDefs } from "../../common/src/defs/lootDefs";
 import { type MapDefKey, MapDefs } from "../../common/src/defs/mapDefs";
 import type { ObstacleDefKey } from "../../common/src/defs/obstacleDefs";
 import { PacketStream } from "../../common/src/net";
-import { MapPacket } from "../../common/src/packets/mapPacke";
+import { MapPacket } from "../../common/src/packets/mapPacket";
 import {
     CircleHitbox,
     HitboxType,
@@ -32,12 +32,12 @@ export class GameMap extends BaseGameMap {
         const svgMap = new SvgParser();
         svgMap.parseSVGMap(join(__dirname, `../../${def.image}`));
 
-        this.init(def.width, def.height, svgMap.walls);
+        this.init(def.width, def.height, svgMap.objects);
 
         const packet = new MapPacket();
         packet.width = this.width;
         packet.height = this.height;
-        packet.walls = this.walls;
+        packet.objects = this.objects;
 
         const keys = Object.keys(LootDefs.definitions);
         for (let i = 0; i < 100; i++) {
@@ -57,7 +57,7 @@ export class GameMap extends BaseGameMap {
 }
 
 export class SvgParser {
-    walls: BaseWall[] = [];
+    objects: BaseMapObject[] = [];
 
     static magicUnitToPixelScale = 3.779528;
 
@@ -78,58 +78,39 @@ export class SvgParser {
             if (child.type !== "element") continue;
 
             this.parseNode(child);
-            if (child.properties && child.properties["boom2d-wall"]) {
-                this.walls.push(...this.parseWall(child));
+
+            if (!child.properties) continue;
+
+            if (child.properties["boom2d-mapObject"]) {
+                this.objects.push(...this.parseMapObject(child));
             }
         }
     }
 
-    parseWall(node: ElementNode): BaseWall[] {
-        let walls: BaseWall[] = [];
-        assert(node.properties, "Node has no properties");
 
-        const color = this.parseColor(node);
-        switch (node.tagName) {
-            case "circle": {
-                walls.push({
-                    hitbox: this.parseCircle(node),
-                    color
-                });
-                break;
-            }
-            case "rect": {
-                walls.push({
-                    hitbox: this.parseRectangle(node),
-                    color
-                });
-                break;
-            }
-            case "path": {
-                const polygons = this.parsePath(node);
-
-                for (let i = 0; i < polygons.length; i++) {
-                    walls.push({
-                        hitbox: polygons[i],
-                        color
-                    });
-                }
-                break;
-            }
-        }
-        return walls;
-    }
-
-    parseFloor(node: ElementNode) {
-        let floors: BaseFloor[] = [];
+    parseMapObject(node: ElementNode) {
+        let objects: BaseMapObject[] = [];
         assert(node.properties, "Node has no properties");
 
         const texture = node.properties["texture"]?.toString() ?? "";
 
+        let type: MapObjectType;
+
+        const objType = node.properties["boom2d-mapObject"];
+        if (objType === "wall") {
+            type = MapObjectType.Wall;
+        } else if (objType === "floor") {
+            type = MapObjectType.Floor;
+        } else {
+            assert(false, `Invalid map object type: ${objType}`);
+        }
+
         const color = this.parseColor(node);
 
         switch (node.tagName) {
             case "circle": {
-                floors.push({
+                objects.push({
+                    type,
                     hitbox: this.parseCircle(node),
                     texture,
                     color
@@ -137,7 +118,8 @@ export class SvgParser {
                 break;
             }
             case "rect": {
-                floors.push({
+                objects.push({
+                    type,
                     hitbox: this.parseRectangle(node),
                     texture,
                     color
@@ -148,7 +130,8 @@ export class SvgParser {
                 const polygons = this.parsePath(node);
 
                 for (let i = 0; i < polygons.length; i++) {
-                    floors.push({
+                    objects.push({
+                        type,
                         hitbox: polygons[i],
                         texture,
                         color
@@ -157,7 +140,7 @@ export class SvgParser {
                 break;
             }
         }
-        return floors;
+        return objects;
     }
 
     parseColor(node: ElementNode): number {

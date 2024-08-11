@@ -1,6 +1,6 @@
-import { Graphics } from "pixi.js";
-import { BaseGameMap } from "../../../common/src/baseMap";
-import type { MapPacket } from "../../../common/src/packets/mapPacke";
+import { FillStyle, Graphics, Texture } from "pixi.js";
+import { BaseGameMap, MapObjectType } from "../../../common/src/baseMap";
+import type { MapPacket } from "../../../common/src/packets/mapPacket";
 import { Helpers } from "../helpers";
 import { Camera } from "./camera";
 import type { Game } from "./game";
@@ -19,7 +19,7 @@ export class GameMap extends BaseGameMap {
     }
 
     updateFromPacket(packet: MapPacket) {
-        this.init(packet.width, packet.height, packet.walls);
+        this.init(packet.width, packet.height, packet.objects);
         this.drawMap();
     }
 
@@ -27,6 +27,20 @@ export class GameMap extends BaseGameMap {
         const ctx = this.mapGraphics;
         ctx.clear();
         this.game.camera.addObject(ctx);
+
+        for (const floor of this.objects) {
+            if (floor.type !== MapObjectType.Floor) continue;
+
+            ctx.beginPath();
+            Helpers.drawHitbox(ctx, floor.hitbox);
+
+            const fillStyle: FillStyle = {
+                color: floor.color
+            }
+            if (floor.texture) fillStyle.texture = Texture.from(floor.texture)
+            ctx.fill(fillStyle);
+
+        }
 
         const gridSize = 16 * Camera.scale;
         const gridWidth = this.width * Camera.scale;
@@ -52,9 +66,17 @@ export class GameMap extends BaseGameMap {
         this.game.camera.addObject(wallCtx);
 
         wallCtx.beginPath();
-        for (const wall of this.walls) {
+
+        for (const wall of this.objects) {
+            if (wall.type !== MapObjectType.Wall) continue;
+
             Helpers.drawHitbox(wallCtx, wall.hitbox);
-            wallCtx.fill(wall.color);
+            const fillStyle: FillStyle = {
+                color: wall.color
+            }
+            if (wall.texture) fillStyle.texture = Texture.from(wall.texture)
+            wallCtx.fill(fillStyle);
+
             wallCtx.stroke({
                 color: 0,
                 width: 10,

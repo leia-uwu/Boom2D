@@ -5,7 +5,7 @@ import { DeathPacket } from "../../../common/src/packets/deathPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { JoinedPacket } from "../../../common/src/packets/joinedPacket";
 import { KillPacket } from "../../../common/src/packets/killPacket";
-import { MapPacket } from "../../../common/src/packets/mapPacke";
+import { MapPacket } from "../../../common/src/packets/mapPacket";
 import { QuitPacket } from "../../../common/src/packets/quitPacket";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
 import { assert } from "../../../common/src/utils/util";

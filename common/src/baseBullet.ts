@@ -1,4 +1,4 @@
-import type { BaseGameMap, Wall } from "./baseMap";
+import { MapObjectType, type BaseGameMap, type MapObject } from "./baseMap";
 import { EntityType, type ValidEntityType } from "./constants";
 import { type BulletDefKey, BulletDefs } from "./defs/bulletDefs";
 import type { GameBitStream } from "./net";
@@ -74,7 +74,7 @@ export class BaseBullet implements BulletParams {
     ) {
         const collisions: Array<{
             entity?: T;
-            wall?: Wall;
+            wall?: MapObject;
             position: Vector;
             normal: Vector;
             distSquared: number;
@@ -115,16 +115,18 @@ export class BaseBullet implements BulletParams {
             }
         }
 
-        const { walls } = gameMap.intersectLineSegment(this.lastPosition, this.position);
+        const objects = gameMap.intersectLineSegment(this.lastPosition, this.position);
 
-        for (const wall of walls) {
-            const intersection = wall.hitbox.intersectsLine(
+        for (const object of objects) {
+            if (object.type !== MapObjectType.Wall) continue;
+
+            const intersection = object.hitbox.intersectsLine(
                 this.lastPosition,
                 this.position
             );
             if (intersection) {
                 collisions.push({
-                    wall,
+                    wall: object,
                     position: intersection.point,
                     normal: intersection.normal,
                     distSquared: Vec2.distanceSqrt(this.lastPosition, intersection.point)

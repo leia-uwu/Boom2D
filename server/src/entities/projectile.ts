@@ -1,3 +1,4 @@
+import { MapObjectType } from "../../../common/src/baseMap";
 import { EntityType } from "../../../common/src/constants";
 import {
     type ProjectileDef,
@@ -116,8 +117,10 @@ export class Projectile extends ServerEntity {
         }
 
         if (!this.dead) {
-            const { walls } = this.game.map.intersectsHitbox(this.hitbox);
+            const walls = this.game.map.intersectsHitbox(this.hitbox);
             for (const wall of walls) {
+                if (wall.type !== MapObjectType.Wall) continue;
+
                 const intersection = wall.hitbox.getIntersection(this.hitbox);
 
                 if (intersection) {

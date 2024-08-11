@@ -1,3 +1,4 @@
+import { MapObjectType } from "../../../common/src/baseMap";
 import { EntityType, GameConstants } from "../../../common/src/constants";
 import { type AmmoDefKey, AmmoDefs } from "../../../common/src/defs/ammoDefs";
 import { type LootDef, LootDefs } from "../../../common/src/defs/lootDefs";
@@ -31,7 +32,7 @@ export class PlayerManager {
     leaderBoardDirty = true;
     leaderBoard: LeaderboardEntry[] = [];
 
-    constructor(readonly game: Game) {}
+    constructor(readonly game: Game) { }
 
     addPlayer(client: Client, joinPacket: JoinPacket): Player {
         const player = new Player(
@@ -283,15 +284,17 @@ export class Player extends ServerEntity {
             }
         }
 
-        const wallsAndFloors = this.game.map.intersectsHitbox(this.hitbox);
+        const objects = this.game.map.intersectsHitbox(this.hitbox);
 
-        for (const wall of wallsAndFloors.walls) {
-            const collision = this.hitbox.getIntersection(wall.hitbox);
-            if (collision) {
-                this.position = Vec2.sub(
-                    this.position,
-                    Vec2.mul(collision.normal, collision.pen)
-                );
+        for (const object of objects) {
+            if (object.type === MapObjectType.Wall) {
+                const collision = this.hitbox.getIntersection(object.hitbox);
+                if (collision) {
+                    this.position = Vec2.sub(
+                        this.position,
+                        Vec2.mul(collision.normal, collision.pen)
+                    );
+                }
             }
         }
 
