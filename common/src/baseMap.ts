@@ -8,10 +8,10 @@ export enum MapObjectType {
 }
 
 export interface BaseMapObject {
-    type: MapObjectType
+    type: MapObjectType;
     hitbox: HitboxJSON;
     color: number;
-    texture: string
+    texture: string;
 }
 
 export class MapObject {
@@ -29,7 +29,6 @@ export class MapObject {
         this.texture = obj.texture;
     }
 }
-
 
 /**
  * This class manages map walls and floors
@@ -84,11 +83,7 @@ export class BaseGameMap {
         return this.intersectsHitbox(RectHitbox.fromLine(a, b));
     }
 
-    protected init(
-        width: number,
-        height: number,
-        objects: BaseMapObject[],
-    ) {
+    protected init(width: number, height: number, objects: BaseMapObject[]) {
         this.width = width;
         this.height = height;
         this.gridWidth = Math.ceil(width / this.cellSize);
@@ -101,13 +96,12 @@ export class BaseGameMap {
             this.objects.push(wall);
             this._addObject(wall);
         }
-
     }
 
     private _resetGrid() {
         this._grid = Array.from({ length: this.gridWidth + 1 }, () =>
             Array.from({ length: this.gridHeight + 1 }, () => {
-                return []
+                return [];
             })
         );
     }

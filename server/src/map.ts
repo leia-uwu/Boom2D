@@ -2,7 +2,7 @@ import assert from "assert";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { type ElementNode, parse } from "svg-parser";
-import { BaseGameMap, BaseMapObject, MapObjectType, } from "../../common/src/baseMap";
+import { BaseGameMap, type BaseMapObject, MapObjectType } from "../../common/src/baseMap";
 import { type LootDefKey, LootDefs } from "../../common/src/defs/lootDefs";
 import { type MapDefKey, MapDefs } from "../../common/src/defs/mapDefs";
 import type { ObstacleDefKey } from "../../common/src/defs/obstacleDefs";
@@ -86,7 +86,6 @@ export class SvgParser {
             }
         }
     }
-
 
     parseMapObject(node: ElementNode) {
         let objects: BaseMapObject[] = [];

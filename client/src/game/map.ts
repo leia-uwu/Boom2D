@@ -1,4 +1,4 @@
-import { FillStyle, Graphics, Texture } from "pixi.js";
+import { type FillStyle, Graphics, Texture } from "pixi.js";
 import { BaseGameMap, MapObjectType } from "../../../common/src/baseMap";
 import type { MapPacket } from "../../../common/src/packets/mapPacket";
 import { Helpers } from "../helpers";
@@ -36,10 +36,9 @@ export class GameMap extends BaseGameMap {
 
             const fillStyle: FillStyle = {
                 color: floor.color
-            }
-            if (floor.texture) fillStyle.texture = Texture.from(floor.texture)
+            };
+            if (floor.texture) fillStyle.texture = Texture.from(floor.texture);
             ctx.fill(fillStyle);
-
         }
 
         const gridSize = 16 * Camera.scale;
@@ -73,8 +72,8 @@ export class GameMap extends BaseGameMap {
             Helpers.drawHitbox(wallCtx, wall.hitbox);
             const fillStyle: FillStyle = {
                 color: wall.color
-            }
-            if (wall.texture) fillStyle.texture = Texture.from(wall.texture)
+            };
+            if (wall.texture) fillStyle.texture = Texture.from(wall.texture);
             wallCtx.fill(fillStyle);
 
             wallCtx.stroke({

@@ -1,4 +1,4 @@
-import { MapObjectType, type BaseGameMap, type MapObject } from "./baseMap";
+import { type BaseGameMap, type MapObject, MapObjectType } from "./baseMap";
 import { EntityType, type ValidEntityType } from "./constants";
 import { type BulletDefKey, BulletDefs } from "./defs/bulletDefs";
 import type { GameBitStream } from "./net";

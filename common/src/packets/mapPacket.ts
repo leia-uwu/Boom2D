@@ -16,7 +16,6 @@ export class MapPacket implements Packet {
             stream.writeBits(obj.color, 24);
             stream.writeASCIIString(obj.texture);
         });
-
     }
 
     deserialize(stream: GameBitStream): void {

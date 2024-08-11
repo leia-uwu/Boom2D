@@ -32,7 +32,7 @@ export class PlayerManager {
     leaderBoardDirty = true;
     leaderBoard: LeaderboardEntry[] = [];
 
-    constructor(readonly game: Game) { }
+    constructor(readonly game: Game) {}
 
     addPlayer(client: Client, joinPacket: JoinPacket): Player {
         const player = new Player(
