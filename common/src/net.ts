@@ -9,13 +9,7 @@ import { MapPacket } from "./packets/mapPacke";
 import { QuitPacket } from "./packets/quitPacket";
 import { RespawnPacket } from "./packets/respawnPacket";
 import { UpdatePacket } from "./packets/updatePacket";
-import {
-    CircleHitbox,
-    type HitboxJSON,
-    HitboxType,
-    PolygonHitbox,
-    RectHitbox
-} from "./utils/hitbox";
+import { type HitboxJSON, HitboxType } from "./utils/hitbox";
 import { MathUtils } from "./utils/math";
 import { assert } from "./utils/util";
 import type { Vector } from "./utils/vector";
@@ -309,19 +303,30 @@ export class GameBitStream extends BitStream {
             case HitboxType.Circle: {
                 const radius = this.readFloat(0, GameConstants.maxPosition, 16);
                 const position = this.readPosition();
-                return new CircleHitbox(radius, position).toJSON();
+                return {
+                    type: HitboxType.Circle,
+                    radius,
+                    position
+                };
             }
             case HitboxType.Rect: {
                 const min = this.readPosition();
                 const max = this.readPosition();
-                return new RectHitbox(min, max).toJSON();
+                return {
+                    type: HitboxType.Rect,
+                    min,
+                    max
+                };
             }
             case HitboxType.Polygon: {
-                const points: Vector[] = [];
-                this.readArray(points, 16, () => {
+                const verts: Vector[] = [];
+                this.readArray(verts, 16, () => {
                     return this.readPosition();
                 });
-                return new PolygonHitbox(points).toJSON();
+                return {
+                    type: HitboxType.Polygon,
+                    verts
+                };
             }
         }
     }

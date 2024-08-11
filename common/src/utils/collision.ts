@@ -56,19 +56,19 @@ export const Collision = {
     checkCirclePolygon(
         circleCenter: Vector,
         circleRadius: number,
-        vertices: Vector[]
+        verts: Vector[]
     ): boolean {
         let axis = Vec2.new(0, 0);
 
-        for (let i = 0; i < vertices.length; i++) {
-            const va = vertices[i];
-            const vb = vertices[(i + 1) % vertices.length];
+        for (let i = 0; i < verts.length; i++) {
+            const va = verts[i];
+            const vb = verts[(i + 1) % verts.length];
 
             const edge = Vec2.sub(vb, va);
             axis = Vec2.new(-edge.y, edge.x);
             axis = Vec2.normalize(axis);
 
-            const { min: minA, max: maxA } = Collision.projectVertices(vertices, axis);
+            const { min: minA, max: maxA } = Collision.projectVerts(verts, axis);
             const { min: minB, max: maxB } = Collision.projectCircle(
                 circleCenter,
                 circleRadius,
@@ -80,13 +80,13 @@ export const Collision = {
             }
         }
 
-        const cpIndex = Collision.findClosestPointOnPolygon(circleCenter, vertices);
-        const cp = vertices[cpIndex];
+        const cpIndex = Collision.findClosestPointOnPolygon(circleCenter, verts);
+        const cp = verts[cpIndex];
 
         axis = Vec2.sub(cp, circleCenter);
         axis = Vec2.normalize(axis);
 
-        const { min: minA, max: maxA } = Collision.projectVertices(vertices, axis);
+        const { min: minA, max: maxA } = Collision.projectVerts(verts, axis);
         const { min: minB, max: maxB } = Collision.projectCircle(
             circleCenter,
             circleRadius,
@@ -244,17 +244,17 @@ export const Collision = {
      * Checks if a line intersects a polygon
      * @param s0 The start of the line
      * @param s1 The end of the line
-     * @param vertices The polygon vertices
+     * @param verts The polygon vertices
      * @return An intersection response with the intersection position and normal Vectors, returns null if they don't intersect
      */
-    lineIntersectsPolygon(a: Vector, b: Vector, vertices: Vector[]): LineIntersection {
+    lineIntersectsPolygon(a: Vector, b: Vector, verts: Vector[]): LineIntersection {
         let closestDist = Number.MAX_VALUE;
         let normal: Vector | undefined = undefined;
         let point: Vector | undefined = undefined;
 
-        for (let i = 0; i < vertices.length; i++) {
-            const va = vertices[i];
-            const vb = vertices[(i + 1) % vertices.length];
+        for (let i = 0; i < verts.length; i++) {
+            const va = verts[i];
+            const vb = verts[(i + 1) % verts.length];
 
             const intersection = Collision.lineIntersectsLine(a, b, va, vb);
 
@@ -399,7 +399,7 @@ export const Collision = {
      * @param circleCenter The center of the circle
      * @param circleRadius The radius of the circle
      * @param polygonCenter The center of the polygon
-     * @param vertices The polygon vertices
+     * @param verts The polygon vertices
      * @link https://www.youtube.com/watch?v=V2JI_P9bvik
      * @return An intersection response with the intersection direction and pen, returns null if they don't intersect
      */
@@ -407,7 +407,7 @@ export const Collision = {
         circleCenter: Vector,
         circleRadius: number,
         polygonCenter: Vector,
-        vertices: Vector[]
+        verts: Vector[]
     ): CollisionResponse {
         let dir = Vec2.new(0, 0);
         let pen = Number.MAX_VALUE;
@@ -415,15 +415,15 @@ export const Collision = {
         let axis = Vec2.new(0, 0);
         let axisDepth = 0;
 
-        for (let i = 0; i < vertices.length; i++) {
-            const va = vertices[i];
-            const vb = vertices[(i + 1) % vertices.length];
+        for (let i = 0; i < verts.length; i++) {
+            const va = verts[i];
+            const vb = verts[(i + 1) % verts.length];
 
             const edge = Vec2.sub(vb, va);
             axis = Vec2.new(-edge.y, edge.x);
             axis = Vec2.normalize(axis);
 
-            const { min: minA, max: maxA } = Collision.projectVertices(vertices, axis);
+            const { min: minA, max: maxA } = Collision.projectVerts(verts, axis);
             const { min: minB, max: maxB } = Collision.projectCircle(
                 circleCenter,
                 circleRadius,
@@ -442,13 +442,13 @@ export const Collision = {
             }
         }
 
-        const cpIndex = Collision.findClosestPointOnPolygon(circleCenter, vertices);
-        const cp = vertices[cpIndex];
+        const cpIndex = Collision.findClosestPointOnPolygon(circleCenter, verts);
+        const cp = verts[cpIndex];
 
         axis = Vec2.sub(cp, circleCenter);
         axis = Vec2.normalize(axis);
 
-        const { min: minA, max: maxA } = Collision.projectVertices(vertices, axis);
+        const { min: minA, max: maxA } = Collision.projectVerts(verts, axis);
         const { min: minB, max: maxB } = Collision.projectCircle(
             circleCenter,
             circleRadius,
@@ -478,12 +478,12 @@ export const Collision = {
         };
     },
 
-    findClosestPointOnPolygon(circleCenter: Vector, vertices: Vector[]) {
+    findClosestPointOnPolygon(circleCenter: Vector, verts: Vector[]) {
         let result = -1;
         let minDistance = Number.MAX_VALUE;
 
-        for (let i = 0; i < vertices.length; i++) {
-            const v = vertices[i];
+        for (let i = 0; i < verts.length; i++) {
+            const v = verts[i];
             const distance = Vec2.distanceSqrt(v, circleCenter);
 
             if (distance < minDistance) {
@@ -514,12 +514,12 @@ export const Collision = {
         return { min, max };
     },
 
-    projectVertices(vertices: Vector[], axis: Vector) {
+    projectVerts(verts: Vector[], axis: Vector) {
         let min = Number.MAX_VALUE;
         let max = Number.MIN_VALUE;
 
-        for (let i = 0; i < vertices.length; i++) {
-            const v = vertices[i];
+        for (let i = 0; i < verts.length; i++) {
+            const v = verts[i];
             const proj = Vec2.dot(v, axis);
 
             if (proj < min) {
@@ -532,12 +532,12 @@ export const Collision = {
         return { min, max };
     },
 
-    polygonCenter(vertices: Vector[]): Vector {
+    polygonCenter(verts: Vector[]): Vector {
         let center = Vec2.new(0, 0);
-        for (let i = 0; i < vertices.length; i++) {
-            Vec2.set(center, Vec2.add(center, vertices[i]));
+        for (let i = 0; i < verts.length; i++) {
+            Vec2.set(center, Vec2.add(center, verts[i]));
         }
-        Vec2.set(center, Vec2.mul(center, 1 / vertices.length));
+        Vec2.set(center, Vec2.mul(center, 1 / verts.length));
         return center;
     },
 

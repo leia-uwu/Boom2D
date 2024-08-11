@@ -9,32 +9,31 @@ export enum HitboxType {
     Polygon
 }
 
-export interface HitboxJSONMapping {
-    [HitboxType.Circle]: {
-        readonly type: HitboxType.Circle;
-        readonly radius: number;
-        readonly position: Vector;
-    };
-    [HitboxType.Rect]: {
-        readonly type: HitboxType.Rect;
-        readonly min: Vector;
-        readonly max: Vector;
-    };
-    [HitboxType.Polygon]: {
-        readonly type: HitboxType.Polygon;
-        readonly center: Vector;
-        readonly verts: Vector[];
-    };
+export interface CircleHitboxJSON {
+    readonly type: HitboxType.Circle;
+    readonly radius: number;
+    readonly position: Vector;
 }
 
-export type HitboxJSON = HitboxJSONMapping[HitboxType];
+export interface RectHitboxJSON {
+    readonly type: HitboxType.Rect;
+    readonly min: Vector;
+    readonly max: Vector;
+}
+
+export interface PolygonHitboxJSON {
+    readonly type: HitboxType.Polygon;
+    readonly verts: Vector[];
+}
+
+export type HitboxJSON = CircleHitboxJSON | RectHitboxJSON | PolygonHitboxJSON;
 
 export type Hitbox = CircleHitbox | RectHitbox | PolygonHitbox;
 
 export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
     abstract type: HitboxType;
 
-    abstract toJSON(): HitboxJSONMapping[T];
+    abstract toJSON(): HitboxJSON & { type: T };
 
     static fromJSON(data: HitboxJSON): Hitbox {
         switch (data.type) {
@@ -104,7 +103,7 @@ export class CircleHitbox extends BaseHitbox {
         this.radius = radius;
     }
 
-    override toJSON(): HitboxJSONMapping[HitboxType.Circle] {
+    override toJSON(): CircleHitboxJSON {
         return {
             type: this.type,
             radius: this.radius,
@@ -221,7 +220,7 @@ export class RectHitbox extends BaseHitbox {
         return new RectHitbox(Vec2.sub(pos, size), Vec2.add(pos, size));
     }
 
-    override toJSON(): HitboxJSONMapping[HitboxType.Rect] {
+    override toJSON(): RectHitboxJSON {
         return {
             type: this.type,
             min: Vec2.clone(this.min),
@@ -356,11 +355,10 @@ export class PolygonHitbox extends BaseHitbox {
         this.center = Collision.polygonCenter(this.verts);
     }
 
-    override toJSON(): HitboxJSONMapping[HitboxType.Polygon] {
+    override toJSON(): PolygonHitboxJSON {
         return {
             type: this.type,
-            verts: this.verts.map((point) => Vec2.clone(point)),
-            center: Vec2.clone(this.center)
+            verts: this.verts.map((vert) => Vec2.clone(vert))
         };
     }
 
@@ -388,7 +386,7 @@ export class PolygonHitbox extends BaseHitbox {
     }
 
     override transform(position: Vector, scale = 1, rotation = 0): PolygonHitbox {
-        const points: Vector[] = [];
+        const verts: Vector[] = [];
 
         const center = Vec2.add(this.center, position);
 
@@ -396,10 +394,10 @@ export class PolygonHitbox extends BaseHitbox {
             const pt = this.verts[i];
             const dist = Vec2.distance(pt, this.center) * scale;
             const rot = MathUtils.angleBetweenPoints(pt, this.center) + rotation;
-            points.push(Vec2.add(center, Vec2.rotate(Vec2.new(dist, 0), rot)));
+            verts.push(Vec2.add(center, Vec2.rotate(Vec2.new(dist, 0), rot)));
         }
 
-        return new PolygonHitbox(points);
+        return new PolygonHitbox(verts);
     }
 
     override scale(scale: number): void {

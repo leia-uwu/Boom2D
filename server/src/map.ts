@@ -2,13 +2,18 @@ import assert from "assert";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { type ElementNode, parse } from "svg-parser";
-import { BaseGameMap, type BaseWall } from "../../common/src/baseMap";
+import { type BaseFloor, BaseGameMap, type BaseWall } from "../../common/src/baseMap";
 import { type LootDefKey, LootDefs } from "../../common/src/defs/lootDefs";
 import { type MapDefKey, MapDefs } from "../../common/src/defs/mapDefs";
 import type { ObstacleDefKey } from "../../common/src/defs/obstacleDefs";
 import { PacketStream } from "../../common/src/net";
 import { MapPacket } from "../../common/src/packets/mapPacke";
-import { CircleHitbox, PolygonHitbox, RectHitbox } from "../../common/src/utils/hitbox";
+import {
+    CircleHitbox,
+    HitboxType,
+    type PolygonHitboxJSON,
+    RectHitbox
+} from "../../common/src/utils/hitbox";
 import { Random } from "../../common/src/utils/random";
 import { Vec2, type Vector } from "../../common/src/utils/vector";
 import { Obstacle } from "./entities/obstacle";
@@ -226,10 +231,10 @@ export class SvgParser {
         }
         const commands = tempCommands.flat();
 
-        const polygons: HitboxJSONMapping[HitboxType.Polygon][] = [];
+        const polygons: PolygonHitboxJSON[] = [];
 
-        let points: Vector[] = [];
-        let lastPointIsRelative = false;
+        let verts: Vector[] = [];
+        let lastVertIsRelative = false;
 
         // console.log(commands)
         for (let i = 0; i < commands.length; i++) {
@@ -241,14 +246,14 @@ export class SvgParser {
                 // new path
                 case "m":
                 case "M": {
-                    lastPointIsRelative = command === "m";
+                    lastVertIsRelative = command === "m";
                     const cords = commands[i + 1].split(",");
 
                     // svg coordinates can be separated by comma or spaces
                     // increment index by 2 if separated by spaces
 
                     if (cords.length === 2) {
-                        points = [
+                        verts = [
                             {
                                 x: parseFloat(cords[0]),
                                 y: parseFloat(cords[1])
@@ -256,7 +261,7 @@ export class SvgParser {
                         ];
                         i++;
                     } else {
-                        points = [
+                        verts = [
                             {
                                 x: parseFloat(commands[i + 1]),
                                 y: parseFloat(commands[i + 2])
@@ -269,41 +274,41 @@ export class SvgParser {
                 // end path
                 case "z":
                 case "Z": {
-                    points = points.map((p) =>
+                    verts = verts.map((p) =>
                         Vec2.mul(p, SvgParser.magicUnitToPixelScale)
                     );
-                    polygons.push({ type: HitboxType.Polygon, verts: points });
+                    polygons.push({ type: HitboxType.Polygon, verts: verts });
                     break;
                 }
                 // horizontal line
                 case "h": {
-                    points.push({
-                        x: points[points.length - 1].x + parseFloat(commands[i + 1]),
-                        y: points[points.length - 1].y
+                    verts.push({
+                        x: verts[verts.length - 1].x + parseFloat(commands[i + 1]),
+                        y: verts[verts.length - 1].y
                     });
                     i++;
                     break;
                 }
                 case "H": {
-                    points.push({
+                    verts.push({
                         x: parseFloat(commands[i + 1]),
-                        y: points[points.length - 1].y
+                        y: verts[verts.length - 1].y
                     });
                     i++;
                     break;
                 }
                 // vertical line
                 case "v": {
-                    points.push({
-                        x: points[points.length - 1].x,
-                        y: points[points.length - 1].y + parseFloat(commands[i + 1])
+                    verts.push({
+                        x: verts[verts.length - 1].x,
+                        y: verts[verts.length - 1].y + parseFloat(commands[i + 1])
                     });
                     i++;
                     break;
                 }
                 case "V": {
-                    points.push({
-                        x: points[points.length - 1].x,
+                    verts.push({
+                        x: verts[verts.length - 1].x,
                         y: parseFloat(commands[i + 1])
                     });
                     i++;
@@ -323,16 +328,16 @@ export class SvgParser {
                     assert(false, "Svg parser doesn't support curves");
                 // path coordinates
                 case "L":
-                    lastPointIsRelative = false;
+                    lastVertIsRelative = false;
                     break;
                 case "l":
-                    lastPointIsRelative = true;
+                    lastVertIsRelative = true;
                     break;
                 default: {
                     const cords = command.split(",");
                     let pos: Vector;
-                    if (lastPointIsRelative) {
-                        pos = points[points.length - 1];
+                    if (lastVertIsRelative) {
+                        pos = verts[verts.length - 1];
                     } else {
                         pos = Vec2.new(0, 0);
                     }
@@ -349,7 +354,7 @@ export class SvgParser {
                         };
                         i++;
                     }
-                    points.push(Vec2.add(pos, point));
+                    verts.push(Vec2.add(pos, point));
                 }
             }
         }
