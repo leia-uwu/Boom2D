@@ -77,6 +77,9 @@ export class PlayerManager {
             bfg: false
         };
 
+        player.dirty.ammo = true;
+        player.dirty.weapons = true;
+
         const joinedPacket = new JoinedPacket();
         joinedPacket.playerId = player.id;
         player.client.sendPacket(joinedPacket);
