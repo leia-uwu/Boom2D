@@ -212,7 +212,19 @@ export class SvgParser {
         // trim it because sometimes inkscape can add an extra space to the end of the path
         // and that breaks the parser lol
         const path = (node.properties.d as string).trim();
-        const commands = path.split(" ");
+
+        // convert this path format: "M20 20 L40 40"
+        // to this: "M 20 20 L 40 40"
+        // so its easier to parse
+        let tempCommands: Array<string | string[]> = path.split(" ");
+
+        for (let i = 0; i < tempCommands.length; i++) {
+            const command = tempCommands[i] as string;
+            if (command.length > 1 && isNaN(parseFloat(command))) {
+                tempCommands[i] = [command[0], command.slice(1, command.length)];
+            }
+        }
+        const commands = tempCommands.flat();
 
         const polygons: HitboxJSONMapping[HitboxType.Polygon][] = [];
 
