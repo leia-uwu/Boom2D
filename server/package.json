@@ -3,7 +3,7 @@
   "private": true,
   "main": "src/server.ts",
   "scripts": {
-    "build": "bun build src/server.ts --minify --minify-syntax --minify-whitespace --minify-identifiers --outdir=dist --outfile=server.js",
+    "build": "bun build src/server.ts --target bun --minify --minify-syntax --minify-whitespace --minify-identifiers --outdir=dist --outfile=server.js",
     "start": "bun dist/server.js",
     "dev": "bun --watch src/server.ts"
   },
