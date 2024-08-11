@@ -140,7 +140,8 @@ export class CircleHitbox extends BaseHitbox {
                 return Collision.checkCirclePolygon(
                     this.position,
                     this.radius,
-                    that.verts
+                    that.verts,
+                    that.normals
                 );
         }
     }
@@ -166,7 +167,8 @@ export class CircleHitbox extends BaseHitbox {
                     this.position,
                     this.radius,
                     that.center,
-                    that.verts
+                    that.verts,
+                    that.normals
                 );
         }
     }
@@ -335,6 +337,7 @@ export class RectHitbox extends BaseHitbox {
 export class PolygonHitbox extends BaseHitbox {
     override readonly type = HitboxType.Polygon;
     verts: Vector[];
+    normals: Vector[] = [];
     center: Vector;
     constructor(verts: Vector[]) {
         super();
@@ -350,6 +353,13 @@ export class PolygonHitbox extends BaseHitbox {
             )
         ) {
             this.verts.reverse();
+        }
+
+        for (let i = 0; i < this.verts.length; i++) {
+            const va = this.verts[i];
+            const vb = this.verts[(i + 1) % this.verts.length];
+            const edge = Vec2.sub(vb, va);
+            this.normals[i] = Vec2.normalize(Vec2.perp(edge));
         }
 
         this.center = Collision.polygonCenter(this.verts);
@@ -368,7 +378,8 @@ export class PolygonHitbox extends BaseHitbox {
                 that.position,
                 that.radius,
                 this.center,
-                this.verts
+                this.verts,
+                this.normals
             );
         }
         return null;
@@ -376,7 +387,12 @@ export class PolygonHitbox extends BaseHitbox {
 
     override collidesWith(that: Hitbox): boolean {
         if (that.type === HitboxType.Circle) {
-            return Collision.checkCirclePolygon(that.position, that.radius, this.verts);
+            return Collision.checkCirclePolygon(
+                that.position,
+                that.radius,
+                this.verts,
+                this.normals
+            );
         }
         return false;
     }

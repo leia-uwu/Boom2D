@@ -56,23 +56,19 @@ export const Collision = {
     checkCirclePolygon(
         circleCenter: Vector,
         circleRadius: number,
-        verts: Vector[]
+        verts: Vector[],
+        normals: Vector[]
     ): boolean {
-        let axis = Vec2.new(0, 0);
+        let normal = Vec2.new(0, 0);
 
-        for (let i = 0; i < verts.length; i++) {
-            const va = verts[i];
-            const vb = verts[(i + 1) % verts.length];
+        for (let i = 0; i < normals.length; i++) {
+            normal = normals[i];
 
-            const edge = Vec2.sub(vb, va);
-            axis = Vec2.new(-edge.y, edge.x);
-            axis = Vec2.normalize(axis);
-
-            const { min: minA, max: maxA } = Collision.projectVerts(verts, axis);
+            const { min: minA, max: maxA } = Collision.projectVertices(verts, normal);
             const { min: minB, max: maxB } = Collision.projectCircle(
                 circleCenter,
                 circleRadius,
-                axis
+                normal
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -81,16 +77,13 @@ export const Collision = {
         }
 
         const cpIndex = Collision.findClosestPointOnPolygon(circleCenter, verts);
-        const cp = verts[cpIndex];
+        normal = normals[cpIndex];
 
-        axis = Vec2.sub(cp, circleCenter);
-        axis = Vec2.normalize(axis);
-
-        const { min: minA, max: maxA } = Collision.projectVerts(verts, axis);
+        const { min: minA, max: maxA } = Collision.projectVertices(verts, normal);
         const { min: minB, max: maxB } = Collision.projectCircle(
             circleCenter,
             circleRadius,
-            axis
+            normal
         );
 
         if (minA >= maxB || minB >= maxA) {
@@ -407,27 +400,23 @@ export const Collision = {
         circleCenter: Vector,
         circleRadius: number,
         polygonCenter: Vector,
-        verts: Vector[]
+        verts: Vector[],
+        normals: Vector[]
     ): CollisionResponse {
         let dir = Vec2.new(0, 0);
         let pen = Number.MAX_VALUE;
 
-        let axis = Vec2.new(0, 0);
+        let normal = Vec2.new(0, 0);
         let axisDepth = 0;
 
-        for (let i = 0; i < verts.length; i++) {
-            const va = verts[i];
-            const vb = verts[(i + 1) % verts.length];
+        for (let i = 0; i < normals.length; i++) {
+            normal = normals[i];
 
-            const edge = Vec2.sub(vb, va);
-            axis = Vec2.new(-edge.y, edge.x);
-            axis = Vec2.normalize(axis);
-
-            const { min: minA, max: maxA } = Collision.projectVerts(verts, axis);
+            const { min: minA, max: maxA } = Collision.projectVertices(verts, normal);
             const { min: minB, max: maxB } = Collision.projectCircle(
                 circleCenter,
                 circleRadius,
-                axis
+                normal
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -438,21 +427,21 @@ export const Collision = {
 
             if (axisDepth < pen) {
                 pen = axisDepth;
-                dir = axis;
+                dir = normal;
             }
         }
 
         const cpIndex = Collision.findClosestPointOnPolygon(circleCenter, verts);
         const cp = verts[cpIndex];
 
-        axis = Vec2.sub(cp, circleCenter);
-        axis = Vec2.normalize(axis);
+        normal = Vec2.sub(cp, circleCenter);
+        normal = Vec2.normalize(normal);
 
-        const { min: minA, max: maxA } = Collision.projectVerts(verts, axis);
+        const { min: minA, max: maxA } = Collision.projectVertices(verts, normal);
         const { min: minB, max: maxB } = Collision.projectCircle(
             circleCenter,
             circleRadius,
-            axis
+            normal
         );
 
         if (minA >= maxB || minB >= maxA) {
@@ -463,7 +452,7 @@ export const Collision = {
 
         if (axisDepth < pen) {
             pen = axisDepth;
-            dir = axis;
+            dir = normal;
         }
 
         const direction = Vec2.sub(polygonCenter, circleCenter);
@@ -495,15 +484,15 @@ export const Collision = {
         return result;
     },
 
-    projectCircle(center: Vector, radius: number, axis: Vector) {
-        const direction = Vec2.normalize(axis);
+    projectCircle(center: Vector, radius: number, normal: Vector) {
+        const direction = Vec2.normalize(normal);
         const directionAndRadius = Vec2.mul(direction, radius);
 
         const p1 = Vec2.add(center, directionAndRadius);
         const p2 = Vec2.sub(center, directionAndRadius);
 
-        let min = Vec2.dot(p1, axis);
-        let max = Vec2.dot(p2, axis);
+        let min = Vec2.dot(p1, normal);
+        let max = Vec2.dot(p2, normal);
 
         if (min > max) {
             // swap the min and max values.
@@ -514,13 +503,13 @@ export const Collision = {
         return { min, max };
     },
 
-    projectVerts(verts: Vector[], axis: Vector) {
+    projectVertices(verts: Vector[], normal: Vector) {
         let min = Number.MAX_VALUE;
         let max = Number.MIN_VALUE;
 
         for (let i = 0; i < verts.length; i++) {
             const v = verts[i];
-            const proj = Vec2.dot(v, axis);
+            const proj = Vec2.dot(v, normal);
 
             if (proj < min) {
                 min = proj;
