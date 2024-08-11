@@ -80,6 +80,8 @@ export class PlayerManager {
         player.dirty.ammo = true;
         player.dirty.weapons = true;
 
+        player.activeWeapon = "pistol";
+
         const joinedPacket = new JoinedPacket();
         joinedPacket.playerId = player.id;
         player.client.sendPacket(joinedPacket);
