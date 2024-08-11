@@ -278,7 +278,7 @@ export class Player extends ServerEntity {
             if (collision) {
                 this.position = Vec2.sub(
                     this.position,
-                    Vec2.mul(collision.dir, collision.pen)
+                    Vec2.mul(collision.normal, collision.pen)
                 );
             }
         }
@@ -290,7 +290,7 @@ export class Player extends ServerEntity {
             if (collision) {
                 this.position = Vec2.sub(
                     this.position,
-                    Vec2.mul(collision.dir, collision.pen)
+                    Vec2.mul(collision.normal, collision.pen)
                 );
             }
         }

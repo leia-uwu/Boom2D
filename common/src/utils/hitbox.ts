@@ -1,4 +1,4 @@
-import { Collision, type CollisionResponse, type LineIntersection } from "./collision";
+import { Collision, type IntersectionResponse, type LineIntersection } from "./collision";
 import { MathUtils } from "./math";
 import { assert } from "./util";
 import { Vec2, type Vector } from "./vector";
@@ -32,6 +32,7 @@ export type Hitbox = CircleHitbox | RectHitbox | PolygonHitbox;
 
 export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
     abstract type: HitboxType;
+    static readonly type: HitboxType;
 
     abstract toJSON(): HitboxJSON & { type: T };
 
@@ -53,9 +54,29 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
      * @param that The other {@link Hitbox}
      * @return `true` if both {@link Hitbox}es collide
      */
-    abstract collidesWith(that: Hitbox): boolean;
+    collidesWith(that: Hitbox): boolean {
+        return CollisionHelpers.hitboxCheck(this as unknown as Hitbox, that);
+    }
 
-    abstract getIntersection(that: Hitbox): CollisionResponse;
+    /**
+     * Checks if this {@link Hitbox} collides with another one
+     * And returns an intersection response
+     * @param that The other {@link Hitbox}
+     * @return The intersection response with direction normal and penetration depth
+     */
+    getIntersection(that: Hitbox): IntersectionResponse {
+        return CollisionHelpers.hitboxIntersection(this as unknown as Hitbox, that);
+    }
+
+    /**
+     * Check if a line intersects with this {@link Hitbox}.
+     * @param a the start point of the line
+     * @param b the end point of the line
+     * @return An intersection response containing the intersection position and normal
+     */
+    intersectsLine(a: Vector, b: Vector): LineIntersection {
+        return CollisionHelpers.lineHitboxIntersection(this as unknown as Hitbox, a, b);
+    }
 
     /**
      * Resolve collision between {@link Hitbox}es.
@@ -74,18 +95,11 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
      * @param scale The scale
      */
     abstract scale(scale: number): void;
-    /**
-     * Check if a line intersects with this {@link Hitbox}.
-     * @param a the start point of the line
-     * @param b the end point of the line
-     * @return An intersection response containing the intersection position and normal
-     */
-    abstract intersectsLine(a: Vector, b: Vector): LineIntersection;
-    /**
-     * Get a random position inside this {@link Hitbox}.
-     * @return A Vector of a random position inside this {@link Hitbox}
-     */
 
+    /**
+     * Transforms this {@link Hitbox} into a Rectangle hitbox
+     * @return a new RectHitbox based on the bounds of this {@link Hitbox}
+     */
     abstract toRectangle(): RectHitbox;
 
     abstract isPointInside(point: Vector): boolean;
@@ -93,6 +107,8 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
 
 export class CircleHitbox extends BaseHitbox {
     override readonly type = HitboxType.Circle;
+    static readonly type = HitboxType.Circle;
+
     position: Vector;
     radius: number;
 
@@ -120,69 +136,12 @@ export class CircleHitbox extends BaseHitbox {
         return new CircleHitbox(radius, newPos);
     }
 
-    override collidesWith(that: Hitbox): boolean {
-        switch (that.type) {
-            case HitboxType.Circle:
-                return Collision.checkCircleCircle(
-                    that.position,
-                    that.radius,
-                    this.position,
-                    this.radius
-                );
-            case HitboxType.Rect:
-                return Collision.checkRectCircle(
-                    that.min,
-                    that.max,
-                    this.position,
-                    this.radius
-                );
-            case HitboxType.Polygon:
-                return Collision.checkCirclePolygon(
-                    this.position,
-                    this.radius,
-                    that.verts,
-                    that.normals
-                );
-        }
-    }
-
-    override getIntersection(that: Hitbox) {
-        switch (that.type) {
-            case HitboxType.Circle:
-                return Collision.circleCircleIntersection(
-                    this.position,
-                    this.radius,
-                    that.position,
-                    that.radius
-                );
-            case HitboxType.Rect:
-                return Collision.rectCircleIntersection(
-                    that.min,
-                    that.max,
-                    this.position,
-                    this.radius
-                );
-            case HitboxType.Polygon:
-                return Collision.circlePolygonIntersection(
-                    this.position,
-                    this.radius,
-                    that.center,
-                    that.verts,
-                    that.normals
-                );
-        }
-    }
-
     override clone(): CircleHitbox {
         return new CircleHitbox(this.radius, Vec2.clone(this.position));
     }
 
     override scale(scale: number): void {
         this.radius *= scale;
-    }
-
-    override intersectsLine(a: Vector, b: Vector): LineIntersection {
-        return Collision.lineIntersectsCircle(a, b, this.position, this.radius);
     }
 
     override toRectangle(): RectHitbox {
@@ -199,6 +158,8 @@ export class CircleHitbox extends BaseHitbox {
 
 export class RectHitbox extends BaseHitbox {
     override readonly type = HitboxType.Rect;
+    static readonly type = HitboxType.Rect;
+
     min: Vector;
     max: Vector;
 
@@ -263,41 +224,6 @@ export class RectHitbox extends BaseHitbox {
         return new RectHitbox(min, max);
     }
 
-    override collidesWith(that: Hitbox): boolean {
-        switch (that.type) {
-            case HitboxType.Circle:
-                return Collision.checkRectCircle(
-                    this.min,
-                    this.max,
-                    that.position,
-                    that.radius
-                );
-            case HitboxType.Rect:
-                return Collision.checkRectRect(that.min, that.max, this.min, this.max);
-        }
-        return false;
-    }
-
-    override getIntersection(that: Hitbox) {
-        switch (that.type) {
-            case HitboxType.Circle:
-                return Collision.rectCircleIntersection(
-                    this.min,
-                    this.max,
-                    that.position,
-                    that.radius
-                );
-            case HitboxType.Rect:
-                return Collision.rectRectIntersection(
-                    this.min,
-                    this.max,
-                    that.min,
-                    that.max
-                );
-        }
-        return null;
-    }
-
     override clone(): RectHitbox {
         return new RectHitbox(Vec2.clone(this.min), Vec2.clone(this.max));
     }
@@ -316,10 +242,6 @@ export class RectHitbox extends BaseHitbox {
         );
     }
 
-    override intersectsLine(a: Vector, b: Vector): LineIntersection {
-        return Collision.lineIntersectsRect(a, b, this.min, this.max);
-    }
-
     override toRectangle(): this {
         return this;
     }
@@ -336,6 +258,8 @@ export class RectHitbox extends BaseHitbox {
 
 export class PolygonHitbox extends BaseHitbox {
     override readonly type = HitboxType.Polygon;
+    static readonly type = HitboxType.Polygon;
+
     verts: Vector[];
     normals: Vector[] = [];
     center: Vector;
@@ -372,31 +296,6 @@ export class PolygonHitbox extends BaseHitbox {
         };
     }
 
-    getIntersection(that: Hitbox): CollisionResponse {
-        if (that.type === HitboxType.Circle) {
-            return Collision.circlePolygonIntersection(
-                that.position,
-                that.radius,
-                this.center,
-                this.verts,
-                this.normals
-            );
-        }
-        return null;
-    }
-
-    override collidesWith(that: Hitbox): boolean {
-        if (that.type === HitboxType.Circle) {
-            return Collision.checkCirclePolygon(
-                that.position,
-                that.radius,
-                this.verts,
-                this.normals
-            );
-        }
-        return false;
-    }
-
     override clone(): PolygonHitbox {
         return new PolygonHitbox(this.verts);
     }
@@ -425,10 +324,6 @@ export class PolygonHitbox extends BaseHitbox {
         }
     }
 
-    override intersectsLine(a: Vector, b: Vector): LineIntersection {
-        return Collision.lineIntersectsPolygon(a, b, this.verts);
-    }
-
     override toRectangle(): RectHitbox {
         const min = Vec2.new(Number.MAX_VALUE, Number.MAX_VALUE);
         const max = Vec2.new(0, 0);
@@ -443,21 +338,173 @@ export class PolygonHitbox extends BaseHitbox {
     }
 
     override isPointInside(point: Vector): boolean {
-        const { x, y } = point;
-        let inside = false;
-        const count = this.verts.length;
-        // take first and last
-        // then take second and second last
-        // so on
-        for (let i = 0, j = count - 1; i < count; j = i++) {
-            const { x: xi, y: yi } = this.verts[i];
-            const { x: xj, y: yj } = this.verts[j];
-
-            if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
-                inside = !inside;
-            }
-        }
-
-        return inside;
+        return Collision.pointInsidePolygon(point, this.verts);
     }
 }
+
+type HitBoxCtr = { type: HitboxType };
+
+const checkFunctions: Array<
+    Array<{ fn: (a: Hitbox, b: Hitbox) => boolean; reverse: boolean }>
+> = [];
+
+function setCheckFn<A extends HitBoxCtr, B extends HitBoxCtr>(
+    hitboxA: A,
+    hitboxB: B,
+    fn: (a: Hitbox & { type: A["type"] }, b: Hitbox & { type: B["type"] }) => boolean
+) {
+    const setFunction = (
+        typeA: HitboxType,
+        typeB: HitboxType,
+        fn: (a: Hitbox & { type: A["type"] }, b: Hitbox & { type: B["type"] }) => boolean,
+        reverse: boolean
+    ) => {
+        checkFunctions[typeA] = checkFunctions[typeA] || [];
+        checkFunctions[typeA][typeB] = {
+            fn,
+            reverse
+        };
+    };
+    setFunction(hitboxA.type, hitboxB.type, fn, false);
+    if (hitboxA.type != hitboxB.type) {
+        setFunction(hitboxB.type, hitboxA.type, fn, true);
+    }
+}
+
+setCheckFn(CircleHitbox, CircleHitbox, (a, b) => {
+    return Collision.checkCircleCircle(a.position, a.radius, b.position, b.radius);
+});
+setCheckFn(CircleHitbox, RectHitbox, (a, b) => {
+    return Collision.checkRectCircle(b.min, b.max, a.position, a.radius);
+});
+setCheckFn(CircleHitbox, PolygonHitbox, (a, b) => {
+    return Collision.checkCirclePolygon(a.position, a.radius, b.verts, b.normals);
+});
+setCheckFn(RectHitbox, RectHitbox, (a, b) => {
+    return Collision.checkRectRect(a.min, a.min, b.min, b.max);
+});
+setCheckFn(PolygonHitbox, PolygonHitbox, (a, b) => {
+    return Collision.checkPolygonPolygon(a.verts, a.normals, b.verts, b.normals);
+});
+
+const intersectionFunctions: Array<
+    Array<{ fn: (a: Hitbox, b: Hitbox) => IntersectionResponse; reverse: boolean }>
+> = [];
+
+function setIntersectionFn<A extends HitBoxCtr, B extends HitBoxCtr>(
+    hitboxA: A,
+    hitboxB: B,
+    fn: (
+        a: Hitbox & { type: A["type"] },
+        b: Hitbox & { type: B["type"] }
+    ) => IntersectionResponse
+) {
+    const setFunction = (
+        typeA: HitboxType,
+        typeB: HitboxType,
+        fn: (
+            a: Hitbox & { type: A["type"] },
+            b: Hitbox & { type: B["type"] }
+        ) => IntersectionResponse,
+        reverse: boolean
+    ) => {
+        intersectionFunctions[typeA] = intersectionFunctions[typeA] || [];
+        intersectionFunctions[typeA][typeB] = {
+            fn: fn as (a: Hitbox, B: Hitbox) => IntersectionResponse,
+            reverse
+        };
+    };
+    setFunction(hitboxA.type, hitboxB.type, fn, false);
+    if (hitboxA.type != hitboxB.type) {
+        setFunction(hitboxB.type, hitboxA.type, fn, true);
+    }
+}
+
+setIntersectionFn(CircleHitbox, CircleHitbox, (a, b) => {
+    return Collision.circleCircleIntersection(a.position, a.radius, b.position, b.radius);
+});
+
+setIntersectionFn(RectHitbox, CircleHitbox, (a, b) => {
+    return Collision.rectCircleIntersection(a.min, a.max, b.position, b.radius);
+});
+
+setIntersectionFn(RectHitbox, RectHitbox, (a, b) => {
+    return Collision.rectRectIntersection(a.min, a.max, b.min, b.max);
+});
+
+setIntersectionFn(CircleHitbox, PolygonHitbox, (a, b) => {
+    return Collision.circlePolygonIntersection(
+        a.position,
+        a.radius,
+        b.center,
+        b.verts,
+        b.normals
+    );
+});
+
+setIntersectionFn(PolygonHitbox, PolygonHitbox, (a, b) => {
+    return Collision.polygonPolygonIntersection(
+        a.verts,
+        a.normals,
+        a.center,
+        b.verts,
+        b.normals,
+        b.center
+    );
+});
+
+const lineIntersectionFunctions: Array<
+    (hitbox: Hitbox, a: Vector, b: Vector) => LineIntersection
+> = [];
+
+function setLineIntersectionFn<A extends HitBoxCtr>(
+    hitbox: A,
+    fn: (hitbox: Hitbox & { type: A["type"] }, a: Vector, b: Vector) => LineIntersection
+) {
+    lineIntersectionFunctions[hitbox.type] =
+        fn as (typeof lineIntersectionFunctions)[number];
+}
+
+setLineIntersectionFn(CircleHitbox, (hitbox, a, b) => {
+    return Collision.lineIntersectsCircle(a, b, hitbox.position, hitbox.radius);
+});
+
+setLineIntersectionFn(RectHitbox, (hitbox, a, b) => {
+    return Collision.lineIntersectsRect(a, b, hitbox.min, hitbox.max);
+});
+
+setLineIntersectionFn(PolygonHitbox, (hitbox, a, b) => {
+    return Collision.lineIntersectsPolygon(a, b, hitbox.verts);
+});
+
+export const CollisionHelpers = {
+    hitboxCheck(hitboxA: Hitbox, hitboxB: Hitbox): boolean {
+        const collisionFn = checkFunctions[hitboxA.type][hitboxB.type];
+        assert(collisionFn, `${hitboxA.type} doesn't support check with ${hitboxB.type}`);
+        return collisionFn.reverse
+            ? collisionFn.fn(hitboxB, hitboxA)
+            : collisionFn.fn(hitboxA, hitboxB);
+    },
+
+    hitboxIntersection(hitboxA: Hitbox, hitboxB: Hitbox): IntersectionResponse {
+        const collisionFn = intersectionFunctions[hitboxA.type][hitboxB.type];
+        assert(
+            collisionFn,
+            `${hitboxA.type} doesn't support intersection with ${hitboxB.type}`
+        );
+
+        let response = collisionFn.reverse
+            ? collisionFn.fn(hitboxB, hitboxA)
+            : collisionFn.fn(hitboxA, hitboxB);
+        if (response && collisionFn.reverse) {
+            response.normal = Vec2.neg(response.normal);
+        }
+        return response;
+    },
+
+    lineHitboxIntersection(hitbox: Hitbox, a: Vector, b: Vector): LineIntersection {
+        const intersectionFn = lineIntersectionFunctions[hitbox.type];
+        assert(intersectionFn, `Hitbox ${hitbox.type} doens't support line intersection`);
+        return intersectionFn(hitbox, a, b);
+    }
+};

@@ -1,7 +1,7 @@
 import { MathUtils } from "./math";
 import { Vec2, type Vector } from "./vector";
 
-export type CollisionResponse = { dir: Vector; pen: number } | null;
+export type IntersectionResponse = { normal: Vector; pen: number } | null;
 export type LineIntersection = { point: Vector; normal: Vector } | null;
 
 export const Collision = {
@@ -53,9 +53,17 @@ export const Collision = {
     checkRectRect(min1: Vector, max1: Vector, min2: Vector, max2: Vector): boolean {
         return min2.x < max1.x && min2.y < max1.y && min1.x < max2.x && min1.y < max2.y;
     },
+
+    /**
+     * Check whether a polygon and a circle collide
+     * @param position The circle center position
+     * @param radius The circle radius
+     * @param verts The polygon vertices
+     * @param normals The polygon normals
+     */
     checkCirclePolygon(
-        circleCenter: Vector,
-        circleRadius: number,
+        position: Vector,
+        radius: number,
         verts: Vector[],
         normals: Vector[]
     ): boolean {
@@ -66,8 +74,8 @@ export const Collision = {
 
             const { min: minA, max: maxA } = Collision.projectVertices(verts, normal);
             const { min: minB, max: maxB } = Collision.projectCircle(
-                circleCenter,
-                circleRadius,
+                position,
+                radius,
                 normal
             );
 
@@ -76,18 +84,68 @@ export const Collision = {
             }
         }
 
-        const cpIndex = Collision.findClosestPointOnPolygon(circleCenter, verts);
+        const cpIndex = Collision.findClosestPointOnPolygon(position, verts);
         normal = normals[cpIndex];
 
         const { min: minA, max: maxA } = Collision.projectVertices(verts, normal);
         const { min: minB, max: maxB } = Collision.projectCircle(
-            circleCenter,
-            circleRadius,
+            position,
+            radius,
             normal
         );
 
         if (minA >= maxB || minB >= maxA) {
             return false;
+        }
+
+        return true;
+    },
+
+    /**
+     * Check whether two polygons collide
+     * @param vertsA The first polygon vertices
+     * @param normalsA The first polygon normals
+     * @param vertsB The second polygon vertices
+     * @param normalsB The second polygon normals
+     */
+    checkPolygonPolygon(
+        vertsA: Vector[],
+        normalsA: Vector[],
+        vertsB: Vector[],
+        normalsB: Vector[]
+    ): boolean {
+        for (let i = 0; i < normalsA.length; i++) {
+            let vertNormal = normalsA[i];
+
+            const { min: minA, max: maxA } = Collision.projectVertices(
+                vertsA,
+                vertNormal
+            );
+            const { min: minB, max: maxB } = Collision.projectVertices(
+                vertsB,
+                vertNormal
+            );
+
+            if (minA >= maxB || minB >= maxA) {
+                return false;
+            }
+        }
+
+        for (let i = 0; i < normalsB.length; i++) {
+            const vertNormal = normalsB[i];
+
+            const { min: minA, max: maxA } = Collision.projectVertices(
+                vertsA,
+                vertNormal
+            );
+            const { min: minB, max: maxB } = Collision.projectVertices(
+                vertsB,
+                vertNormal
+            );
+
+            if (minA >= maxB || minB >= maxA) {
+                return false;
+            }
         }
 
         return true;
@@ -278,21 +336,21 @@ export const Collision = {
      * @param rad0 The radius of the first circle
      * @param pos1 The position of the second circle
      * @param rad1 The radius of the second circle
-     * @return An intersection response with the intersection direction and pen, returns null if they don't intersect
+     * @return An intersection response with the intersection normal and penetration returns null if they don't intersect
      */
     circleCircleIntersection(
         pos0: Vector,
         rad0: number,
         pos1: Vector,
         rad1: number
-    ): CollisionResponse {
+    ): IntersectionResponse {
         const r = rad0 + rad1;
         const toP1 = Vec2.sub(pos1, pos0);
         const distSqr = Vec2.lengthSqr(toP1);
         if (distSqr < r * r) {
             const dist = Math.sqrt(distSqr);
             return {
-                dir: dist > 0.00001 ? Vec2.div(toP1, dist) : Vec2.new(1.0, 0.0),
+                normal: dist > 0.00001 ? Vec2.div(toP1, dist) : Vec2.new(1.0, 0.0),
                 pen: r - dist
             };
         }
@@ -305,14 +363,14 @@ export const Collision = {
      * @param max The max Vector of the rectangle
      * @param pos The position of the circle
      * @param radius The radius of the circle
-     * @return An intersection response with the intersection direction and pen, returns null if they don't intersect
+     * @return An intersection response with the intersection normal and penetration returns null if they don't intersect
      */
     rectCircleIntersection(
         min: Vector,
         max: Vector,
         pos: Vector,
         radius: number
-    ): CollisionResponse {
+    ): IntersectionResponse {
         if (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y) {
             const e = Vec2.mul(Vec2.sub(max, min), 0.5);
             const c = Vec2.add(min, e);
@@ -321,12 +379,12 @@ export const Collision = {
             const yp = Math.abs(p.y) - e.y - radius;
             if (xp > yp) {
                 return {
-                    dir: Vec2.new(p.x > 0.0 ? 1.0 : -1.0, 0.0),
+                    normal: Vec2.new(p.x > 0.0 ? 1.0 : -1.0, 0.0),
                     pen: -xp
                 };
             }
             return {
-                dir: Vec2.new(0.0, p.y > 0.0 ? 1.0 : -1.0),
+                normal: Vec2.new(0.0, p.y > 0.0 ? 1.0 : -1.0),
                 pen: -yp
             };
         }
@@ -341,7 +399,7 @@ export const Collision = {
         if (dstSqr < radius * radius) {
             const dst = Math.sqrt(dstSqr);
             return {
-                dir: dst > 0.0001 ? Vec2.div(dir, dst) : Vec2.new(1.0, 0.0),
+                normal: dst > 0.0001 ? Vec2.div(dir, dst) : Vec2.new(1.0, 0.0),
                 pen: radius - dst
             };
         }
@@ -355,14 +413,14 @@ export const Collision = {
      * @param max The max vector of the first rectangle
      * @param min2 The min Vector of the second rectangle
      * @param max2 The max vector of the second rectangle
-     * @return An intersection response with the intersection direction and pen, returns null if they don't intersect
+     * @return An intersection response with the intersection normal and penetration, returns null if they don't intersect
      */
     rectRectIntersection(
         min0: Vector,
         max0: Vector,
         min1: Vector,
         max1: Vector
-    ): CollisionResponse {
+    ): IntersectionResponse {
         const e0 = Vec2.mul(Vec2.sub(max0, min0), 0.5);
         const c0 = Vec2.add(min0, e0);
         const e1 = Vec2.mul(Vec2.sub(max1, min1), 0.5);
@@ -374,12 +432,12 @@ export const Collision = {
             if (yo > 0.0) {
                 if (xo > yo) {
                     return {
-                        dir: n.x < 0.0 ? Vec2.new(-1.0, 0.0) : Vec2.new(1.0, 0.0),
+                        normal: n.x < 0.0 ? Vec2.new(-1.0, 0.0) : Vec2.new(1.0, 0.0),
                         pen: xo
                     };
                 }
                 return {
-                    dir: n.y < 0.0 ? Vec2.new(0.0, -1.0) : Vec2.new(0.0, 1.0),
+                    normal: n.y < 0.0 ? Vec2.new(0.0, -1.0) : Vec2.new(0.0, 1.0),
                     pen: yo
                 };
             }
@@ -389,34 +447,34 @@ export const Collision = {
 
     /**
      * Checks if a circle intersects a polygon
-     * @param circleCenter The center of the circle
-     * @param circleRadius The radius of the circle
+     * @param position The center of the circle
+     * @param radius The radius of the circle
      * @param polygonCenter The center of the polygon
      * @param verts The polygon vertices
      * @link https://www.youtube.com/watch?v=V2JI_P9bvik
-     * @return An intersection response with the intersection direction and pen, returns null if they don't intersect
+     * @return An intersection response with the intersection normal and penetration returns null if they don't intersect
      */
     circlePolygonIntersection(
-        circleCenter: Vector,
-        circleRadius: number,
+        position: Vector,
+        radius: number,
         polygonCenter: Vector,
         verts: Vector[],
         normals: Vector[]
-    ): CollisionResponse {
-        let dir = Vec2.new(0, 0);
+    ): IntersectionResponse {
+        let normal = Vec2.new(0, 0);
         let pen = Number.MAX_VALUE;
 
-        let normal = Vec2.new(0, 0);
+        let axis = Vec2.new(0, 0);
         let axisDepth = 0;
 
         for (let i = 0; i < normals.length; i++) {
-            normal = normals[i];
+            axis = normals[i];
 
-            const { min: minA, max: maxA } = Collision.projectVertices(verts, normal);
+            const { min: minA, max: maxA } = Collision.projectVertices(verts, axis);
             const { min: minB, max: maxB } = Collision.projectCircle(
-                circleCenter,
-                circleRadius,
-                normal
+                position,
+                radius,
+                axis
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -427,22 +485,18 @@ export const Collision = {
 
             if (axisDepth < pen) {
                 pen = axisDepth;
-                dir = normal;
+                normal = axis;
             }
         }
 
-        const cpIndex = Collision.findClosestPointOnPolygon(circleCenter, verts);
+        const cpIndex = Collision.findClosestPointOnPolygon(position, verts);
         const cp = verts[cpIndex];
 
-        normal = Vec2.sub(cp, circleCenter);
-        normal = Vec2.normalize(normal);
+        axis = Vec2.sub(cp, position);
+        axis = Vec2.normalize(axis);
 
-        const { min: minA, max: maxA } = Collision.projectVertices(verts, normal);
-        const { min: minB, max: maxB } = Collision.projectCircle(
-            circleCenter,
-            circleRadius,
-            normal
-        );
+        const { min: minA, max: maxA } = Collision.projectVertices(verts, axis);
+        const { min: minB, max: maxB } = Collision.projectCircle(position, radius, axis);
 
         if (minA >= maxB || minB >= maxA) {
             return null;
@@ -452,28 +506,114 @@ export const Collision = {
 
         if (axisDepth < pen) {
             pen = axisDepth;
-            dir = normal;
+            normal = axis;
         }
 
-        const direction = Vec2.sub(polygonCenter, circleCenter);
+        const direction = Vec2.sub(polygonCenter, position);
 
-        if (Vec2.dot(direction, dir) < 0) {
-            dir = Vec2.neg(dir);
+        if (Vec2.dot(direction, normal) < 0) {
+            normal = Vec2.neg(normal);
         }
 
         return {
             pen,
-            dir
+            normal
         };
     },
 
-    findClosestPointOnPolygon(circleCenter: Vector, verts: Vector[]) {
+    /**
+     * Checks if two polygons intersect
+     * @param vertsA The vertices of the first polygon
+     * @param normalsA The normals of the first polygon
+     * @param centerA The center of the first polygon
+     * @param vertsB The vertices of the second polygon
+     * @param normalsB The normals of the second polygon
+     * @param centerB The center of the second polygon
+     * @return An intersection response with the intersection normal and penetration returns null if they don't intersect
+     */
+    polygonPolygonIntersection(
+        vertsA: Vector[],
+        normalsA: Vector[],
+        centerA: Vector,
+        vertsB: Vector[],
+        normalsB: Vector[],
+        centerB: Vector
+    ): IntersectionResponse {
+        let normal = Vec2.new(0, 0);
+        let pen = Number.MAX_VALUE;
+
+        for (let i = 0; i < normalsA.length; i++) {
+            let vertNormal = normalsA[i];
+
+            const { min: minA, max: maxA } = Collision.projectVertices(
+                vertsA,
+                vertNormal
+            );
+            const { min: minB, max: maxB } = Collision.projectVertices(
+                vertsB,
+                vertNormal
+            );
+
+            if (minA >= maxB || minB >= maxA) {
+                return null;
+            }
+
+            const axisDepth = MathUtils.min(maxB - minA, maxA - minB);
+
+            if (axisDepth < pen) {
+                pen = axisDepth;
+                normal = vertNormal;
+            }
+        }
+
+        for (let i = 0; i < normalsB.length; i++) {
+            const vertNormal = normalsB[i];
+
+            const { min: minA, max: maxA } = Collision.projectVertices(
+                vertsA,
+                vertNormal
+            );
+            const { min: minB, max: maxB } = Collision.projectVertices(
+                vertsB,
+                vertNormal
+            );
+
+            if (minA >= maxB || minB >= maxA) {
+                return null;
+            }
+
+            const axisDepth = MathUtils.min(maxB - minA, maxA - minB);
+
+            if (axisDepth < pen) {
+                pen = axisDepth;
+                normal = vertNormal;
+            }
+        }
+
+        const direction = Vec2.sub(centerB, centerA);
+
+        if (Vec2.dot(direction, normal) < 0) {
+            normal = Vec2.neg(normal);
+        }
+
+        return {
+            normal,
+            pen
+        };
+    },
+
+    /**
+     * Finds the closest point to a position on a polygon
+     * @param position The position to search
+     * @param verts The polygon vertices
+     */
+    findClosestPointOnPolygon(position: Vector, verts: Vector[]): number {
         let result = -1;
         let minDistance = Number.MAX_VALUE;
 
         for (let i = 0; i < verts.length; i++) {
             const v = verts[i];
-            const distance = Vec2.distanceSqrt(v, circleCenter);
+            const distance = Vec2.distanceSqrt(v, position);
 
             if (distance < minDistance) {
                 minDistance = distance;
@@ -484,7 +624,17 @@ export const Collision = {
         return result;
     },
 
-    projectCircle(center: Vector, radius: number, normal: Vector) {
+    /**
+     * Projects a circle in a normal
+     * @param center The circle center
+     * @param radius The circle radius
+     * @param normal the normal to project the vertices
+     */
+    projectCircle(
+        center: Vector,
+        radius: number,
+        normal: Vector
+    ): { min: number; max: number } {
         const direction = Vec2.normalize(normal);
         const directionAndRadius = Vec2.mul(direction, radius);
 
@@ -503,7 +653,12 @@ export const Collision = {
         return { min, max };
     },
 
-    projectVertices(verts: Vector[], normal: Vector) {
+    /**
+     * Projects polygon vertices in a normal
+     * @param verts The polygon vertices
+     * @param normal the normal to project the vertices
+     */
+    projectVertices(verts: Vector[], normal: Vector): { min: number; max: number } {
         let min = Number.MAX_VALUE;
         let max = Number.MIN_VALUE;
 
@@ -521,6 +676,11 @@ export const Collision = {
         return { min, max };
     },
 
+    /**
+     * Gets the center of a polygon
+     * @param verts The polygon vertices
+     * @return A vector representing the polygon center
+     */
     polygonCenter(verts: Vector[]): Vector {
         let center = Vec2.new(0, 0);
         for (let i = 0; i < verts.length; i++) {
@@ -530,6 +690,34 @@ export const Collision = {
         return center;
     },
 
+    /**
+     * Checks if a point is inside a polygon
+     * @param point The point to check
+     * @param verts The polygon vertices
+     * @return `true` if the point is inside the polygon
+     */
+    pointInsidePolygon(point: Vector, verts: Vector[]): boolean {
+        const { x, y } = point;
+        let inside = false;
+        const count = verts.length;
+        // take first and last
+        // then take second and second last
+        // so on
+        for (let i = 0, j = count - 1; i < count; j = i++) {
+            const { x: xi, y: yi } = verts[i];
+            const { x: xj, y: yj } = verts[j];
+
+            if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+                inside = !inside;
+            }
+        }
+
+        return inside;
+    },
+
+    /**
+     * Checks if a triangle points are in counter clock wise order
+     */
     isTriangleCounterClockWise(a: Vector, b: Vector, c: Vector): boolean {
         return b.x * a.y + c.x * b.y + a.x * c.y < a.x * b.y + b.x * c.y + c.x * a.y;
     }

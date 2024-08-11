@@ -236,7 +236,6 @@ export class SvgParser {
         let verts: Vector[] = [];
         let lastVertIsRelative = false;
 
-        // console.log(commands)
         for (let i = 0; i < commands.length; i++) {
             const command = commands[i];
             // upper case commands mean absolutely positioned
