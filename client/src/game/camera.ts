@@ -73,6 +73,7 @@ export class Camera {
         const maxScreenDim = MathUtils.max(minDim * (16 / 9), maxDim);
 
         this.container.scale.set((maxScreenDim * 0.5) / (this._zoom * Camera.scale));
+        this.render(1);
     }
 
     render(dt: number): void {
