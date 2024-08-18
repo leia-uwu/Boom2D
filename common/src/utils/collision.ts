@@ -393,7 +393,7 @@ export const Collision = {
             MathUtils.clamp(pos.y, min.y, max.y)
         );
 
-        const dir = Vec2.sub(cpt, pos);
+        const dir = Vec2.sub(pos, cpt);
 
         const dstSqr = Vec2.lengthSqr(dir);
         if (dstSqr < radius * radius) {
@@ -490,10 +490,7 @@ export const Collision = {
         }
 
         const cpIndex = Collision.findClosestPointOnPolygon(position, verts);
-        const cp = verts[cpIndex];
-
-        axis = Vec2.sub(cp, position);
-        axis = Vec2.normalize(axis);
+        axis = normals[cpIndex];
 
         const { min: minA, max: maxA } = Collision.projectVertices(verts, axis);
         const { min: minB, max: maxB } = Collision.projectCircle(position, radius, axis);
