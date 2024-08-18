@@ -1,6 +1,6 @@
 import { EntityType } from "../../common/src/constants";
 import { type ExplosionDefKey, ExplosionDefs } from "../../common/src/defs/explosionDefs";
-import { CircleHitbox } from "../../common/src/utils/hitbox";
+import { CircleHitbox, CollisionHelpers } from "../../common/src/utils/hitbox";
 import { MathUtils } from "../../common/src/utils/math";
 import { Vec2, type Vector } from "../../common/src/utils/vector";
 import type { Player } from "./entities/player";
@@ -47,9 +47,20 @@ class Explosion {
             if (entity.__type !== EntityType.Player) continue;
             if ((entity as Player).dead) continue;
             if (!entity.hitbox.collidesWith(this.hitbox)) continue;
-            const dist = Vec2.distance(this.position, entity.position);
-            const damage = MathUtils.remap(dist, 0, def.radius, def.damage, 0);
-            (entity as Player).damage(damage, this.source);
+
+            const intersection = CollisionHelpers.lineOfSightCheck(
+                entities,
+                game.map,
+                this.position,
+                entity.position,
+                [EntityType.Obstacle]
+            );
+
+            if (!intersection.entity && !intersection.wall) {
+                const dist = Vec2.distance(this.position, entity.position);
+                const damage = MathUtils.remap(dist, 0, def.radius, def.damage, 0);
+                (entity as Player).damage(damage, this.source);
+            }
         }
     }
 }
