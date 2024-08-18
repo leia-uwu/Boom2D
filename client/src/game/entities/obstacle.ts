@@ -8,6 +8,7 @@ import type { EntitiesNetData } from "../../../../common/src/packets/updatePacke
 import { BaseHitbox, type Hitbox } from "../../../../common/src/utils/hitbox";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
+import { DEBUG_ENABLED, debugRenderer } from "../debug";
 import { ClientEntity, EntityPool } from "./entity";
 
 export class ObstacleManager extends EntityPool<Obstacle> {
@@ -45,10 +46,14 @@ export class Obstacle extends ClientEntity {
         }
     }
 
-    override render(dt: number): void {
-        super.render(dt);
+    override update(dt: number): void {
+        super.update(dt);
         const pos = Camera.vecToScreen(this.position);
         this.container.position = pos;
+
+        if (DEBUG_ENABLED) {
+            debugRenderer.addHitbox(this.hitbox, 0x00ff00);
+        }
     }
 
     override free(): void {

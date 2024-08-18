@@ -33,7 +33,7 @@ export class Loot extends ServerEntity {
         this.hitbox.position = this.position;
     }
 
-    tick(dt: number) {
+    update(dt: number) {
         if (this.respawnTicker <= 0 && !this.canPickup) {
             this.respawnTicker = LootDefs.typeToDef(this.type).respawnTime;
         }

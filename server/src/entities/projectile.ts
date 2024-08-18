@@ -68,7 +68,7 @@ export class Projectile extends ServerEntity {
         this.source = source;
     }
 
-    tick(dt: number): void {
+    update(dt: number): void {
         // HACK: don't update in the first tick to send the correct initial position to clients
         if (this.isNew) {
             this.isNew = false;

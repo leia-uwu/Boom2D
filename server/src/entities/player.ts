@@ -252,7 +252,7 @@ export class Player extends ServerEntity {
         this.name = name;
     }
 
-    tick(dt: number): void {
+    update(dt: number): void {
         if (this.dead) return;
 
         const oldPos = Vec2.clone(this.position);

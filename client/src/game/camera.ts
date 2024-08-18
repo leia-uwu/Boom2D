@@ -101,8 +101,4 @@ export class Camera {
     addObject(object: Container): void {
         this.container.addChild(object);
     }
-
-    clear(): void {
-        this.container.removeChildren();
-    }
 }

@@ -11,6 +11,7 @@ import { Random } from "../../../../common/src/utils/random";
 import { Vec2 } from "../../../../common/src/utils/vector";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
+import { DEBUG_ENABLED, debugRenderer } from "../debug";
 import type { ParticleDefKey } from "../particle";
 import { ClientEntity, EntityPool } from "./entity";
 
@@ -73,8 +74,8 @@ export class Projectile extends ClientEntity {
         this.hitbox.position = data.position;
     }
 
-    override render(dt: number): void {
-        super.render(dt);
+    override update(dt: number): void {
+        super.update(dt);
         const pos = Vec2.lerp(this.oldPosition, this.position, this.interpolationFactor);
 
         if (this.spin) {
@@ -112,6 +113,10 @@ export class Projectile extends ClientEntity {
         }
 
         this.container.position = Camera.vecToScreen(pos);
+
+        if (DEBUG_ENABLED) {
+            debugRenderer.addHitbox(this.hitbox, 0xff0000);
+        }
     }
 
     override free(): void {

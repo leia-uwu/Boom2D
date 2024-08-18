@@ -4,11 +4,13 @@ import {
     type ExplosionDefKey,
     ExplosionDefs
 } from "../../../common/src/defs/explosionDefs";
+import { CircleHitbox } from "../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
 import type { Vector } from "../../../common/src/utils/vector";
 import { Helpers } from "../helpers";
 import { Camera } from "./camera";
+import { DEBUG_ENABLED, debugRenderer } from "./debug";
 import type { Game } from "./game";
 import type { ParticleDefKey } from "./particle";
 
@@ -42,10 +44,10 @@ export class ExplosionManager {
         }
     }
 
-    render(dt: number) {
+    update(dt: number) {
         for (let i = 0; i < this.explosions.length; i++) {
             const explosion = this.explosions[i];
-            explosion.render(dt);
+            explosion.update(dt);
             if (explosion.dead) {
                 this.explosions.splice(i, 1);
                 explosion.destroy();
@@ -73,7 +75,7 @@ class Explosion {
         this.sprite.position = Camera.vecToScreen(this.position);
     }
 
-    render(dt: number) {
+    update(dt: number) {
         this.ticks += dt;
 
         const def = ExplosionDefs.typeToDef(this.type);
@@ -84,6 +86,13 @@ class Explosion {
 
         if (this.ticks > def.img.animDuration) {
             this.dead = true;
+        }
+
+        if (DEBUG_ENABLED) {
+            debugRenderer.addHitbox(
+                new CircleHitbox(def.radius, this.position),
+                0xff0000
+            );
         }
     }
 

@@ -8,6 +8,7 @@ import { MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { Camera } from "./camera";
+import { DEBUG_ENABLED, debugRenderer } from "./debug";
 import type { ClientEntity } from "./entities/entity";
 import type { Obstacle } from "./entities/obstacle";
 import type { Game } from "./game";
@@ -17,10 +18,10 @@ export class BulletManager {
 
     constructor(readonly game: Game) {}
 
-    tick(dt: number) {
+    update(dt: number) {
         for (let i = 0; i < this.bullets.length; i++) {
             const bullet = this.bullets[i];
-            bullet.tick(dt);
+            bullet.update(dt);
             if (!bullet.active) {
                 this.bullets.splice(i, 1);
                 bullet.destroy();
@@ -58,9 +59,9 @@ export class ClientBullet extends BaseBullet {
         game.camera.addObject(this.trailSprite);
     }
 
-    override tick(dt: number) {
+    override update(dt: number) {
         if (!this.dead) {
-            super.tick(dt);
+            super.update(dt);
             const collisions = this.checkCollisions(
                 this.game.entityManager.entities,
                 this.game.map
@@ -109,6 +110,10 @@ export class ClientBullet extends BaseBullet {
 
         if (this.dead && this.trailTicks <= 0) {
             this.active = false;
+        }
+
+        if (DEBUG_ENABLED) {
+            debugRenderer.addLine(this.initialPosition, this.position, 0xff0000);
         }
     }
 

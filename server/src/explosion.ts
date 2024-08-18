@@ -16,7 +16,7 @@ export class ExplosionManager {
         this.explosions.push(explosion);
     }
 
-    tick() {
+    update() {
         for (let i = 0; i < this.explosions.length; i++) {
             this.explosions[i].explode(this.game);
         }

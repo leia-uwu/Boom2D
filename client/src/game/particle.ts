@@ -55,13 +55,13 @@ export class ParticleManager {
         return particle;
     }
 
-    render(dt: number) {
+    update(dt: number) {
         let activeCount = 0;
         for (let i = 0; i < this.particles.length; i++) {
             const part = this.particles[i];
             if (part.active) {
                 activeCount++;
-                part.render(dt);
+                part.update(dt);
             }
         }
 
@@ -199,7 +199,7 @@ class Particle {
         };
     }
 
-    render(dt: number) {
+    update(dt: number) {
         this.sprite.visible = true;
 
         this.tick += dt;

@@ -13,10 +13,10 @@ export class BulletManager {
 
     constructor(readonly game: Game) {}
 
-    tick(dt: number) {
+    update(dt: number) {
         for (let i = 0; i < this.bullets.length; i++) {
             const bullet = this.bullets[i];
-            bullet.tick(dt);
+            bullet.update(dt);
             if (bullet.dead) {
                 this.bullets.splice(i, 1);
             }
@@ -44,8 +44,8 @@ export class ServerBullet extends BaseBullet {
         super(params);
     }
 
-    override tick(dt: number) {
-        super.tick(dt);
+    override update(dt: number) {
+        super.update(dt);
 
         if (
             this.position.x < 0 ||

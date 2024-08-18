@@ -47,7 +47,7 @@ export abstract class ClientEntity<T extends ValidEntityType = ValidEntityType> 
     interpolationTick = 0;
     interpolationFactor = 0;
 
-    render(dt: number): void {
+    update(dt: number): void {
         this.interpolationTick += dt;
         this.interpolationFactor = MathUtils.clamp(
             this.interpolationTick / this.game.serverDt,
@@ -176,10 +176,10 @@ export class EntityManager {
         }
     }
 
-    render(dt: number) {
+    update(dt: number) {
         for (let i = 0; i < this.entities.length; i++) {
             if (this.entities[i].active) {
-                this.entities[i].render(dt);
+                this.entities[i].update(dt);
             }
         }
     }

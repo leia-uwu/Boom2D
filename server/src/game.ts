@@ -48,9 +48,9 @@ export class Game {
         this.now = now;
 
         // update entities
-        this.entityManager.tick(dt);
-        this.bulletManager.tick(dt);
-        this.explosionManager.tick();
+        this.entityManager.update(dt);
+        this.bulletManager.update(dt);
+        this.explosionManager.update();
 
         // Cache entity serializations, calculate visible objects for players, send packets etc
         this.entityManager.serializeEntities();

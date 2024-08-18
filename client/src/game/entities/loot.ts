@@ -78,8 +78,8 @@ export class Loot extends ClientEntity {
         }
     }
 
-    override render(dt: number): void {
-        super.render(dt);
+    override update(dt: number): void {
+        super.update(dt);
         this.container.alpha = this.canPickup ? 1 : 0.3;
         this.background.visible = this.canPickup;
 

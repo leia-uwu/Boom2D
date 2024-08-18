@@ -19,7 +19,7 @@ export class Obstacle extends ServerEntity {
         this.hitbox = BaseHitbox.fromJSON(def.hitbox).transform(this.position);
     }
 
-    tick() {}
+    update() {}
 
     get data(): Required<EntitiesNetData[EntityType.Obstacle]> {
         return {

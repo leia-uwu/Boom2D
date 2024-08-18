@@ -54,7 +54,7 @@ export class BaseBullet implements BulletParams {
         );
     }
 
-    tick(dt: number) {
+    update(dt: number) {
         const def = BulletDefs.typeToDef(this.type);
 
         this.lastPosition = Vec2.clone(this.position);

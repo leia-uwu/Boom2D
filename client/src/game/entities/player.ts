@@ -13,6 +13,7 @@ import { Vec2 } from "../../../../common/src/utils/vector";
 import { Helpers } from "../../helpers";
 import type { GameSound } from "../audioManager";
 import { Camera } from "../camera";
+import { DEBUG_ENABLED, debugRenderer } from "../debug";
 import type { ParticleDefKey } from "../particle";
 import { ClientEntity, EntityPool } from "./entity";
 
@@ -164,8 +165,8 @@ export class Player extends ClientEntity {
         }
     }
 
-    override render(dt: number): void {
-        super.render(dt);
+    override update(dt: number): void {
+        super.update(dt);
         const pos = Camera.vecToScreen(
             Vec2.lerp(this.oldPosition, this.position, this.interpolationFactor)
         );
@@ -205,6 +206,16 @@ export class Player extends ClientEntity {
             }
         }
         this.images.muzzle.alpha = MathUtils.lerp(0, 1, this.muzzleTicker);
+
+        if (DEBUG_ENABLED) {
+            debugRenderer.addHitbox(this.hitbox, 0x0000ff);
+            debugRenderer.addRay(
+                this.position,
+                this.direction,
+                weaponDef.barrelLength,
+                0x0000ff
+            );
+        }
     }
 
     shootEffect(weapon: WeaponDefKey): void {

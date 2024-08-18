@@ -15,6 +15,7 @@ import { settings } from "../settings";
 import { AudioManager } from "./audioManager";
 import { BulletManager } from "./bullet";
 import { Camera } from "./camera";
+import { DEBUG_ENABLED, debugRenderer } from "./debug";
 import { type ClientEntity, EntityManager } from "./entities/entity";
 import { LootManager } from "./entities/loot";
 import { ObstacleManager } from "./entities/obstacle";
@@ -73,10 +74,14 @@ export class Game {
     async init(): Promise<void> {
         await this.loadAssets();
         this.ui.init();
-        this.pixi.ticker.add(this.render.bind(this));
+        this.pixi.ticker.add(this.update.bind(this));
         this.pixi.renderer.on("resize", this.resize.bind(this));
 
         this.pixi.stage.addChild(this.camera.container, this.ui);
+
+        if (DEBUG_ENABLED) {
+            this.camera.addObject(debugRenderer.graphics);
+        }
 
         this.resize();
         this.connect();
@@ -131,7 +136,6 @@ export class Game {
     resetGame() {
         this.entityManager.clear();
         this.playerManager.clear();
-        this.camera.clear();
         this.particleManager.clear();
         this.ui.clear();
     }
@@ -291,21 +295,22 @@ export class Game {
 
     now = Date.now();
 
-    render(): void {
+    update(): void {
         const now = Date.now();
         const dt = (now - this.now) / 1000;
         this.now = now;
 
-        this.ui.render(dt);
-
-        this.entityManager.render(dt);
-        this.bulletManager.tick(dt);
-
-        this.particleManager.render(dt);
-        this.explosionManager.render(dt);
-
-        this.audioManager.update();
-        this.camera.render(dt);
         this.inputManager.update(dt);
+        this.entityManager.update(dt);
+        this.bulletManager.update(dt);
+        this.particleManager.update(dt);
+        this.explosionManager.update(dt);
+        this.audioManager.update();
+
+        this.camera.render(dt);
+        this.ui.render(dt);
+        debugRenderer.render();
+
+        debugRenderer.flush();
     }
 }

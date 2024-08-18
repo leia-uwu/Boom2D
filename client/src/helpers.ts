@@ -1,6 +1,6 @@
 import { type Graphics, type Sprite, Texture } from "pixi.js";
 import type { ImgDefinition } from "../../common/src/utils/definitionList";
-import { type Hitbox, HitboxType } from "../../common/src/utils/hitbox";
+import { type HitboxJSON, HitboxType } from "../../common/src/utils/hitbox";
 import { assert } from "../../common/src/utils/util";
 import { Camera } from "./game/camera";
 
@@ -42,7 +42,7 @@ export const Helpers = {
         }
     },
 
-    drawHitbox(ctx: Graphics, hitbox: Hitbox) {
+    drawHitbox(ctx: Graphics, hitbox: HitboxJSON) {
         switch (hitbox.type) {
             case HitboxType.Circle: {
                 const pos = Camera.vecToScreen(hitbox.position);

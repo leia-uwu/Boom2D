@@ -47,7 +47,7 @@ export abstract class ServerEntity<T extends ValidEntityType = ValidEntityType> 
         this._position = pos;
     }
 
-    abstract tick(dt: number): void;
+    abstract update(dt: number): void;
 
     init(): void {
         // + 3 for entity id (2 bytes) and entity type (1 byte)
@@ -175,9 +175,9 @@ export class EntityManager {
         entity.__type = EntityType.Invalid;
     }
 
-    tick(dt: number): void {
+    update(dt: number): void {
         for (let i = 0; i < this.entities.length; i++) {
-            this.entities[i]?.tick(dt);
+            this.entities[i]?.update(dt);
         }
     }
 
