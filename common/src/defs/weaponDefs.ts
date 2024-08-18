@@ -10,6 +10,7 @@ export interface GunDef extends BaseLootDef {
     key: string;
     ammo: AmmoDefKey;
     ammoPerShot: number;
+    ammoOnPickup: number;
     fireCooldown: number;
     fireDelay?: number;
     switchDelay: number;
@@ -41,6 +42,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 0,
         ammo: "bullet",
         ammoPerShot: 1,
+        ammoOnPickup: 20,
         fireCooldown: 0.3,
         switchDelay: 0.5,
         bulletType: "pistol_bullet",
@@ -67,6 +69,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 10,
         ammo: "shell",
         ammoPerShot: 1,
+        ammoOnPickup: 8,
         fireCooldown: 0.9,
         switchDelay: 1,
         bulletType: "shotgun_bullet",
@@ -95,6 +98,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 10,
         ammo: "bullet",
         ammoPerShot: 1,
+        ammoOnPickup: 60,
         fireCooldown: 0.06,
         switchDelay: 0.5,
         bulletType: "pistol_bullet",
@@ -122,6 +126,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 15,
         ammo: "rocket",
         ammoPerShot: 1,
+        ammoOnPickup: 4,
         fireCooldown: 0.5,
         switchDelay: 0.5,
         bulletCount: 1,
@@ -149,6 +154,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 15,
         ammo: "cell",
         ammoPerShot: 1,
+        ammoOnPickup: 30,
         fireCooldown: 0.1,
         switchDelay: 0.5,
         projectileType: "plasma",
@@ -176,6 +182,7 @@ export const WeaponDefs = new DefinitionList({
         respawnTime: 25,
         ammo: "cell",
         ammoPerShot: 40,
+        ammoOnPickup: 40,
         fireCooldown: 2,
         fireDelay: 1.5,
         switchDelay: 1,

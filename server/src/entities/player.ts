@@ -348,14 +348,16 @@ export class Player extends ServerEntity {
                     this.weapons[weapType] = true;
                     this.dirty.weapons = true;
                     sucess = true;
+                    this.ammo[def.ammo] += def.ammoOnPickup;
+                    this.dirty.ammo = true;
                 }
                 break;
             }
             case "ammo-pickup": {
-                for (const ammo in AmmoDefs.definitions) {
-                    const amount = def.ammo[ammo as AmmoDefKey];
+                for (const ammo of AmmoDefs) {
+                    const amount = def.ammo[ammo];
                     if (amount !== undefined) {
-                        this.ammo[ammo as AmmoDefKey] += amount;
+                        this.ammo[ammo] += amount;
                     }
                 }
                 this.dirty.ammo = true;
