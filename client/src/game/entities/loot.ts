@@ -99,6 +99,7 @@ export class Loot extends ClientEntity {
             }
 
             this.container.scale = MathUtils.remap(this.scaleTicker, 0, 2, 0.8, 1);
+            this.background.alpha = MathUtils.remap(this.scaleTicker, 0, 1, 0.5, 1);
         } else {
             this.container.scale = 1;
         }
