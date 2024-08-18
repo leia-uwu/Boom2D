@@ -47,7 +47,8 @@ export class WeaponManager {
         );
 
         let finalGunPos = Vec2.clone(gunEndPos);
-        let dist = Vec2.distanceSqrt(gunStartPos, gunEndPos);
+        const originalDist = Vec2.distanceSqrt(gunStartPos, gunEndPos);
+        let dist = originalDist;
 
         for (const entity of entities) {
             if (entity.__type !== EntityType.Obstacle) continue;
@@ -80,6 +81,9 @@ export class WeaponManager {
                     dist = intersectionDist;
                 }
             }
+        }
+        if (dist < originalDist) {
+            finalGunPos = Vec2.sub(finalGunPos, Vec2.mul(dir, 0.1));
         }
 
         if (weaponDef.bulletType) {
