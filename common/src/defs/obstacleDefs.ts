@@ -7,7 +7,9 @@ export interface ObstacleDef {
     img: ImgDefinition;
 }
 
-export const ObstacleDefs = new DefinitionList({
+export type ObstacleDefKey = "barrel";
+
+const rawDefs: Record<ObstacleDefKey, ObstacleDef> = {
     barrel: {
         hitbox: new CircleHitbox(2).toJSON(),
         health: 100,
@@ -16,6 +18,6 @@ export const ObstacleDefs = new DefinitionList({
             tint: 0x550000
         }
     }
-} satisfies Record<string, ObstacleDef>);
+};
 
-export type ObstacleDefKey = keyof (typeof ObstacleDefs)["definitions"];
+export const ObstacleDefs = new DefinitionList(rawDefs);

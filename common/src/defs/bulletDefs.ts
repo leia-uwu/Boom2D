@@ -12,7 +12,9 @@ export interface BulletDef {
     trailFadeSpeed?: number;
 }
 
-export const BulletDefs = new DefinitionList({
+export type BulletDefKey = "pistol_bullet" | "shotgun_bullet" | "bfg_tracer";
+
+const rawDefs: Record<BulletDefKey, BulletDef> = {
     pistol_bullet: {
         damage: {
             min: 5,
@@ -42,6 +44,6 @@ export const BulletDefs = new DefinitionList({
         trailColor: 0x00ff00,
         trailFadeSpeed: 0.1
     }
-} satisfies Record<string, BulletDef>);
+};
 
-export type BulletDefKey = keyof (typeof BulletDefs)["definitions"];
+export const BulletDefs = new DefinitionList<BulletDefKey, BulletDef>(rawDefs);

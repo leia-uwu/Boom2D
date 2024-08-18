@@ -1,6 +1,6 @@
 import { Sprite } from "pixi.js";
 import { BaseBullet, type BulletParams } from "../../../common/src/baseBullet";
-import type { Wall } from "../../../common/src/baseMap";
+import type { MapObject } from "../../../common/src/baseMap";
 import { EntityType } from "../../../common/src/constants";
 import { type BulletDef, BulletDefs } from "../../../common/src/defs/bulletDefs";
 import { ObstacleDefs } from "../../../common/src/defs/obstacleDefs";
@@ -115,7 +115,7 @@ export class ClientBullet extends BaseBullet {
     createHitParticle(
         position: Vector,
         normal: Vector,
-        wall?: Wall,
+        wall?: MapObject,
         entity?: ClientEntity
     ) {
         if (wall || entity?.__type === EntityType.Obstacle) {
@@ -124,7 +124,7 @@ export class ClientBullet extends BaseBullet {
                 tint = wall.color;
             } else if (entity && entity.__type == EntityType.Obstacle) {
                 const def = ObstacleDefs.typeToDef((entity as Obstacle).type);
-                tint = def.img.tint;
+                tint = def.img.tint ?? tint;
             }
 
             this.game.particleManager.addParticle(

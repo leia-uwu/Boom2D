@@ -6,12 +6,14 @@ export interface MapDef {
     image: string;
 }
 
-export const MapDefs = new DefinitionList({
+export type MapDefKey = "test";
+
+export const rawDefs: Record<MapDefKey, MapDef> = {
     test: {
         width: 256,
         height: 256,
         image: "/client/assets/img/maps/test-map.svg"
     }
-} satisfies Record<string, MapDef>);
+};
 
-export type MapDefKey = keyof (typeof MapDefs)["definitions"];
+export const MapDefs = new DefinitionList<MapDefKey, MapDef>(rawDefs);

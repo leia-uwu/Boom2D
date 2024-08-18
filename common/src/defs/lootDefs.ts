@@ -1,6 +1,6 @@
 import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
 import type { AmmoDefKey } from "./ammoDefs";
-import { type GunDef, WeaponDefs } from "./weaponDefs";
+import { type GunDef, type WeaponDefKey, WeaponDefs } from "./weaponDefs";
 
 export interface BaseLootDef {
     lootImg: ImgDefinition;
@@ -22,7 +22,20 @@ export interface PowerUpDef extends BaseLootDef {
 
 export type LootDef = GunDef | AmmoPickupDef | PowerUpDef;
 
-export const LootDefs = new DefinitionList({
+export type LootDefKey =
+    | WeaponDefKey
+    | "ammoClip"
+    | "ammoBox"
+    | "shell"
+    | "shellBox"
+    | "rocket"
+    | "rocketBox"
+    | "energyCell"
+    | "energyCellPack"
+    | "stimpack"
+    | "medikit";
+
+const rawDefs: Record<LootDefKey, LootDef> = {
     ...WeaponDefs.definitions,
     ammoClip: {
         type: "ammo-pickup",
@@ -126,6 +139,6 @@ export const LootDefs = new DefinitionList({
             src: "medikit.svg"
         }
     }
-} satisfies Record<string, LootDef>);
+};
 
-export type LootDefKey = keyof (typeof LootDefs)["definitions"];
+export const LootDefs = new DefinitionList<LootDefKey, LootDef>(rawDefs);

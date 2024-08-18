@@ -24,8 +24,9 @@ export interface ProjectileDef {
         rate: number;
     };
 }
+export type ProjectileDefKey = "rocket" | "plasma" | "bfg";
 
-export const ProjectileDefs = new DefinitionList({
+const rawDefs: Record<ProjectileDefKey, ProjectileDef> = {
     rocket: {
         radius: 0.3,
         speed: 40,
@@ -84,6 +85,8 @@ export const ProjectileDefs = new DefinitionList({
             rate: 0.2
         }
     }
-} satisfies Record<string, ProjectileDef>);
+};
 
-export type ProjectileDefKey = keyof (typeof ProjectileDefs)["definitions"];
+export const ProjectileDefs = new DefinitionList<ProjectileDefKey, ProjectileDef>(
+    rawDefs
+);

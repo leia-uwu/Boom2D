@@ -20,18 +20,18 @@ export interface ImgDefinition {
 // Definition list
 //
 
-export class DefinitionList<T extends Record<string, object>> {
-    private readonly _typeToId = {} as unknown as Record<keyof T, number>;
-    private readonly _idToType: Record<number, keyof T> = {};
+export class DefinitionList<Types extends string, Def extends object> {
+    private readonly _typeToId = {} as unknown as Record<Types, number>;
+    private readonly _idToType: Record<number, Types> = {};
     private _nextId = 0;
     private readonly _maxId: number;
     readonly bits: number;
 
-    constructor(public definitions: T) {
-        const keys = Object.keys(definitions);
-
+    constructor(public definitions: Record<Types, Def>) {
         // Type 0 is reserved for sending optional types to the stream
-        this._addType("");
+        this._addType("" as Types);
+
+        const keys = Object.keys(definitions) as Types[];
         // + 1 for the the above
         this._maxId = keys.length + 1;
         this.bits = Math.ceil(Math.log2(this._maxId));
@@ -41,19 +41,19 @@ export class DefinitionList<T extends Record<string, object>> {
         }
     }
 
-    private _addType(type: keyof T) {
+    private _addType(type: Types): void {
         this._idToType[this._nextId] = type;
         this._typeToId[type] = this._nextId;
         this._nextId++;
     }
 
-    typeToId(type: keyof T) {
+    typeToId(type: Types): number {
         const id = this._typeToId[type];
         assert(type !== undefined, `Invalid type: ${type.toString()}`);
         return id;
     }
 
-    idToType(id: number): keyof T {
+    idToType(id: number): Types {
         const type = this._idToType[id];
         assert(type !== undefined, `Invalid id ${id}, max: ${this._maxId}`);
         return type;
@@ -62,7 +62,7 @@ export class DefinitionList<T extends Record<string, object>> {
     /**
      * Get a definition from a type
      */
-    typeToDef(type: keyof T | string): T[keyof T] {
+    typeToDef(type: Types): Def {
         const def = this.definitions[type];
         assert(def !== undefined, `Invalid type: ${type.toString()}`);
         return def;
@@ -71,18 +71,18 @@ export class DefinitionList<T extends Record<string, object>> {
     /**
      * Write a definition to a stream
      */
-    write(stream: GameBitStream, type: keyof T) {
+    write(stream: GameBitStream, type: Types) {
         stream.writeBits(this.typeToId(type), this.bits);
     }
 
     /**
      * Read a definition from the stream
      */
-    read(stream: GameBitStream): keyof T {
+    read(stream: GameBitStream): Types {
         return this.idToType(stream.readBits(this.bits));
     }
 
     [Symbol.iterator]() {
-        return (Object.keys(this.definitions) as Array<keyof T>)[Symbol.iterator]();
+        return (Object.keys(this.definitions) as Array<Types>)[Symbol.iterator]();
     }
 }

@@ -5,7 +5,9 @@ interface AmmoDef {
     inventoryImg: ImgDefinition;
 }
 
-export const AmmoDefs = new DefinitionList({
+export type AmmoDefKey = "bullet" | "shell" | "rocket" | "cell";
+
+const rawDefs: Record<AmmoDefKey, AmmoDef> = {
     bullet: {
         color: 0xffff00,
         inventoryImg: {
@@ -30,6 +32,6 @@ export const AmmoDefs = new DefinitionList({
             src: "ui-cell.svg"
         }
     }
-} satisfies Record<string, AmmoDef>);
+};
 
-export type AmmoDefKey = keyof (typeof AmmoDefs)["definitions"];
+export const AmmoDefs = new DefinitionList<AmmoDefKey, AmmoDef>(rawDefs);

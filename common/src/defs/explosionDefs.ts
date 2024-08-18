@@ -14,7 +14,9 @@ export interface ExplosionDef {
     sound?: string;
 }
 
-export const ExplosionDefs = new DefinitionList({
+export type ExplosionDefKey = "rocket" | "plasma" | "bfg";
+
+const rawDefs: Record<ExplosionDefKey, ExplosionDef> = {
     rocket: {
         radius: 6,
         damage: 80,
@@ -59,6 +61,6 @@ export const ExplosionDefs = new DefinitionList({
         },
         sound: "bfg-explosion.mp3"
     }
-} satisfies Record<string, ExplosionDef>);
+};
 
-export type ExplosionDefKey = keyof (typeof ExplosionDefs)["definitions"];
+export const ExplosionDefs = new DefinitionList(rawDefs);

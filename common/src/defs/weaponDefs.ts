@@ -35,7 +35,16 @@ export interface GunDef extends BaseLootDef {
         spawnDelay: number;
     };
 }
-export const WeaponDefs = new DefinitionList({
+
+export type WeaponDefKey =
+    | "pistol"
+    | "shotgun"
+    | "ak"
+    | "rocket_launcher"
+    | "plasma_rifle"
+    | "bfg";
+
+const rawDefs: Record<WeaponDefKey, GunDef> = {
     pistol: {
         type: "gun",
         key: "1",
@@ -212,6 +221,6 @@ export const WeaponDefs = new DefinitionList({
             spawnDelay: 0.03
         }
     }
-} satisfies Record<string, GunDef>);
+};
 
-export type WeaponDefKey = keyof (typeof WeaponDefs)["definitions"];
+export const WeaponDefs = new DefinitionList<WeaponDefKey, GunDef>(rawDefs);
