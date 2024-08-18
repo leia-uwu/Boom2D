@@ -47,6 +47,7 @@ export type WeaponDefKey =
 const rawDefs: Record<WeaponDefKey, GunDef> = {
     pistol: {
         type: "gun",
+        lootRadius: 2.5,
         key: "1",
         respawnTime: 0,
         ammo: "bullet",
@@ -74,6 +75,7 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     },
     shotgun: {
         type: "gun",
+        lootRadius: 2.5,
         key: "2",
         respawnTime: 10,
         ammo: "shell",
@@ -103,6 +105,7 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     },
     ak: {
         type: "gun",
+        lootRadius: 2.5,
         key: "3",
         respawnTime: 10,
         ammo: "bullet",
@@ -131,6 +134,7 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     },
     rocket_launcher: {
         type: "gun",
+        lootRadius: 2.5,
         key: "4",
         respawnTime: 15,
         ammo: "rocket",
@@ -159,6 +163,7 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     },
     plasma_rifle: {
         type: "gun",
+        lootRadius: 2.5,
         key: "5",
         respawnTime: 15,
         ammo: "cell",
@@ -187,6 +192,7 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     },
     bfg: {
         type: "gun",
+        lootRadius: 2.5,
         key: "6",
         respawnTime: 25,
         ammo: "cell",

@@ -4,6 +4,7 @@ import { type GunDef, type WeaponDefKey, WeaponDefs } from "./weaponDefs";
 
 export interface BaseLootDef {
     lootImg: ImgDefinition;
+    lootRadius: number;
     respawnTime: number;
 }
 
@@ -40,6 +41,7 @@ const rawDefs: Record<LootDefKey, LootDef> = {
     ammoClip: {
         type: "ammo-pickup",
         respawnTime: 10,
+        lootRadius: 1.2,
         ammo: {
             bullet: 10
         },
@@ -50,6 +52,7 @@ const rawDefs: Record<LootDefKey, LootDef> = {
     ammoBox: {
         type: "ammo-pickup",
         respawnTime: 20,
+        lootRadius: 1.8,
         ammo: {
             bullet: 50
         },
@@ -60,6 +63,7 @@ const rawDefs: Record<LootDefKey, LootDef> = {
     shell: {
         type: "ammo-pickup",
         respawnTime: 10,
+        lootRadius: 1.4,
         ammo: {
             shell: 4
         },
@@ -70,6 +74,7 @@ const rawDefs: Record<LootDefKey, LootDef> = {
     shellBox: {
         type: "ammo-pickup",
         respawnTime: 20,
+        lootRadius: 2,
         ammo: {
             shell: 20
         },
@@ -80,6 +85,7 @@ const rawDefs: Record<LootDefKey, LootDef> = {
     rocket: {
         type: "ammo-pickup",
         respawnTime: 15,
+        lootRadius: 1.5,
         ammo: {
             rocket: 1
         },
@@ -90,6 +96,7 @@ const rawDefs: Record<LootDefKey, LootDef> = {
     rocketBox: {
         type: "ammo-pickup",
         respawnTime: 30,
+        lootRadius: 2.5,
         ammo: {
             rocket: 5
         },
@@ -100,6 +107,7 @@ const rawDefs: Record<LootDefKey, LootDef> = {
     energyCell: {
         type: "ammo-pickup",
         respawnTime: 15,
+        lootRadius: 1.5,
         ammo: {
             cell: 40
         },
@@ -110,6 +118,7 @@ const rawDefs: Record<LootDefKey, LootDef> = {
     energyCellPack: {
         type: "ammo-pickup",
         respawnTime: 30,
+        lootRadius: 2.5,
         ammo: {
             cell: 100
         },
@@ -120,6 +129,7 @@ const rawDefs: Record<LootDefKey, LootDef> = {
     stimpack: {
         type: "powerup",
         respawnTime: 10,
+        lootRadius: 1.4,
         health: 10,
         maxHealth: 100,
         armor: 0,
@@ -131,7 +141,8 @@ const rawDefs: Record<LootDefKey, LootDef> = {
     medikit: {
         type: "powerup",
         respawnTime: 10,
-        health: 20,
+        lootRadius: 2,
+        health: 25,
         maxHealth: 100,
         armor: 0,
         maxArmor: 0,

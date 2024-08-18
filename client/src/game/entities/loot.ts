@@ -1,5 +1,6 @@
 import { Sprite, Texture } from "pixi.js";
-import { EntityType, GameConstants } from "../../../../common/src/constants";
+import { EntityType } from "../../../../common/src/constants";
+import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import { type LootDefKey, LootDefs } from "../../../../common/src/defs/lootDefs";
 import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
@@ -22,10 +23,29 @@ export class Loot extends ClientEntity {
 
     sprite = new Sprite();
     background = new Sprite(Texture.from("glow-particle.svg"));
-    hitbox = new CircleHitbox(GameConstants.loot.radius);
+    hitbox = new CircleHitbox(0);
 
     scaleTicker!: number;
     scalingDown!: boolean;
+
+    getBackgroundColor(): number {
+        const def = LootDefs.typeToDef(this.type);
+        switch (def.type) {
+            case "gun": {
+                return AmmoDefs.typeToDef(def.ammo).color;
+            }
+            case "ammo-pickup": {
+                const ammoType = Object.keys(def.ammo)[0] as AmmoDefKey;
+                return AmmoDefs.typeToDef(ammoType).color;
+            }
+            case "powerup": {
+                return 0xaa55ff;
+            }
+            default: {
+                return 0xffffff;
+            }
+        }
+    }
 
     override init() {
         this.container.visible = true;
@@ -49,9 +69,12 @@ export class Loot extends ClientEntity {
             this.position = data.full.position;
             this.type = data.full.type;
             const def = LootDefs.typeToDef(this.type);
+            this.hitbox.radius = def.lootRadius;
 
             Helpers.spriteFromDef(this.sprite, def.lootImg);
-            this.background.width = this.background.height = this.sprite.width;
+            let radius = Camera.unitToScreen(def.lootRadius) * 2;
+            this.background.width = this.background.height = radius;
+            this.background.tint = this.getBackgroundColor();
         }
     }
 

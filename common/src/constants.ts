@@ -24,8 +24,5 @@ export const GameConstants = {
         defaultHealth: 100,
         maxArmor: 200,
         defaultArmor: 0
-    },
-    loot: {
-        radius: 1
     }
 } as const;
