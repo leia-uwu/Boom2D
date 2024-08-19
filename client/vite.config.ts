@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
+import { Config } from "../server/src/config";
 
 export default defineConfig({
     build: {
@@ -7,10 +8,22 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 assetFileNames(assetInfo) {
-                    if (assetInfo.name?.endsWith(".css")) {
-                        return "css/[name]-[hash][extname]";
+                    let path = "assets";
+                    switch (assetInfo.name?.slice(-3)) {
+                        case "css":
+                            path = "css";
+                            break;
+                        case "svg":
+                        case "png":
+                            path = "img";
+                            break;
+                        case "mp3":
+                            path = "sounds";
+                            break;
+                        case "ttf":
+                            path = "fonts";
                     }
-                    return "assets/[name]-[hash][extname]";
+                    return `${path}/[name]-[hash][extname]`;
                 },
                 entryFileNames: "js/app-[hash].js",
                 chunkFileNames: "js/[name]-[hash].js",
@@ -34,6 +47,19 @@ export default defineConfig({
     },
     preview: {
         port: 3000,
-        host: "0.0.0.0"
+        host: "0.0.0.0",
+        proxy: {
+            "/server_info": {
+                target: `http://${Config.host}:${Config.port}`,
+                changeOrigin: true,
+                secure: false
+            },
+            "/play": {
+                target: `http://${Config.host}:${Config.port}`,
+                changeOrigin: true,
+                secure: false,
+                ws: true
+            }
+        }
     }
 });
