@@ -33,6 +33,9 @@ export class Game {
 
     tickTimes: number[] = [];
     perfTicker = 0;
+    deltaTimes: number[] = [];
+    tps = 0;
+    tpsTicker = 0;
     logger = new Logger("Game");
 
     timer: Timer;
@@ -63,6 +66,17 @@ export class Game {
         this.bulletManager.flush();
         this.explosionManager.flush();
 
+        this.deltaTimes.push(dt);
+        this.tpsTicker += dt;
+        if (this.tpsTicker > 2) {
+            this.tpsTicker = 0;
+            const avgDt =
+                this.deltaTimes.reduce((a, b) => a + b) / (this.deltaTimes.length - 1);
+            this.tps = Math.round(1 / avgDt);
+            this.deltaTimes.length = 0;
+        }
+
+        // TODO: combine this perf ticker with TPS ticker
         if (this.config.perfLogging.enabled) {
             // Record performance and start the next tick
             // THIS TICK COUNTER IS WORKING CORRECTLY!

@@ -40,6 +40,11 @@ const SettingsData: Array<SettingData> = [
         label: "Show FPS",
         settingKey: "showFPS",
         type: SettingType.CheckBox
+    },
+    {
+        label: "Show Ping",
+        settingKey: "showPing",
+        type: SettingType.CheckBox
     }
 ];
 

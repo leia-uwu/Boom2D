@@ -1,15 +1,14 @@
-import { Container, Text } from "pixi.js";
+import { Container } from "pixi.js";
 import type { AmmoDefKey } from "../../../../common/src/defs/ammoDefs";
 import { WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
-import { settings } from "../../settings";
 import type { Game } from ".././game";
 import { AmmoUi } from "./ammoUi";
 import { DeathUi } from "./deathUi";
+import { DebugUi } from "./debugUi";
 import { KillFeedUi } from "./killFeedUi";
 import { LeaderBoardUi } from "./leaderBoardUi";
 import { StatusUi } from "./statusUi";
-import { UiStyle, UiTextStyle } from "./uiHelpers";
 import { WeaponsUi } from "./weaponsUi";
 
 export class GameUi extends Container {
@@ -19,18 +18,13 @@ export class GameUi extends Container {
     leaderBoardUi = new LeaderBoardUi();
     killFeedUi = new KillFeedUi();
     deathUi = new DeathUi();
+    debugUi: DebugUi;
 
     ammo = {} as Record<AmmoDefKey, number>;
 
-    fpsCounter = new Text({
-        style: {
-            ...UiTextStyle,
-            fontSize: 13
-        }
-    });
-
     constructor(readonly game: Game) {
         super({ visible: false });
+        this.debugUi = new DebugUi(this.game);
     }
 
     init() {
@@ -39,6 +33,7 @@ export class GameUi extends Container {
         this.ammoUi.init();
         this.deathUi.init(this.game);
         this.leaderBoardUi.init();
+        this.debugUi.init();
 
         this.addChild(
             this.statusUi,
@@ -47,23 +42,15 @@ export class GameUi extends Container {
             this.killFeedUi,
             this.leaderBoardUi,
             this.deathUi,
-            this.fpsCounter
+            this.debugUi
         );
-
-        this.fpsCounter.position.set(UiStyle.margin, UiStyle.margin);
     }
 
     render(dt: number) {
         this.weaponsUi.render(dt);
         this.deathUi.render(dt);
         this.killFeedUi.render(dt);
-
-        if (settings.get("showFPS")) {
-            this.fpsCounter.text = `${this.game.fps} FPS`;
-            this.fpsCounter.visible = true;
-        } else {
-            this.fpsCounter.visible = false;
-        }
+        this.debugUi.render(dt);
     }
 
     resize(): void {

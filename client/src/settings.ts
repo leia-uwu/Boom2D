@@ -5,6 +5,7 @@ interface GameSettings {
     name: string;
     globalVolume: number;
     showFPS: boolean;
+    showPing: boolean;
 }
 
 export type SettingKey = keyof GameSettings;
@@ -13,6 +14,7 @@ const defaultSettings: GameSettings = {
     server: ClientConfig.defaultServer,
     name: "",
     showFPS: false,
+    showPing: false,
     globalVolume: 1
 };
 

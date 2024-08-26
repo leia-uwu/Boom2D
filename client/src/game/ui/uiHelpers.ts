@@ -59,6 +59,7 @@ interface LayoutOptions {
     margin: number;
     width: number;
     height: number;
+    ignoreInvisible: boolean;
 }
 
 class Layout extends Container {
@@ -69,6 +70,7 @@ class Layout extends Container {
             width: 0,
             height: 0,
             margin: 0,
+            ignoreInvisible: false,
             ...layout
         };
     }
@@ -78,6 +80,7 @@ export class VerticalLayout extends Layout {
     relayout() {
         for (let i = 0, y = 0; i < this.children.length; i++) {
             const child = this.children[i];
+            if (this.layout.ignoreInvisible && !child.visible) continue;
             child.y = y;
             y += (this.layout.height || child.height) + this.layout.margin;
         }
@@ -88,6 +91,7 @@ export class HorizontalLayout extends Layout {
     relayout() {
         for (let i = 0, x = 0; i < this.children.length; i++) {
             const child = this.children[i];
+            if (this.layout.ignoreInvisible && !child.visible) continue;
             child.x = x;
             x += (this.layout.width || child.width) + this.layout.margin;
         }

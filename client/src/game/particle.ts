@@ -14,10 +14,9 @@ import type { Game } from "./game";
 
 export class ParticleManager {
     particles: Particle[] = [];
+    activeCount = 0;
 
-    constructor(public game: Game) {}
-
-    init() {
+    constructor(public game: Game) {
         // pre-allocate some particles
         for (let i = 0; i < 100; i++) {
             const part = new Particle();
@@ -56,17 +55,18 @@ export class ParticleManager {
     }
 
     update(dt: number) {
-        let activeCount = 0;
+        this.activeCount = 0;
         for (let i = 0; i < this.particles.length; i++) {
             const part = this.particles[i];
+            part.sprite.visible = part.active;
             if (part.active) {
-                activeCount++;
+                this.activeCount++;
                 part.update(dt);
             }
         }
 
         // free some particles if pool is too big
-        if (this.particles.length > 512 && activeCount < this.particles.length / 2) {
+        if (this.particles.length > 512 && this.activeCount < this.particles.length / 2) {
             const compact = [];
             for (let i = 0; i < this.particles.length; i++) {
                 const part = this.particles[i];
@@ -82,9 +82,8 @@ export class ParticleManager {
 
     clear() {
         for (let i = 0; i < this.particles.length; i++) {
-            this.particles[i].sprite.destroy();
+            this.particles[i].active = false;
         }
-        this.particles.length = 0;
     }
 }
 
@@ -200,8 +199,6 @@ class Particle {
     }
 
     update(dt: number) {
-        this.sprite.visible = true;
-
         this.tick += dt;
         if (this.tick > this.end) {
             this.active = false;

@@ -2,10 +2,12 @@ import type { Application } from "pixi.js";
 import { EntityType } from "../../../common/src/constants";
 import { type Packet, PacketStream } from "../../../common/src/net";
 import { DeathPacket } from "../../../common/src/packets/deathPacket";
+import { DebugPacket } from "../../../common/src/packets/debugPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { JoinedPacket } from "../../../common/src/packets/joinedPacket";
 import { KillPacket } from "../../../common/src/packets/killPacket";
 import { MapPacket } from "../../../common/src/packets/mapPacket";
+import { PingPacket } from "../../../common/src/packets/pingPacket";
 import { QuitPacket } from "../../../common/src/packets/quitPacket";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
 import { assert } from "../../../common/src/utils/util";
@@ -169,6 +171,12 @@ export class Game {
                         this.activePlayerID
                     );
                     break;
+                case packet instanceof PingPacket:
+                    this.ui.debugUi.onPingPacket();
+                    break;
+                case packet instanceof DebugPacket:
+                    this.ui.debugUi.updateServerInfo(packet);
+                    break;
             }
         }
     }
@@ -296,7 +304,7 @@ export class Game {
     now = Date.now();
 
     deltaTimes: number[] = [];
-    lastFPSUpdate = 0;
+    fpsTicker = 0;
     fps = 0;
 
     update(): void {
@@ -305,7 +313,7 @@ export class Game {
         this.now = now;
 
         this.deltaTimes.push(dt);
-        this.lastFPSUpdate += dt;
+        this.fpsTicker += dt;
 
         this.inputManager.update(dt);
         this.entityManager.update(dt);
@@ -320,11 +328,11 @@ export class Game {
 
         debugRenderer.flush();
 
-        if (this.lastFPSUpdate > 2) {
-            this.lastFPSUpdate = 0;
+        if (this.fpsTicker > 2) {
+            this.fpsTicker = 0;
             const avgDt =
                 this.deltaTimes.reduce((a, b) => a + b) / (this.deltaTimes.length - 1);
-            this.fps = Math.ceil(1 / avgDt);
+            this.fps = Math.round(1 / avgDt);
             this.deltaTimes.length = 0;
         }
     }

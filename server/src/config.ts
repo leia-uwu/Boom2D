@@ -6,6 +6,8 @@ export const Config: ServerConfig = {
     tps: 35,
     map: "test",
 
+    allowDebugging: true,
+
     perfLogging: {
         enabled: true,
         time: 10
@@ -17,6 +19,11 @@ export interface ServerConfig {
     readonly port: number;
 
     readonly map: MapDefKey;
+
+    /**
+     * Allow server to send client debug information
+     */
+    allowDebugging: boolean;
 
     /**
      * The server tick rate

@@ -1,11 +1,14 @@
 import { BitStream } from "bit-buffer";
 import { GameConstants } from "./constants";
 import { DeathPacket } from "./packets/deathPacket";
+import { DebugPacket } from "./packets/debugPacket";
+import { DebugTogglePacket } from "./packets/debugTogglePacket";
 import { InputPacket } from "./packets/inputPacket";
 import { JoinPacket } from "./packets/joinPacket";
 import { JoinedPacket } from "./packets/joinedPacket";
 import { KillPacket } from "./packets/killPacket";
 import { MapPacket } from "./packets/mapPacket";
+import { PingPacket } from "./packets/pingPacket";
 import { QuitPacket } from "./packets/quitPacket";
 import { RespawnPacket } from "./packets/respawnPacket";
 import { UpdatePacket } from "./packets/updatePacket";
@@ -384,7 +387,14 @@ class PacketRegister {
 }
 
 const ClientToServerPackets = new PacketRegister();
-ClientToServerPackets.register(JoinPacket, InputPacket, RespawnPacket, QuitPacket);
+ClientToServerPackets.register(
+    JoinPacket,
+    InputPacket,
+    RespawnPacket,
+    QuitPacket,
+    PingPacket,
+    DebugTogglePacket
+);
 
 const ServerToClientPackets = new PacketRegister();
 ServerToClientPackets.register(
@@ -392,7 +402,9 @@ ServerToClientPackets.register(
     JoinedPacket,
     DeathPacket,
     MapPacket,
-    KillPacket
+    KillPacket,
+    PingPacket,
+    DebugPacket
 );
 
 export class PacketStream {

@@ -1,8 +1,11 @@
 import type { ServerWebSocket } from "bun";
 import { GameConstants } from "../../common/src/constants";
 import { type Packet, PacketStream } from "../../common/src/net";
+import { DebugPacket } from "../../common/src/packets/debugPacket";
+import { DebugTogglePacket } from "../../common/src/packets/debugTogglePacket";
 import { InputPacket } from "../../common/src/packets/inputPacket";
 import { JoinPacket } from "../../common/src/packets/joinPacket";
+import { PingPacket } from "../../common/src/packets/pingPacket";
 import { QuitPacket } from "../../common/src/packets/quitPacket";
 import { RespawnPacket } from "../../common/src/packets/respawnPacket";
 import { UpdatePacket } from "../../common/src/packets/updatePacket";
@@ -61,6 +64,8 @@ export class Client {
     player?: Player;
     zoom: number = GameConstants.player.defaultZoom;
 
+    debug = false;
+
     constructor(game: Game, socket: ServerWebSocket<ClientData>) {
         this.game = game;
         this.socket = socket;
@@ -95,6 +100,18 @@ export class Client {
             case packet instanceof QuitPacket: {
                 this.game.playerManager.removePlayer(player);
                 this.player = undefined;
+                break;
+            }
+            case packet instanceof PingPacket: {
+                const stream = new PacketStream(new ArrayBuffer(1));
+                stream.serializeServerPacket(new PingPacket());
+                this.sendData(stream.getBuffer());
+                break;
+            }
+            case packet instanceof DebugTogglePacket: {
+                if (this.game.config.allowDebugging) {
+                    this.debug = packet.enable;
+                }
                 break;
             }
         }
@@ -195,6 +212,15 @@ export class Client {
             updatePacket.leaderboard = this.game.playerManager.leaderBoard;
         }
         this.packetStream.serializeServerPacket(updatePacket);
+
+        if (this.debug) {
+            const debugPacket = new DebugPacket();
+            debugPacket.tps = game.tps;
+            debugPacket.entities = game.entityManager.entities.length;
+            debugPacket.players = game.playerManager.players.length;
+            debugPacket.bullets = game.bulletManager.bullets.length;
+            this.sendPacket(debugPacket);
+        }
 
         if (this.firstPacket) {
             const mapStream = game.map.serializedData.stream;

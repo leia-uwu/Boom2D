@@ -135,6 +135,10 @@ export class InputManager {
             return;
         }
         this._inputsDown[key] = event.type === "keydown" || event.type === "pointerdown";
+
+        if (event.type === "keydown" && key === "Home") {
+            this.game.ui.debugUi.toggle();
+        }
     }
 
     getKeyFromInputEvent(event: KeyboardEvent | MouseEvent | WheelEvent): string {
