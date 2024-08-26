@@ -23,11 +23,21 @@
           <select id="server-selector">
           </select>
           <button id="play-btn" class="btn-green">Play</button>
+          <button id="settings-btn" class="btn-gray">Settings</button>
         </div>
         <div class="panel">
         <h1>How to play</h1>
           <p>Use WASD to move, left click to fire :)</p>
         </div>
+      </div>
+    </div>
+    <div id="settings-menu" class="popup" style="display: none;">
+      <div class="popup-content">
+        <div class="popup-header">
+          <div>Settings</div>
+          <div class="close-popup-btn">✖</div>
+        </div>
+        <div class="popup-inner-content"></div>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

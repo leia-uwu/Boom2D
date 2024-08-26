@@ -1,0 +1,33 @@
+#settings-menu {
+    .popup-content {
+        width: 600px;
+    }
+
+    .popup-inner-content {
+        height: 400px;
+    }
+}
+
+.setting-item {
+    padding: 10px;
+    display: flex;
+
+    .setting-label {
+        height: 30px;
+    }
+
+    .setting-input {
+        margin-left: auto;
+        height: 30px;
+    }
+
+    .range-input-label {
+        margin-right: 10px;
+    }
+
+    input[type="range"] {
+        width: 200px;
+    }
+
+}
+

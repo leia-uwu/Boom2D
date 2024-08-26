@@ -1,0 +1,75 @@
+input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 10px;
+
+    @mixin thumb {
+        height: 20px;
+        width: 10px;
+        margin-top: -5px;
+        border-radius: 0px;
+        cursor: pointer;
+        border: none;
+        background: #ff5500;
+    }
+
+    @mixin track {
+        height: 10px;
+        width: 100%;
+        cursor: pointer;
+        background: white;
+    }
+
+    &::-moz-range-thumb {
+        @include thumb;
+    }
+
+    &::-webkit-slider-thumb {
+        @include thumb;
+    }
+
+    &::-moz-range-track {
+        @include track;
+    }
+
+    &::-webkit-slider-runnable-track {
+        @include track;
+    }
+
+    &::-moz-range-progress {
+        @include track;
+    }
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+    }
+}
+
+input[type="checkbox"] {
+    height: 20px;
+    width: 60px;
+    padding: 0px;
+    background: white;
+    appearance: none;
+    border-radius: 4px;
+
+    &:after {
+        content: "";
+        height: 25px;
+        width: 25px;
+        background-color: #ff5500;
+        display: block;
+        border-radius: 4px;
+        margin-top: -2.5px;
+        transition-property: background, margin-left;
+        transition-duration: 200ms, 200ms;
+    }
+
+    &:checked {
+        background: #ffaa00;
+
+        &:after {
+            margin-left: 40px;
+        }
+    }
+}

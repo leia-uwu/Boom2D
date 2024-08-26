@@ -2,6 +2,7 @@
 import * as PixiSound from "@pixi/sound";
 import { MathUtils } from "../../../common/src/utils/math";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
+import { settings } from "../settings";
 import type { Game } from "./game";
 
 export interface SoundOptions {
@@ -107,7 +108,12 @@ export class AudioManager {
     volume = 1;
     position = Vec2.new(0, 0);
 
-    constructor(public game: Game) {}
+    constructor(public game: Game) {
+        settings.addListener("globalVolume", (value) => {
+            this.volume = value;
+        });
+        this.volume = settings.get("globalVolume");
+    }
 
     play(name: string, options?: Partial<SoundOptions>): GameSound {
         const sound = new GameSound(

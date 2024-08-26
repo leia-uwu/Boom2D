@@ -295,10 +295,17 @@ export class Game {
 
     now = Date.now();
 
+    deltaTimes: number[] = [];
+    lastFPSUpdate = 0;
+    fps = 0;
+
     update(): void {
         const now = Date.now();
         const dt = (now - this.now) / 1000;
         this.now = now;
+
+        this.deltaTimes.push(dt);
+        this.lastFPSUpdate += dt;
 
         this.inputManager.update(dt);
         this.entityManager.update(dt);
@@ -312,5 +319,13 @@ export class Game {
         debugRenderer.render();
 
         debugRenderer.flush();
+
+        if (this.lastFPSUpdate > 2) {
+            this.lastFPSUpdate = 0;
+            const avgDt =
+                this.deltaTimes.reduce((a, b) => a + b) / (this.deltaTimes.length - 1);
+            this.fps = Math.ceil(1 / avgDt);
+            this.deltaTimes.length = 0;
+        }
     }
 }

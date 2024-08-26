@@ -5,11 +5,13 @@
 }
 
 @import "./home.scss";
+@import "./popup.scss";
+@import "./settingsMenu.scss";
+@import "./inputs.scss";
 
 * {
     font-family: "Roboto Mono Semi Bold";
 }
-
 
 *::-webkit-scrollbar {
     width: 10px;
@@ -35,6 +37,11 @@ button {
     &.btn-green {
         background-color: #29a25f;
         border-color: #092A18;
+    }
+
+    &.btn-gray {
+        background-color: #878787;
+        border-color: #212121;
     }
 }
 

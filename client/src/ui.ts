@@ -4,6 +4,7 @@ import { ClientConfig } from "./config";
 import { Helpers } from "./helpers";
 import type { App } from "./main";
 import { settings } from "./settings";
+import { SettingsMenu } from "./settingsMenu";
 
 export class UiManager {
     playButton = Helpers.getElem<HTMLButtonElement>("#play-btn");
@@ -11,8 +12,11 @@ export class UiManager {
     serverSelect = Helpers.getElem<HTMLSelectElement>("#server-selector");
     homeDiv = Helpers.getElem<HTMLDivElement>("#home");
 
+    settingsMenu: SettingsMenu;
+
     constructor(readonly app: App) {
         this.setupMainMenu();
+        this.settingsMenu = new SettingsMenu(app);
     }
 
     setupMainMenu(): void {

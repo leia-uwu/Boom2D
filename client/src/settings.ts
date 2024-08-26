@@ -3,16 +3,26 @@ import { ClientConfig } from "./config";
 interface GameSettings {
     server: string;
     name: string;
+    globalVolume: number;
+    showFPS: boolean;
 }
+
+export type SettingKey = keyof GameSettings;
 
 const defaultSettings: GameSettings = {
     server: ClientConfig.defaultServer,
-    name: ""
+    name: "",
+    showFPS: false,
+    globalVolume: 1
 };
 
 class SettingsManager {
     readonly settingsKey = "boom2d_settings";
     readonly storedSettings: Partial<GameSettings>;
+
+    readonly listeners: Partial<
+        Record<SettingKey, Array<(value: GameSettings[SettingKey]) => void>>
+    > = {};
 
     constructor() {
         this.storedSettings = JSON.parse(localStorage.getItem(this.settingsKey) ?? "{}");
@@ -22,15 +32,31 @@ class SettingsManager {
         localStorage.setItem(this.settingsKey, JSON.stringify(this.storedSettings));
     }
 
-    get<Key extends keyof GameSettings>(key: Key): GameSettings[Key] {
+    get<Key extends SettingKey>(key: Key): GameSettings[Key] {
         return this.storedSettings[key] ?? defaultSettings[key];
     }
 
-    set<Key extends keyof GameSettings>(key: Key, value: GameSettings[Key]) {
-        if (value !== this.storedSettings[key]) {
-            this.storedSettings[key] = value;
-            this.writeToLocalStorage();
+    set<Key extends SettingKey>(key: Key, value: GameSettings[Key]) {
+        if (value === this.storedSettings[key]) return;
+
+        this.storedSettings[key] = value;
+        this.writeToLocalStorage();
+
+        const listeners = this.listeners[key];
+        if (listeners) {
+            for (let i = 0; i < listeners.length; i++) {
+                listeners[i](value);
+            }
         }
+    }
+
+    addListener<Key extends SettingKey>(
+        key: Key,
+        cb: (value: GameSettings[Key]) => void
+    ) {
+        let arr: this["listeners"][Key] = this.listeners[key] ?? [];
+        arr.push(cb as (value: GameSettings[SettingKey]) => void);
+        this.listeners[key] = arr;
     }
 }
 
