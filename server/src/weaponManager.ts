@@ -100,7 +100,7 @@ export class WeaponManager {
         }
     }
 
-    tick(dt: number) {
+    update(dt: number) {
         if (this.stateTicker > 0) {
             this.stateTicker -= dt;
         }

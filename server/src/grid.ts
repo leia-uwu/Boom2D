@@ -11,8 +11,8 @@ export class Grid {
     readonly height: number;
     readonly cellSize = 16;
 
-    //                        X     Y     Entity ID
-    //                      __^__ __^__     ___^__
+    //                        X     Y
+    //                      __^__ __^__
     private readonly _grid: Array<Array<Set<ServerEntity>>>;
 
     constructor(width: number, height: number) {

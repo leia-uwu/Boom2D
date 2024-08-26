@@ -315,7 +315,7 @@ export class Player extends ServerEntity {
             this.game.map.height - rad
         );
 
-        this.weaponManager.tick(dt);
+        this.weaponManager.update(dt);
 
         for (const entity of entities) {
             if (!entity.hitbox.collidesWith(this.hitbox)) continue;

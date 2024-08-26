@@ -304,7 +304,7 @@ export class GameBitStream extends BitStream {
                 const radius = this.readFloat(0, GameConstants.maxPosition, 16);
                 const position = this.readPosition();
                 return {
-                    type: HitboxType.Circle,
+                    type,
                     radius,
                     position
                 };
@@ -313,7 +313,7 @@ export class GameBitStream extends BitStream {
                 const min = this.readPosition();
                 const max = this.readPosition();
                 return {
-                    type: HitboxType.Rect,
+                    type,
                     min,
                     max
                 };
@@ -324,7 +324,7 @@ export class GameBitStream extends BitStream {
                     return this.readPosition();
                 });
                 return {
-                    type: HitboxType.Polygon,
+                    type,
                     verts
                 };
             }

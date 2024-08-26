@@ -39,10 +39,10 @@ export class Game {
 
     constructor(readonly config: ServerConfig) {
         this.map = new GameMap(this, config.map);
-        this.timer = setInterval(this.tick.bind(this), 1000 / config.tps);
+        this.timer = setInterval(this.update.bind(this), 1000 / config.tps);
     }
 
-    tick(): void {
+    update(): void {
         const now = Date.now();
         const dt = (now - this.now) / 1000;
         this.now = now;
