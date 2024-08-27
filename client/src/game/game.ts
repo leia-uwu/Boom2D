@@ -331,7 +331,7 @@ export class Game {
         if (this.fpsTicker > 2) {
             this.fpsTicker = 0;
             const avgDt =
-                this.deltaTimes.reduce((a, b) => a + b) / (this.deltaTimes.length - 1);
+                this.deltaTimes.reduce((a, b) => a + b) / this.deltaTimes.length;
             this.fps = Math.round(1 / avgDt);
             this.deltaTimes.length = 0;
         }

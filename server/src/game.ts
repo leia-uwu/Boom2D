@@ -32,10 +32,10 @@ export class Game {
     now = Date.now();
 
     tickTimes: number[] = [];
+    mspt = 0;
     perfTicker = 0;
     deltaTimes: number[] = [];
     tps = 0;
-    tpsTicker = 0;
     logger = new Logger("Game");
 
     timer: Timer;
@@ -67,32 +67,20 @@ export class Game {
         this.explosionManager.flush();
 
         this.deltaTimes.push(dt);
-        this.tpsTicker += dt;
-        if (this.tpsTicker > 2) {
-            this.tpsTicker = 0;
+        this.tickTimes.push(Date.now() - this.now);
+
+        this.perfTicker += dt;
+        if (this.perfTicker > 5) {
+            this.perfTicker = 0;
             const avgDt =
-                this.deltaTimes.reduce((a, b) => a + b) / (this.deltaTimes.length - 1);
+                this.deltaTimes.reduce((a, b) => a + b) / this.deltaTimes.length;
             this.tps = Math.round(1 / avgDt);
             this.deltaTimes.length = 0;
-        }
 
-        // TODO: combine this perf ticker with TPS ticker
-        if (this.config.perfLogging.enabled) {
-            // Record performance and start the next tick
-            // THIS TICK COUNTER IS WORKING CORRECTLY!
-            // It measures the time it takes to calculate a tick, not the time between ticks.
-            const tickTime = Date.now() - this.now;
-            this.tickTimes.push(tickTime);
+            this.mspt = this.tickTimes.reduce((a, b) => a + b) / this.tickTimes.length;
 
-            this.perfTicker += dt;
-            if (this.perfTicker >= this.config.perfLogging.time) {
-                this.perfTicker = 0;
-                const mspt =
-                    this.tickTimes.reduce((a, b) => a + b) / this.tickTimes.length;
-
-                this.logger.log(`Avg ms/tick: ${mspt.toFixed(2)}`);
-                this.tickTimes = [];
-            }
+            this.logger.log(`Avg ms/tick: ${this.mspt.toFixed(2)}`);
+            this.tickTimes = [];
         }
     }
 

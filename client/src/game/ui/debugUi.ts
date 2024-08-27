@@ -31,6 +31,7 @@ export class DebugUi extends VerticalLayout {
     serverTexts = {
         title: new Text({ text: "-- SERVER --", ...DebugTextOptions }),
         tps: new Text(DebugTextOptions),
+        mspt: new Text(DebugTextOptions),
         entities: new Text(DebugTextOptions),
         players: new Text(DebugTextOptions),
         bullets: new Text(DebugTextOptions)
@@ -123,6 +124,7 @@ export class DebugUi extends VerticalLayout {
         const texts = this.serverTexts;
 
         texts.tps.text = `TPS: ${packet.tps}`;
+        texts.mspt.text = `MSPT: ${packet.mspt.toFixed(2)}`;
         texts.entities.text = `Entities: ${packet.entities}`;
         texts.players.text = `Players: ${packet.players}`;
         texts.bullets.text = `Bullets: ${packet.bullets}`;

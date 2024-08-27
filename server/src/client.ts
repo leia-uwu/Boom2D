@@ -216,6 +216,7 @@ export class Client {
         if (this.debug) {
             const debugPacket = new DebugPacket();
             debugPacket.tps = game.tps;
+            debugPacket.mspt = game.mspt;
             debugPacket.entities = game.entityManager.entities.length;
             debugPacket.players = game.playerManager.players.length;
             debugPacket.bullets = game.bulletManager.bullets.length;
