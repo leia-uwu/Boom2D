@@ -1,7 +1,6 @@
 import { type BaseGameMap, type MapObject, MapObjectType } from "./baseMap";
 import { EntityType, type ValidEntityType } from "./constants";
 import { type BulletDefKey, BulletDefs } from "./defs/bulletDefs";
-import type { GameBitStream } from "./net";
 import type { EntitiesNetData } from "./packets/updatePacket";
 import type { Hitbox } from "./utils/hitbox";
 import { Vec2, type Vector } from "./utils/vector";
@@ -24,19 +23,27 @@ interface GameEntity<T extends ValidEntityType = ValidEntityType> {
 export interface BulletCollision {}
 
 export class BaseBullet implements BulletParams {
-    direction: Vector;
-    initialPosition: Vector;
-    type: BulletDefKey;
-    shooterId: number;
+    active = false;
+    direction!: Vector;
+    initialPosition!: Vector;
+    type!: BulletDefKey;
+    shooterId!: number;
 
-    distanceTraveled = 0;
-    dead = false;
+    distanceTraveled!: number;
+    dead!: boolean;
 
-    position: Vector;
-    lastPosition: Vector;
-    finalPosition: Vector;
+    position!: Vector;
+    lastPosition!: Vector;
+    finalPosition!: Vector;
 
-    constructor(params: BulletParams) {
+    maxDistance!: number;
+    speed!: number;
+
+    protected _init(params: BulletParams) {
+        this.active = true;
+        this.distanceTraveled = 0;
+        this.dead = false;
+
         this.initialPosition = Vec2.clone(params.initialPosition);
         this.direction = Vec2.clone(params.direction);
         this.type = params.type;
@@ -48,6 +55,9 @@ export class BaseBullet implements BulletParams {
 
         const def = BulletDefs.typeToDef(this.type);
 
+        this.maxDistance = def.maxDistance;
+        this.speed = def.speed;
+
         this.finalPosition = Vec2.add(
             this.position,
             Vec2.mul(this.direction, def.maxDistance)
@@ -55,14 +65,15 @@ export class BaseBullet implements BulletParams {
     }
 
     update(dt: number) {
-        const def = BulletDefs.typeToDef(this.type);
-
         this.lastPosition = Vec2.clone(this.position);
-        this.position = Vec2.add(this.position, Vec2.mul(this.direction, def.speed * dt));
+        this.position = Vec2.add(
+            this.position,
+            Vec2.mul(this.direction, this.speed * dt)
+        );
 
         this.distanceTraveled = Vec2.distance(this.initialPosition, this.position);
 
-        if (this.distanceTraveled > def.maxDistance) {
+        if (this.distanceTraveled > this.maxDistance) {
             this.dead = true;
             this.position = Vec2.clone(this.finalPosition);
         }
@@ -139,21 +150,5 @@ export class BaseBullet implements BulletParams {
         });
 
         return collisions;
-    }
-
-    static serialize(stream: GameBitStream, params: BulletParams): void {
-        stream.writeUint16(params.shooterId);
-        stream.writePosition(params.initialPosition);
-        stream.writeUnit(params.direction, 16);
-        BulletDefs.write(stream, params.type);
-    }
-
-    static deserialize(stream: GameBitStream): BulletParams {
-        return {
-            shooterId: stream.readUint16(),
-            initialPosition: stream.readPosition(),
-            direction: stream.readUnit(16),
-            type: BulletDefs.read(stream)
-        };
     }
 }

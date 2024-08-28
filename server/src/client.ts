@@ -219,7 +219,7 @@ export class Client {
             debugPacket.mspt = game.mspt;
             debugPacket.entities = game.entityManager.entities.length;
             debugPacket.players = game.playerManager.players.length;
-            debugPacket.bullets = game.bulletManager.bullets.length;
+            debugPacket.bullets = game.bulletManager.activeCount;
             this.sendPacket(debugPacket);
         }
 

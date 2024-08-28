@@ -14,49 +14,85 @@ import type { Obstacle } from "./entities/obstacle";
 import type { Game } from "./game";
 
 export class BulletManager {
-    readonly bullets: ClientBullet[] = [];
+    bullets: ClientBullet[] = [];
+    activeCount = 0;
 
     constructor(readonly game: Game) {}
 
     update(dt: number) {
+        this.activeCount = 0;
         for (let i = 0; i < this.bullets.length; i++) {
             const bullet = this.bullets[i];
-            bullet.update(dt);
-            if (!bullet.active) {
-                this.bullets.splice(i, 1);
-                bullet.destroy();
+            if (bullet.active) {
+                bullet.update(dt);
+                this.activeCount++;
             }
+        }
+
+        // free some bullets if pool is too big
+        if (this.bullets.length > 128 && this.activeCount < this.bullets.length / 2) {
+            const compact = [];
+            for (let i = 0; i < this.bullets.length; i++) {
+                const bullet = this.bullets[i];
+                if (bullet.active) {
+                    compact.push(bullet);
+                } else {
+                    bullet.trailSprite.destroy();
+                }
+            }
+            this.bullets = compact;
         }
     }
 
     fireBullet(params: BulletParams) {
-        const bullet = new ClientBullet(this.game, params);
-        this.bullets.push(bullet);
+        let bullet: ClientBullet | undefined = undefined;
+
+        for (let i = 0; i < this.bullets.length; i++) {
+            if (!this.bullets[i].active) {
+                bullet = this.bullets[i];
+                break;
+            }
+        }
+
+        if (!bullet) {
+            bullet = new ClientBullet(this.game);
+            this.bullets.push(bullet);
+        }
+
+        bullet.init(params);
         return bullet;
     }
 }
 
 export class ClientBullet extends BaseBullet {
     trailSprite = Sprite.from("bullet-trail.svg");
-    trailTicks = 0;
-    active = true;
-    trailReachedMaxLength = false;
+    trailFadeTicker!: number;
+    trailMaxLength!: number;
+    trailLength!: number;
+    trailFadeSpeed!: number;
 
-    constructor(
-        readonly game: Game,
-        params: BulletParams
-    ) {
-        super(params);
-
+    constructor(readonly game: Game) {
+        super();
+        this.game.camera.addObject(this.trailSprite);
         this.trailSprite.anchor.set(1, 0.5);
+    }
+
+    init(params: BulletParams) {
+        this._init(params);
+
+        this.trailFadeTicker = 0;
+
         this.trailSprite.rotation = Math.atan2(this.direction.y, this.direction.x);
         this.trailSprite.position = Camera.vecToScreen(this.position);
 
         const def = BulletDefs.typeToDef(this.type) as BulletDef;
+        this.trailMaxLength = def.trailMaxLength;
+        this.trailFadeSpeed = def.trailFadeSpeed ?? 1;
 
+        this.trailLength = 0;
+
+        this.trailSprite.visible = true;
         this.trailSprite.tint = def.trailColor ?? 0xffffff;
-
-        game.camera.addObject(this.trailSprite);
     }
 
     override update(dt: number) {
@@ -67,7 +103,8 @@ export class ClientBullet extends BaseBullet {
                 this.game.map
             );
 
-            for (const collision of collisions) {
+            for (let i = 0; i < collisions.length; i++) {
+                const collision = collisions[i];
                 this.dead = true;
                 this.position = collision.position;
 
@@ -82,34 +119,29 @@ export class ClientBullet extends BaseBullet {
             }
         }
 
-        const def = BulletDefs.typeToDef(this.type) as BulletDef;
-
-        if (!this.dead && !this.trailReachedMaxLength) {
-            this.trailTicks += dt;
-        } else if (this.dead) {
-            this.trailTicks -= dt * (def.trailFadeSpeed ?? 1);
-        }
-
-        if (this.distanceTraveled > def.maxDistance) {
+        if (this.distanceTraveled > this.maxDistance) {
             this.dead = true;
             this.position = Vec2.clone(this.finalPosition);
         }
 
-        const length = MathUtils.min(
-            MathUtils.min(
-                def.speed * this.trailTicks,
-                Vec2.distance(this.initialPosition, this.position)
-            ),
-            def.trailMaxLength
+        this.trailLength = MathUtils.min(
+            this.trailMaxLength,
+            Vec2.distance(this.initialPosition, this.position)
         );
+        if (this.dead) {
+            this.trailFadeTicker += dt;
+            this.trailLength = MathUtils.max(
+                0,
+                this.trailLength - this.trailFadeTicker * this.speed * this.trailFadeSpeed
+            );
+        }
 
-        this.trailReachedMaxLength = length >= def.trailMaxLength;
-
-        this.trailSprite.width = Camera.unitToScreen(length);
+        this.trailSprite.width = Camera.unitToScreen(this.trailLength);
         this.trailSprite.position = Camera.vecToScreen(this.position);
 
-        if (this.dead && this.trailTicks <= 0) {
+        if (this.dead && this.trailFadeTicker <= 0) {
             this.active = false;
+            this.trailSprite.visible = false;
         }
 
         if (DEBUG_ENABLED) {
@@ -149,9 +181,5 @@ export class ClientBullet extends BaseBullet {
                 );
             }
         }
-    }
-
-    destroy() {
-        this.trailSprite.destroy();
     }
 }

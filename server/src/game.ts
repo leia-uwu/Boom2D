@@ -80,7 +80,7 @@ export class Game {
             this.mspt = this.tickTimes.reduce((a, b) => a + b) / this.tickTimes.length;
 
             this.logger.log(`Avg ms/tick: ${this.mspt.toFixed(2)}`);
-            this.tickTimes = [];
+            this.tickTimes.length = 0;
         }
     }
 

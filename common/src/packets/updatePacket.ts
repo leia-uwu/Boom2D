@@ -1,6 +1,7 @@
-import { BaseBullet, type BulletParams } from "../baseBullet";
+import type { BulletParams } from "../baseBullet";
 import { EntityType, GameConstants, type ValidEntityType } from "../constants";
 import { type AmmoDefKey, AmmoDefs } from "../defs/ammoDefs";
+import { BulletDefs } from "../defs/bulletDefs";
 import { type ExplosionDefKey, ExplosionDefs } from "../defs/explosionDefs";
 import { type LootDefKey, LootDefs } from "../defs/lootDefs";
 import { type ObstacleDefKey, ObstacleDefs } from "../defs/obstacleDefs";
@@ -378,7 +379,10 @@ export class UpdatePacket implements Packet {
 
         if (this.bullets.length) {
             stream.writeArray(this.bullets, 8, (bullet) => {
-                BaseBullet.serialize(stream, bullet);
+                stream.writeUint16(bullet.shooterId);
+                stream.writePosition(bullet.initialPosition);
+                stream.writeUnit(bullet.direction, 16);
+                BulletDefs.write(stream, bullet.type);
             });
             flags |= UpdateFlags.Bullets;
         }
@@ -482,7 +486,12 @@ export class UpdatePacket implements Packet {
 
         if (flags & UpdateFlags.Bullets) {
             stream.readArray(this.bullets, 8, () => {
-                return BaseBullet.deserialize(stream);
+                return {
+                    shooterId: stream.readUint16(),
+                    initialPosition: stream.readPosition(),
+                    direction: stream.readUnit(16),
+                    type: BulletDefs.read(stream)
+                };
             });
         }
 
