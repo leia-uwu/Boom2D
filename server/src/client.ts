@@ -1,7 +1,7 @@
 import type { ServerWebSocket } from "bun";
 import { GameConstants } from "../../common/src/constants";
 import { type Packet, PacketStream } from "../../common/src/net";
-import { DebugPacket } from "../../common/src/packets/debugPacket";
+import { DebugFlags, DebugPacket } from "../../common/src/packets/debugPacket";
 import { DebugTogglePacket } from "../../common/src/packets/debugTogglePacket";
 import { InputPacket } from "../../common/src/packets/inputPacket";
 import { JoinPacket } from "../../common/src/packets/joinPacket";
@@ -65,6 +65,7 @@ export class Client {
     zoom: number = GameConstants.player.defaultZoom;
 
     debug = false;
+    forceSendDebugInfo = false;
 
     constructor(game: Game, socket: ServerWebSocket<ClientData>) {
         this.game = game;
@@ -111,6 +112,7 @@ export class Client {
             case packet instanceof DebugTogglePacket: {
                 if (this.game.config.allowDebugging) {
                     this.debug = packet.enable;
+                    this.forceSendDebugInfo = packet.enable;
                 }
                 break;
             }
@@ -215,12 +217,28 @@ export class Client {
 
         if (this.debug) {
             const debugPacket = new DebugPacket();
-            debugPacket.tps = game.tps;
-            debugPacket.mspt = game.mspt;
-            debugPacket.entities = game.entityManager.entities.length;
-            debugPacket.players = game.playerManager.players.length;
+            debugPacket.tpsAvg = game.tpsAvg;
+            debugPacket.tpsMin = game.tpsMin;
+            debugPacket.tpsMax = game.tpsMax;
+
+            if (game.debugTpsDirty || this.forceSendDebugInfo) {
+                debugPacket.flags |= DebugFlags.Tps;
+            }
+
+            debugPacket.msptAvg = game.msptAvg;
+
+            debugPacket.entityCounts = game.entityManager.counts;
             debugPacket.bullets = game.bulletManager.activeCount;
-            this.sendPacket(debugPacket);
+
+            if (game.debugObjCountDirty || this.forceSendDebugInfo) {
+                debugPacket.flags |= DebugFlags.Objects;
+            }
+
+            if (debugPacket.flags > 0) {
+                this.sendPacket(debugPacket);
+            }
+
+            this.forceSendDebugInfo = false;
         }
 
         if (this.firstPacket) {

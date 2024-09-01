@@ -187,6 +187,7 @@ export class Game {
         this.ui.visible = true;
         this.inGame = true;
         this.ui.deathUi.hide();
+        this.ui.debugUi.sendPingTicker = 0;
 
         this.activePlayerID = packet.playerId;
     }

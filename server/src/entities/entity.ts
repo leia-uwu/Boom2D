@@ -12,7 +12,6 @@ import type { Hitbox } from "../../../common/src/utils/hitbox";
 import { assert } from "../../../common/src/utils/util";
 import type { Vector } from "../../../common/src/utils/vector";
 import type { Game } from "../game";
-import type { Grid } from "../grid";
 
 export abstract class ServerEntity<T extends ValidEntityType = ValidEntityType> {
     abstract readonly __type: T;
@@ -102,6 +101,13 @@ export class EntityManager {
     entities: Array<ServerEntity | undefined> = [];
     idToEntity: Array<ServerEntity | null> = [];
 
+    counts = {
+        [EntityType.Player]: 0,
+        [EntityType.Projectile]: 0,
+        [EntityType.Obstacle]: 0,
+        [EntityType.Loot]: 0
+    };
+
     idToType = new Uint8Array(GameConstants.maxEntityId);
     dirtyPart = new Uint8Array(GameConstants.maxEntityId);
     dirtyFull = new Uint8Array(GameConstants.maxEntityId);
@@ -111,7 +117,7 @@ export class EntityManager {
     idNext = 1;
     freeIds: number[] = [];
 
-    constructor(readonly grid: Grid) {
+    constructor(readonly game: Game) {
         for (let i = 0; i < GameConstants.maxEntityId; i++) {
             this.idToEntity[i] = null;
         }
@@ -150,7 +156,10 @@ export class EntityManager {
         this.idToType[id] = type;
         this.dirtyPart[id] = 1;
         this.dirtyFull[id] = 1;
-        this.grid.addEntity(entity);
+        this.counts[entity.__type]++;
+        this.game.debugObjCountDirty = true;
+
+        this.game.grid.addEntity(entity);
         entity.init();
     }
 
@@ -169,6 +178,11 @@ export class EntityManager {
         this.idToType[entity.id] = 0;
         this.dirtyPart[entity.id] = 0;
         this.dirtyFull[entity.id] = 0;
+
+        this.counts[entity.__type]--;
+        this.game.debugObjCountDirty = true;
+
+        this.game.grid.removeFromGrid(entity);
 
         entity.id = 0;
         // @ts-expect-error type is readonly for proper type to entity class casting
@@ -200,5 +214,6 @@ export class EntityManager {
         this.deletedEntities.length = 0;
         this.dirtyFull.fill(0);
         this.dirtyPart.fill(0);
+        this.countsDirty = false;
     }
 }

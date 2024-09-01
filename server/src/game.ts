@@ -17,7 +17,7 @@ export class Game {
 
     clientManager = new ClientManager(this);
 
-    entityManager = new EntityManager(this.grid);
+    entityManager = new EntityManager(this);
 
     map: GameMap;
 
@@ -31,11 +31,16 @@ export class Game {
 
     now = Date.now();
 
-    tickTimes: number[] = [];
-    mspt = 0;
+    tpsAvg = 0;
+    tpsMin = 0;
+    tpsMax = 0;
+    msptAvg = 0;
     perfTicker = 0;
+    tickTimes: number[] = [];
     deltaTimes: number[] = [];
-    tps = 0;
+    debugTpsDirty = true;
+    debugObjCountDirty = true;
+
     logger = new Logger("Game");
 
     timer: Timer;
@@ -65,6 +70,8 @@ export class Game {
         this.playerManager.flush();
         this.bulletManager.flush();
         this.explosionManager.flush();
+        this.debugTpsDirty = false;
+        this.debugObjCountDirty = false;
 
         this.deltaTimes.push(dt);
         this.tickTimes.push(Date.now() - this.now);
@@ -74,13 +81,18 @@ export class Game {
             this.perfTicker = 0;
             const avgDt =
                 this.deltaTimes.reduce((a, b) => a + b) / this.deltaTimes.length;
-            this.tps = Math.round(1 / avgDt);
+            this.tpsAvg = Math.round(1 / avgDt);
+            this.tpsMin = Math.round(1 / Math.max(...this.deltaTimes));
+            this.tpsMax = Math.round(1 / Math.min(...this.deltaTimes));
+
             this.deltaTimes.length = 0;
 
-            this.mspt = this.tickTimes.reduce((a, b) => a + b) / this.tickTimes.length;
+            this.msptAvg = this.tickTimes.reduce((a, b) => a + b) / this.tickTimes.length;
 
-            this.logger.log(`Avg ms/tick: ${this.mspt.toFixed(2)}`);
+            this.logger.log(`Avg ms/tick: ${this.msptAvg.toFixed(2)}`);
             this.tickTimes.length = 0;
+
+            this.debugTpsDirty = true;
         }
     }
 

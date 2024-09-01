@@ -1,5 +1,5 @@
 import { Text, type TextOptions, VERSION } from "pixi.js";
-import type { DebugPacket } from "../../../../common/src/packets/debugPacket";
+import { DebugFlags, type DebugPacket } from "../../../../common/src/packets/debugPacket";
 import { DebugTogglePacket } from "../../../../common/src/packets/debugTogglePacket";
 import { PingPacket } from "../../../../common/src/packets/pingPacket";
 import { settings } from "../../settings";
@@ -33,7 +33,6 @@ export class DebugUi extends VerticalLayout {
         tps: new Text(DebugTextOptions),
         mspt: new Text(DebugTextOptions),
         entities: new Text(DebugTextOptions),
-        players: new Text(DebugTextOptions),
         bullets: new Text(DebugTextOptions)
     };
 
@@ -96,10 +95,10 @@ export class DebugUi extends VerticalLayout {
     }
 
     render(dt: number) {
-        this.sendPingTicker += dt;
+        this.sendPingTicker -= dt;
 
-        if (this.sendPingTicker > 2) {
-            this.sendPingTicker = 0;
+        if (this.sendPingTicker < 0) {
+            this.sendPingTicker = 2;
             this.lastPingSentTime = Date.now();
             this.game.sendPacket(new PingPacket());
         }
@@ -111,7 +110,7 @@ export class DebugUi extends VerticalLayout {
         if (!this.active) return;
         texts.position.text = `Position: ${game.camera.position.x.toFixed(4)}, ${game.camera.position.y.toFixed(4)}`;
         texts.entities.text = `Entities: ${game.entityManager.entities.length}`;
-        texts.bullets.text = `Bullets: ${game.bulletManager.bullets.length}`;
+        texts.bullets.text = `Bullets: ${game.bulletManager.activeCount} / ${game.bulletManager.bullets.length}`;
         texts.particles.text = `Particles: ${game.particleManager.activeCount} / ${game.particleManager.particles.length}`;
     }
 
@@ -123,10 +122,15 @@ export class DebugUi extends VerticalLayout {
     updateServerInfo(packet: DebugPacket) {
         const texts = this.serverTexts;
 
-        texts.tps.text = `TPS: ${packet.tps}`;
-        texts.mspt.text = `MSPT: ${packet.mspt.toFixed(2)}`;
-        texts.entities.text = `Entities: ${packet.entities}`;
-        texts.players.text = `Players: ${packet.players}`;
-        texts.bullets.text = `Bullets: ${packet.bullets}`;
+        if (packet.flags & DebugFlags.Tps) {
+            texts.tps.text = `TPS: ${packet.tpsAvg}, ${packet.tpsMin}, ${packet.tpsMax} (avg/min/max)`;
+            texts.mspt.text = `MSPT: ${packet.msptAvg.toFixed(2)} (avg)`;
+        }
+
+        if (packet.flags & DebugFlags.Objects) {
+            const entities = Object.values(packet.entityCounts);
+            texts.entities.text = `Entities: ${entities.join(", ")}, total: ${entities.reduce((a, b) => a + b)}`;
+            texts.bullets.text = `Bullets: ${packet.bullets}`;
+        }
     }
 }

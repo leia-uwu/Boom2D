@@ -139,7 +139,7 @@ export class ClientBullet extends BaseBullet {
         this.trailSprite.width = Camera.unitToScreen(this.trailLength);
         this.trailSprite.position = Camera.vecToScreen(this.position);
 
-        if (this.dead && this.trailFadeTicker <= 0) {
+        if (this.dead && this.trailLength <= 0) {
             this.active = false;
             this.trailSprite.visible = false;
         }

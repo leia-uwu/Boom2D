@@ -16,17 +16,17 @@ export class BulletManager {
     constructor(readonly game: Game) {}
 
     update(dt: number) {
-        this.activeCount = 0;
+        let activeCount = 0;
         for (let i = 0; i < this.bullets.length; i++) {
             const bullet = this.bullets[i];
             if (bullet.active) {
                 bullet.update(dt);
-                this.activeCount++;
+                activeCount++;
             }
         }
 
         // free some bullets if pool is too big
-        if (this.bullets.length > 128 && this.activeCount < this.bullets.length / 2) {
+        if (this.bullets.length > 128 && activeCount < this.bullets.length / 2) {
             const compact = [];
             for (let i = 0; i < this.bullets.length; i++) {
                 const bullet = this.bullets[i];
@@ -35,6 +35,11 @@ export class BulletManager {
                 }
             }
             this.bullets = compact;
+        }
+
+        if (activeCount !== this.activeCount) {
+            this.game.debugObjCountDirty = true;
+            this.activeCount = activeCount;
         }
     }
 
