@@ -1,10 +1,11 @@
-import { GameConstants } from "../../common/src/constants";
+import { EntityType, GameConstants } from "../../common/src/constants";
 import { type Packet, PacketStream } from "../../common/src/net";
 import { BulletManager } from "./bullet";
 import { ClientManager } from "./client";
 import type { ServerConfig } from "./config";
 import { EntityManager } from "./entities/entity";
 import { LootManager } from "./entities/loot";
+import { ObstacleManager } from "./entities/obstacle";
 import { PlayerManager } from "./entities/player";
 import { ProjectileManager } from "./entities/projectile";
 import { ExplosionManager } from "./explosion";
@@ -17,13 +18,14 @@ export class Game {
 
     clientManager = new ClientManager(this);
 
-    entityManager = new EntityManager(this);
+    entityManager: EntityManager;
 
     map: GameMap;
 
     playerManager = new PlayerManager(this);
-    lootManager = new LootManager(this);
     projectileManager = new ProjectileManager(this);
+    obstacleManager = new ObstacleManager(this);
+    lootManager = new LootManager(this);
     bulletManager = new BulletManager(this);
     explosionManager = new ExplosionManager(this);
 
@@ -46,6 +48,12 @@ export class Game {
     timer: Timer;
 
     constructor(readonly config: ServerConfig) {
+        this.entityManager = new EntityManager(this, {
+            [EntityType.Player]: this.playerManager,
+            [EntityType.Loot]: this.lootManager,
+            [EntityType.Obstacle]: this.obstacleManager,
+            [EntityType.Projectile]: this.projectileManager
+        });
         this.map = new GameMap(this, config.map);
         this.timer = setInterval(this.update.bind(this), 1000 / config.tps);
     }

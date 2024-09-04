@@ -16,7 +16,6 @@ import {
 } from "../../common/src/utils/hitbox";
 import { Random } from "../../common/src/utils/random";
 import { Vec2, type Vector } from "../../common/src/utils/vector";
-import { Obstacle } from "./entities/obstacle";
 import type { Game } from "./game";
 
 export class GameMap extends BaseGameMap {
@@ -43,15 +42,14 @@ export class GameMap extends BaseGameMap {
         for (let i = 0; i < 100; i++) {
             const lootType = keys[Random.int(0, keys.length - 1)] as LootDefKey;
             const position = Random.vector(0, this.width, 0, this.height);
-            this.game.lootManager.addLoot(lootType, position);
+            this.game.lootManager.allocEntity(position, lootType);
         }
 
         this.serializedData.serializeServerPacket(packet);
     }
 
     addObstacle(type: ObstacleDefKey, position: Vector) {
-        const obstacle = new Obstacle(this.game, position, type);
-        this.game.entityManager.register(obstacle);
+        const obstacle = this.game.obstacleManager.allocEntity(position, type);
         return obstacle;
     }
 }

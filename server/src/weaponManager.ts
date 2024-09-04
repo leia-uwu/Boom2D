@@ -91,9 +91,9 @@ export class WeaponManager {
         }
 
         if (weaponDef.projectileType) {
-            game.projectileManager.addProjectile(
-                weaponDef.projectileType,
+            game.projectileManager.allocEntity(
                 bulletSpawnPos,
+                weaponDef.projectileType,
                 dir,
                 this.player
             );

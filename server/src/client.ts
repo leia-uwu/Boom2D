@@ -213,7 +213,7 @@ export class Client {
             updatePacket.leaderboardDirty = true;
             updatePacket.leaderboard = this.game.playerManager.leaderBoard;
         }
-        this.packetStream.serializeServerPacket(updatePacket);
+        this.sendPacket(updatePacket);
 
         if (this.debug) {
             const debugPacket = new DebugPacket();

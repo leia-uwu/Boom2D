@@ -4,6 +4,7 @@ import {
     type ValidEntityType
 } from "../../../common/src/constants";
 import { GameBitStream } from "../../../common/src/net";
+import type { DebugPacket } from "../../../common/src/packets/debugPacket";
 import {
     type EntitiesNetData,
     EntitySerializations
@@ -12,11 +13,16 @@ import type { Hitbox } from "../../../common/src/utils/hitbox";
 import { assert } from "../../../common/src/utils/util";
 import type { Vector } from "../../../common/src/utils/vector";
 import type { Game } from "../game";
+import type { Loot } from "./loot";
+import type { Obstacle } from "./obstacle";
+import type { Player } from "./player";
+import type { Projectile } from "./projectile";
 
-export abstract class ServerEntity<T extends ValidEntityType = ValidEntityType> {
+export abstract class AbstractServerEntity<T extends ValidEntityType = ValidEntityType> {
     abstract readonly __type: T;
 
-    active = true;
+    active = false;
+    registered = false;
 
     declare id: number;
     declare __arrayIdx: number;
@@ -27,7 +33,7 @@ export abstract class ServerEntity<T extends ValidEntityType = ValidEntityType> 
 
     abstract hitbox: Hitbox;
 
-    _position: Vector;
+    _position!: Vector;
 
     get position() {
         return this._position;
@@ -36,25 +42,21 @@ export abstract class ServerEntity<T extends ValidEntityType = ValidEntityType> 
         this._position = pos;
     }
 
-    destroyed = false;
-
     partialStream!: GameBitStream;
     fullStream!: GameBitStream;
 
-    constructor(game: Game, pos: Vector) {
+    constructor(game: Game) {
         this.game = game;
-        this._position = pos;
     }
 
     abstract update(dt: number): void;
 
-    init(): void {
+    initCache(): void {
         // + 3 for entity id (2 bytes) and entity type (1 byte)
         this.partialStream = GameBitStream.alloc(
             EntitySerializations[this.__type].partialSize + 3
         );
         this.fullStream = GameBitStream.alloc(EntitySerializations[this.__type].fullSize);
-        this.serializeFull();
     }
 
     serializePartial(): void {
@@ -84,29 +86,90 @@ export abstract class ServerEntity<T extends ValidEntityType = ValidEntityType> 
     }
 
     destroy() {
-        if (this.destroyed) {
-            console.warn("Tried to destroy object twice");
+        if (!this.active) {
+            console.warn("Tried to destroy entity twice");
             return;
         }
-        this.active = false;
-        this.game.grid.removeFromGrid(this);
-        this.game.entityManager.deletedEntities.push(this);
-        this.destroyed = true;
+        // @ts-expect-error
+        this.game.entityManager.typeToPool[this.__type].freeEntity(this);
+
+        this.game.grid.removeFromGrid(this as unknown as ServerEntity);
+        this.game.entityManager.deletedEntities.push(this as unknown as ServerEntity);
     }
 
     abstract get data(): Required<EntitiesNetData[ValidEntityType]>;
 }
 
-export class EntityManager {
-    entities: Array<ServerEntity | undefined> = [];
-    idToEntity: Array<ServerEntity | null> = [];
+export type ServerEntity = Player | Projectile | Obstacle | Loot;
 
-    counts = {
-        [EntityType.Player]: 0,
-        [EntityType.Projectile]: 0,
-        [EntityType.Obstacle]: 0,
-        [EntityType.Loot]: 0
-    };
+export abstract class EntityPool<
+    Ctr extends new (
+        game: Game
+    ) => ServerEntity,
+    Inst extends InstanceType<Ctr> = InstanceType<Ctr>
+> {
+    abstract type: Inst["__type"];
+
+    pool: Inst[] = [];
+    activeCount = 0;
+
+    constructor(
+        public game: Game,
+        public ctr: Ctr
+    ) {}
+
+    allocEntity(...params: Parameters<Inst["init"]>) {
+        let entity: Inst | undefined = undefined;
+        for (let i = 0; i < this.pool.length; i++) {
+            if (!this.pool[i].active && !this.pool[i].registered) {
+                entity = this.pool[i];
+                break;
+            }
+        }
+        if (!entity) {
+            entity = new this.ctr(this.game) as Inst;
+            entity.initCache();
+            this.pool.push(entity);
+        }
+        this.activeCount++;
+        entity.active = true;
+        (entity.init as (...p: typeof params) => void)(...params);
+
+        // @ts-expect-error
+        entity.__type = this.type;
+
+        this.game.entityManager.register(entity);
+        entity.serializeFull();
+        this.game.grid.addEntity(entity);
+
+        return entity;
+    }
+
+    freeEntity(entity: Inst) {
+        entity.active = false;
+
+        this.activeCount--;
+
+        // free some entities if pool is too big
+        if (this.pool.length > 128 && this.activeCount < this.pool.length / 2) {
+            const compact: Inst[] = [];
+            for (let i = 0; i < this.pool.length; i++) {
+                const entity = this.pool[i];
+                if (entity.active) {
+                    compact.push(entity);
+                }
+            }
+            this.pool = compact;
+            this.activeCount = this.pool.length;
+        }
+    }
+}
+
+export class EntityManager {
+    entities: Array<ServerEntity> = [];
+    idToEntity: Array<ServerEntity | null> = new Array(
+        GameConstants.maxEntityId - 1
+    ).fill(null);
 
     idToType = new Uint8Array(GameConstants.maxEntityId);
     dirtyPart = new Uint8Array(GameConstants.maxEntityId);
@@ -117,10 +180,20 @@ export class EntityManager {
     idNext = 1;
     freeIds: number[] = [];
 
-    constructor(readonly game: Game) {
-        for (let i = 0; i < GameConstants.maxEntityId; i++) {
-            this.idToEntity[i] = null;
-        }
+    typeToPool: {
+        [EntityType.Player]: EntityPool<typeof Player>;
+        [EntityType.Projectile]: EntityPool<typeof Projectile>;
+        [EntityType.Obstacle]: EntityPool<typeof Obstacle>;
+        [EntityType.Loot]: EntityPool<typeof Loot>;
+    };
+
+    counts: DebugPacket["entityCounts"] = [];
+
+    constructor(
+        readonly game: Game,
+        pools: (typeof this)["typeToPool"]
+    ) {
+        this.typeToPool = pools;
     }
 
     getById(id: number) {
@@ -150,17 +223,13 @@ export class EntityManager {
         const id = this.allocId();
         entity.id = id;
         entity.__arrayIdx = this.entities.length;
-        entity.init();
+        entity.registered = true;
         this.entities[entity.__arrayIdx] = entity;
         this.idToEntity[id] = entity;
         this.idToType[id] = type;
         this.dirtyPart[id] = 1;
         this.dirtyFull[id] = 1;
-        this.counts[entity.__type]++;
-        this.game.debugObjCountDirty = true;
-
-        this.game.grid.addEntity(entity);
-        entity.init();
+        this.updateCounts();
     }
 
     unregister(entity: ServerEntity) {
@@ -179,19 +248,31 @@ export class EntityManager {
         this.dirtyPart[entity.id] = 0;
         this.dirtyFull[entity.id] = 0;
 
-        this.counts[entity.__type]--;
-        this.game.debugObjCountDirty = true;
-
-        this.game.grid.removeFromGrid(entity);
-
         entity.id = 0;
+        entity.registered = false;
         // @ts-expect-error type is readonly for proper type to entity class casting
         entity.__type = EntityType.Invalid;
+
+        this.updateCounts();
+    }
+
+    updateCounts() {
+        this.game.debugObjCountDirty = true;
+
+        this.counts = Object.entries(this.typeToPool).map(([type, pool]) => {
+            return {
+                type: parseInt(type),
+                active: pool.activeCount,
+                allocated: pool.pool.length
+            };
+        });
     }
 
     update(dt: number): void {
         for (let i = 0; i < this.entities.length; i++) {
-            this.entities[i]?.update(dt);
+            if (this.entities[i].active) {
+                this.entities[i]?.update(dt);
+            }
         }
     }
 
@@ -214,6 +295,5 @@ export class EntityManager {
         this.deletedEntities.length = 0;
         this.dirtyFull.fill(0);
         this.dirtyPart.fill(0);
-        this.countsDirty = false;
     }
 }

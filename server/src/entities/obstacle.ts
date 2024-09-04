@@ -4,16 +4,23 @@ import type { EntitiesNetData } from "../../../common/src/packets/updatePacket";
 import { BaseHitbox, type Hitbox } from "../../../common/src/utils/hitbox";
 import type { Vector } from "../../../common/src/utils/vector";
 import type { Game } from "../game";
-import { ServerEntity } from "./entity";
+import { AbstractServerEntity, EntityPool } from "./entity";
 
-export class Obstacle extends ServerEntity {
+export class ObstacleManager extends EntityPool<typeof Obstacle> {
+    override readonly type = EntityType.Obstacle;
+    constructor(game: Game) {
+        super(game, Obstacle);
+    }
+}
+
+export class Obstacle extends AbstractServerEntity {
     override readonly __type = EntityType.Obstacle;
 
-    type: ObstacleDefKey;
-    override hitbox: Hitbox;
+    type!: ObstacleDefKey;
+    override hitbox!: Hitbox;
 
-    constructor(game: Game, position: Vector, type: ObstacleDefKey) {
-        super(game, position);
+    init(position: Vector, type: ObstacleDefKey) {
+        this.position = position;
         this.type = type;
         const def = ObstacleDefs.typeToDef(type);
         this.hitbox = BaseHitbox.fromJSON(def.hitbox).transform(this.position);

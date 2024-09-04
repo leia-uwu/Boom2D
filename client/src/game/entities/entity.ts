@@ -108,16 +108,14 @@ export class EntityPool<T extends ClientEntity = ClientEntity> {
 
 export class EntityManager {
     entities: Array<ClientEntity> = [];
-    idToEntity: Array<ClientEntity | null> = [];
+    idToEntity: Array<ClientEntity | null> = new Array(
+        GameConstants.maxEntityId - 1
+    ).fill(null);
 
     constructor(
         readonly game: Game,
         readonly typeToPool: Record<ValidEntityType, EntityPool>
-    ) {
-        for (let i = 0; i < GameConstants.maxEntityId; i++) {
-            this.idToEntity[i] = null;
-        }
-    }
+    ) {}
 
     getById(id: number) {
         return this.idToEntity[id] ?? undefined;
@@ -142,20 +140,33 @@ export class EntityManager {
     updateFullEntity(id: number, data: Required<EntitiesNetData[ValidEntityType]>) {
         const entity = this.getById(id);
 
-        assert(entity, "Tried to fully update invalid entity");
+        if (!entity) {
+            console.error(
+                `Tried to fully update invalid entity, ID: ${id}, data: ${JSON.stringify(data, null, 2)}`
+            );
+            return;
+        }
 
         entity.updateFromData(data, false);
     }
 
     updatePartialEntity(id: number, data: EntitiesNetData[ValidEntityType]) {
         const entity = this.getById(id);
-        assert(entity, "Tried to partially update invalid entity");
+        if (!entity) {
+            console.error(
+                `Tried to partially update invalid entity, ID: ${id}, data: ${JSON.stringify(data, null, 2)}`
+            );
+            return;
+        }
         entity.updateFromData(data, false);
     }
 
     deleteEntity(id: number) {
         const entity = this.getById(id);
-        assert(entity, "Tried to destroy invalid entity");
+        if (!entity) {
+            console.error(`Tried to destroy delete entity, ID: ${id}`);
+            return;
+        }
         const lastEntity = this.entities.pop()!;
 
         if (entity !== lastEntity) {

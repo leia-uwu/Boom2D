@@ -4,29 +4,26 @@ import type { EntitiesNetData } from "../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../common/src/utils/hitbox";
 import type { Vector } from "../../../common/src/utils/vector";
 import type { Game } from "../game";
-import { ServerEntity } from "./entity";
+import { AbstractServerEntity, EntityPool } from "./entity";
 
-export class LootManager {
-    constructor(readonly game: Game) {}
-
-    addLoot(type: LootDefKey, position: Vector) {
-        const loot = new Loot(this.game, type, position);
-        this.game.entityManager.register(loot);
-        return loot;
+export class LootManager extends EntityPool<typeof Loot> {
+    override readonly type = EntityType.Loot;
+    constructor(readonly game: Game) {
+        super(game, Loot);
     }
 }
 
-export class Loot extends ServerEntity {
+export class Loot extends AbstractServerEntity {
     override readonly __type = EntityType.Loot;
 
-    type: LootDefKey;
-    override hitbox: CircleHitbox;
+    type!: LootDefKey;
+    override hitbox!: CircleHitbox;
     canPickup = true;
 
     respawnTicker = 0;
 
-    constructor(game: Game, type: LootDefKey, position: Vector) {
-        super(game, position);
+    init(position: Vector, type: LootDefKey) {
+        this.position = position;
         this.type = type;
         const def = LootDefs.typeToDef(type);
         this.hitbox = new CircleHitbox(def.lootRadius);

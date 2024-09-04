@@ -1,4 +1,4 @@
-import { EntityType } from "../constants";
+import type { EntityType } from "../constants";
 import type { GameBitStream, Packet } from "../net";
 
 export enum DebugFlags {
@@ -15,12 +15,11 @@ export class DebugPacket implements Packet {
 
     msptAvg = 0;
 
-    entityCounts = {
-        [EntityType.Player]: 0,
-        [EntityType.Projectile]: 0,
-        [EntityType.Obstacle]: 0,
-        [EntityType.Loot]: 0
-    };
+    entityCounts: Array<{
+        type: EntityType;
+        active: number;
+        allocated: number;
+    }> = [];
 
     bullets = 0;
 
@@ -37,10 +36,11 @@ export class DebugPacket implements Packet {
         }
 
         if (flags & DebugFlags.Objects) {
-            for (const type in this.entityCounts) {
-                // @ts-expect-error
-                stream.writeUint16(this.entityCounts[type]);
-            }
+            stream.writeArray(this.entityCounts, 8, (count) => {
+                stream.writeUint8(count.type);
+                stream.writeUint16(count.active);
+                stream.writeUint16(count.allocated);
+            });
 
             stream.writeUint16(this.bullets);
         }
@@ -57,10 +57,13 @@ export class DebugPacket implements Packet {
         }
 
         if (flags & DebugFlags.Objects) {
-            for (const type in this.entityCounts) {
-                // @ts-expect-error
-                this.entityCounts[type] = stream.readUint16();
-            }
+            stream.readArray(this.entityCounts, 8, () => {
+                return {
+                    type: stream.readUint8(),
+                    active: stream.readUint16(),
+                    allocated: stream.readUint16()
+                };
+            });
 
             this.bullets = stream.readUint16();
         }

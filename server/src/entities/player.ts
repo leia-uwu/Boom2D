@@ -19,11 +19,13 @@ import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import type { Client } from "../client";
 import type { Game } from "../game";
 import { WeaponManager } from "../weaponManager";
-import { ServerEntity } from "./entity";
+import { AbstractServerEntity, EntityPool } from "./entity";
 import type { Loot } from "./loot";
 import { Obstacle } from "./obstacle";
 
-export class PlayerManager {
+export class PlayerManager extends EntityPool<typeof Player> {
+    override readonly type = EntityType.Player;
+
     players: Player[] = [];
 
     newPlayers: Player[] = [];
@@ -32,15 +34,15 @@ export class PlayerManager {
     leaderBoardDirty = true;
     leaderBoard: LeaderboardEntry[] = [];
 
-    constructor(readonly game: Game) {}
+    constructor(readonly game: Game) {
+        super(game, Player);
+    }
 
     addPlayer(client: Client, joinPacket: JoinPacket): Player {
-        const player = new Player(
-            this.game,
+        const player = this.allocEntity(
             client,
             joinPacket.name.trim() || GameConstants.player.defaultName
         );
-        this.game.entityManager.register(player);
 
         this.newPlayers.push(player);
         this.players.push(player);
@@ -147,11 +149,11 @@ export class PlayerManager {
     }
 }
 
-export class Player extends ServerEntity {
+export class Player extends AbstractServerEntity {
     readonly __type = EntityType.Player;
     readonly hitbox = new CircleHitbox(GameConstants.player.radius);
 
-    client: Client;
+    client!: Client;
     name = "";
 
     direction = Vec2.new(0, 0);
@@ -244,12 +246,16 @@ export class Player extends ServerEntity {
         this._position = pos;
     }
 
-    constructor(game: Game, client: Client, name: string) {
+    init(client: Client, name: string) {
         const pos = Vec2.new(0, 0);
-        super(game, pos);
         this.position = pos;
         this.client = client;
         this.name = name;
+
+        this.dead = false;
+        this.kills = 0;
+        this.damageDone = 0;
+        this.damageTaken = 0;
     }
 
     update(dt: number): void {

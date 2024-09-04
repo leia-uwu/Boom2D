@@ -1,4 +1,5 @@
 import { Text, type TextOptions, VERSION } from "pixi.js";
+import { EntityType } from "../../../../common/src/constants";
 import { DebugFlags, type DebugPacket } from "../../../../common/src/packets/debugPacket";
 import { DebugTogglePacket } from "../../../../common/src/packets/debugTogglePacket";
 import { PingPacket } from "../../../../common/src/packets/pingPacket";
@@ -115,7 +116,7 @@ export class DebugUi extends VerticalLayout {
     }
 
     onPingPacket() {
-        this.ping = Math.round((this.lastPingSentTime - Date.now()) / 1000);
+        this.ping = Date.now() - this.lastPingSentTime;
         this.clientTexts.ping.text = `Ping: ${this.ping}ms`;
     }
 
@@ -128,8 +129,15 @@ export class DebugUi extends VerticalLayout {
         }
 
         if (packet.flags & DebugFlags.Objects) {
-            const entities = Object.values(packet.entityCounts);
-            texts.entities.text = `Entities: ${entities.join(", ")}, total: ${entities.reduce((a, b) => a + b)}`;
+            const counts = packet.entityCounts
+                .map((count) => {
+                    return `${EntityType[count.type]}: ${count.active} / ${count.allocated}`;
+                })
+                .join("; ");
+            const total = packet.entityCounts.reduce((a, b) => {
+                return a + b.active;
+            }, 0);
+            texts.entities.text = `Entities: ${counts}; total: ${total}`;
             texts.bullets.text = `Bullets: ${packet.bullets}`;
         }
     }

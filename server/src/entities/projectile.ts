@@ -11,31 +11,24 @@ import { MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import type { Game } from "../game";
-import { ServerEntity } from "./entity";
+import { AbstractServerEntity, EntityPool, type ServerEntity } from "./entity";
 import type { Player } from "./player";
 
-export class ProjectileManager {
-    constructor(readonly game: Game) {}
+export class ProjectileManager extends EntityPool<typeof Projectile> {
+    override readonly type = EntityType.Projectile;
 
-    addProjectile(
-        type: ProjectileDefKey,
-        position: Vector,
-        direction: Vector,
-        source: Player
-    ) {
-        const projectile = new Projectile(this.game, type, position, direction, source);
-        this.game.entityManager.register(projectile);
-        return projectile;
+    constructor(readonly game: Game) {
+        super(game, Projectile);
     }
 }
 
-export class Projectile extends ServerEntity {
+export class Projectile extends AbstractServerEntity {
     readonly __type = EntityType.Projectile;
-    hitbox: CircleHitbox;
+    hitbox!: CircleHitbox;
 
-    type: ProjectileDefKey;
-    direction: Vector;
-    source: Player;
+    type!: ProjectileDefKey;
+    direction!: Vector;
+    source!: Player;
 
     dead = false;
 
@@ -51,21 +44,20 @@ export class Projectile extends ServerEntity {
     }
 
     tracerTicker = 0;
-    damagedEntities = new Set<ServerEntity>();
+    damagedEntities!: Set<ServerEntity>;
 
-    constructor(
-        game: Game,
-        type: ProjectileDefKey,
-        position: Vector,
-        direction: Vector,
-        source: Player
-    ) {
-        super(game, position);
-        this.type = type;
-        this.direction = direction;
+    init(position: Vector, type: ProjectileDefKey, direction: Vector, source: Player) {
         const def = ProjectileDefs.typeToDef(type);
         this.hitbox = new CircleHitbox(def.radius, position);
+        this.type = type;
+        this.direction = direction;
         this.source = source;
+
+        this.isNew = true;
+        this.dead = false;
+
+        this.damagedEntities = new Set<ServerEntity>();
+        this.tracerTicker = 0;
     }
 
     update(dt: number): void {
