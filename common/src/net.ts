@@ -76,31 +76,8 @@ export class GameBitStream extends BitStream {
         maxY: number,
         bitCount: number
     ): void {
-        this.writeVector2(vector.x, vector.y, minX, minY, maxX, maxY, bitCount);
-    }
-
-    /**
-     * Write a position Vector to the stream.
-     * @param x The X position.
-     * @param y The Y position.
-     * @param minX The minimum X position.
-     * @param minY The minimum Y position.
-     * @param maxX The maximum X position.
-     * @param maxY The maximum Y position.
-     * @param bitCount The number of bits to write.
-     * @return The position Vector.
-     */
-    writeVector2(
-        x: number,
-        y: number,
-        minX: number,
-        minY: number,
-        maxX: number,
-        maxY: number,
-        bitCount: number
-    ): void {
-        this.writeFloat(x, minX, maxX, bitCount);
-        this.writeFloat(y, minY, maxY, bitCount);
+        this.writeFloat(vector.x, minX, maxX, bitCount);
+        this.writeFloat(vector.y, minY, maxY, bitCount);
     }
 
     /**
@@ -129,18 +106,8 @@ export class GameBitStream extends BitStream {
      * @param vector The Vector to write.
      */
     writePosition(vector: Vector): void {
-        this.writePosition2(vector.x, vector.y);
-    }
-
-    /**
-     * Write a position Vector to the stream with the game default max and minimum X and Y.
-     * @param x The x-coordinate of the vector to write
-     * @param y The y-coordinate of the vector to write
-     */
-    writePosition2(x: number, y: number): void {
-        this.writeVector2(
-            x,
-            y,
+        this.writeVector(
+            vector,
             -32,
             -32,
             GameConstants.maxPosition,
