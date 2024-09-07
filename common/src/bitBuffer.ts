@@ -34,7 +34,7 @@ export class BitView {
     protected _view: Uint8Array;
 
     constructor(source: ArrayBuffer | Buffer, byteOffset?: number, byteLength?: number) {
-        var isBuffer =
+        const isBuffer =
             source instanceof ArrayBuffer ||
             (typeof Buffer !== "undefined" && source instanceof Buffer);
 
@@ -63,16 +63,8 @@ export class BitView {
         return this._view.length;
     }
 
-    protected _setBit(offset: number, on: number) {
-        if (on) {
-            this._view[offset >> 3] |= 1 << (offset & 7);
-        } else {
-            this._view[offset >> 3] &= ~(1 << (offset & 7));
-        }
-    }
-
     getBits(offset: number, bits: number, signed?: boolean) {
-        var available = this._view.length * 8 - offset;
+        const available = this._view.length * 8 - offset;
 
         if (bits > available) {
             throw new Error(
@@ -80,19 +72,19 @@ export class BitView {
             );
         }
 
-        var value = 0;
-        for (var i = 0; i < bits; ) {
-            var remaining = bits - i;
-            var bitOffset = offset & 7;
-            var currentByte = this._view[offset >> 3];
+        let value = 0;
+        for (let i = 0; i < bits; ) {
+            const remaining = bits - i;
+            const bitOffset = offset & 7;
+            const currentByte = this._view[offset >> 3];
 
             // the max number of bits we can read from the current byte
-            var read = min(remaining, 8 - bitOffset);
+            const read = min(remaining, 8 - bitOffset);
 
             // create a mask with the correct bit width
-            var mask = (1 << read) - 1;
+            const mask = (1 << read) - 1;
             // shift the bits we want to the start of the byte and mask of the rest
-            var readBits = (currentByte >> bitOffset) & mask;
+            const readBits = (currentByte >> bitOffset) & mask;
             value |= readBits << i;
 
             offset += read;
@@ -114,7 +106,7 @@ export class BitView {
     }
 
     setBits(offset: number, value: number, bits: number) {
-        var available = this._view.length * 8 - offset;
+        const available = this._view.length * 8 - offset;
 
         if (bits > available) {
             throw new Error(
@@ -122,20 +114,31 @@ export class BitView {
             );
         }
 
-        for (var i = 0; i < bits; ) {
-            var wrote;
+        for (let i = 0; i < bits; ) {
+            let wrote;
 
             // Write an entire byte if we can.
             if (bits - i >= 8 && (offset & 7) === 0) {
                 this._view[offset >> 3] = value & 0xff;
                 wrote = 8;
             } else {
-                this._setBit(offset, value & 0x1);
-                wrote = 1;
+                const remaining = bits - i;
+                const bitOffset = offset & 7;
+                const byteOffset = offset >> 3;
+                wrote = min(remaining, 8 - bitOffset);
+                // create a mask with the correct bit width
+                const mask = ~(0xff << wrote);
+                // shift the bits we want to the start of the byte and mask of the rest
+                const writeBits = value & mask;
+
+                // destination mask to zero all the bits we're changing first
+                const destMask = ~(mask << bitOffset);
+
+                this._view[byteOffset] =
+                    (this._view[byteOffset] & destMask) | (writeBits << bitOffset);
             }
 
             value = value >> wrote;
-
             offset += wrote;
             i += wrote;
         }
@@ -219,14 +222,6 @@ export class BitView {
         this.setBits(offset, BitView._scratch.getUint32(0), 32);
         this.setBits(offset + 32, BitView._scratch.getUint32(4), 32);
     }
-
-    getArrayBuffer(offset: number, byteLength: number) {
-        var buffer = new Uint8Array(byteLength);
-        for (var i = 0; i < byteLength; i++) {
-            buffer[i] = this.getUint8(offset + i * 8);
-        }
-        return buffer;
-    }
 }
 
 /**
@@ -252,7 +247,7 @@ function reader<Name extends GetFn>(name: Name, size: number) {
         if (this._index + size > this._length) {
             throw new Error("Trying to read past the end of the stream");
         }
-        var val = this._view[name](this._index);
+        const val = this._view[name](this._index);
         this._index += size;
         return val as ReturnType<BitView[Name]>;
     };
@@ -268,14 +263,6 @@ function writer<Name extends SetFn>(name: SetFn, size: number) {
     };
 }
 
-function readASCIIString(stream: BitStream, bytes?: number) {
-    return readString(stream, bytes, false);
-}
-
-function readUTF8String(stream: BitStream, bytes?: number) {
-    return readString(stream, bytes, true);
-}
-
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 
@@ -283,10 +270,10 @@ function readString(stream: BitStream, bytes?: number, utf8?: boolean) {
     if (bytes === 0) {
         return "";
     }
-    var i = 0;
-    var chars: number[] = [];
-    var append = true;
-    var fixedLength = !!bytes;
+    let i = 0;
+    const chars: number[] = [];
+    let append = true;
+    const fixedLength = !!bytes;
     if (!bytes) {
         bytes = Math.floor((stream._length - stream._index) / 8);
     }
@@ -294,7 +281,7 @@ function readString(stream: BitStream, bytes?: number, utf8?: boolean) {
     // Read while we still have space available, or until we've
     // hit the fixed byte length passed in.
     while (i < bytes) {
-        var c = stream.readUint8();
+        const c = stream.readUint8();
 
         // Stop appending chars once we hit 0x00
         if (c === 0x00) {
@@ -318,23 +305,6 @@ function readString(stream: BitStream, bytes?: number, utf8?: boolean) {
     return String.fromCharCode.apply(null, chars);
 }
 
-function writeASCIIString(stream: BitStream, string: string, bytes?: number) {
-    var length = bytes || string.length + 1; // + 1 for NULL
-
-    for (var i = 0; i < length; i++) {
-        stream.writeUint8(i < string.length ? string.charCodeAt(i) : 0x00);
-    }
-}
-
-function writeUTF8String(stream: BitStream, string: string, bytes?: number) {
-    var byteArray = encoder.encode(string);
-
-    var length = bytes || byteArray.length + 1; // + 1 for NULL
-    for (var i = 0; i < length; i++) {
-        stream.writeUint8(i < byteArray.length ? byteArray[i] : 0x00);
-    }
-}
-
 /**********************************************************
  *
  * BitStream
@@ -355,7 +325,7 @@ export class BitStream {
         byteOffset?: number,
         byteLength?: number
     ) {
-        var isBuffer =
+        const isBuffer =
             source instanceof ArrayBuffer ||
             (typeof Buffer !== "undefined" && source instanceof Buffer);
 
@@ -410,7 +380,7 @@ export class BitStream {
     }
 
     readBits(bits: number, signed?: boolean) {
-        var val = this._view.getBits(this._index, bits, signed);
+        const val = this._view.getBits(this._index, bits, signed);
         this._index += bits;
         return val;
     }
@@ -441,19 +411,28 @@ export class BitStream {
     declare writeFloat64: (value: number) => void;
 
     readASCIIString(bytes?: number) {
-        return readASCIIString(this, bytes);
+        return readString(this, bytes, false);
     }
 
     readUTF8String(bytes?: number) {
-        return readUTF8String(this, bytes);
+        return readString(this, bytes, true);
     }
 
     writeASCIIString(string: string, bytes?: number) {
-        writeASCIIString(this, string, bytes);
+        const length = bytes || string.length + 1; // + 1 for NULL
+
+        for (let i = 0; i < length; i++) {
+            this.writeUint8(i < string.length ? string.charCodeAt(i) : 0x00);
+        }
     }
 
     writeUTF8String(string: string, bytes?: number) {
-        writeUTF8String(this, string, bytes);
+        const byteArray = encoder.encode(string);
+
+        const length = bytes || byteArray.length + 1; // + 1 for NULL
+        for (let i = 0; i < length; i++) {
+            this.writeUint8(i < byteArray.length ? byteArray[i] : 0x00);
+        }
     }
 }
 
