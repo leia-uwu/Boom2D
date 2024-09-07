@@ -102,24 +102,19 @@ export abstract class AbstractServerEntity<T extends ValidEntityType = ValidEnti
 
 export type ServerEntity = Player | Projectile | Obstacle | Loot;
 
-export abstract class EntityPool<
-    Ctr extends new (
-        game: Game
-    ) => ServerEntity,
-    Inst extends InstanceType<Ctr> = InstanceType<Ctr>
-> {
-    abstract type: Inst["__type"];
+export abstract class EntityPool<T extends ServerEntity> {
+    abstract type: T["__type"];
 
-    pool: Inst[] = [];
+    pool: T[] = [];
     activeCount = 0;
 
     constructor(
         public game: Game,
-        public ctr: Ctr
+        public entityCtr: new (game: Game) => T
     ) {}
 
-    allocEntity(...params: Parameters<Inst["init"]>) {
-        let entity: Inst | undefined = undefined;
+    allocEntity(...params: Parameters<T["init"]>) {
+        let entity: T | undefined = undefined;
         for (let i = 0; i < this.pool.length; i++) {
             if (!this.pool[i].active && !this.pool[i].registered) {
                 entity = this.pool[i];
@@ -127,7 +122,7 @@ export abstract class EntityPool<
             }
         }
         if (!entity) {
-            entity = new this.ctr(this.game) as Inst;
+            entity = new this.entityCtr(this.game) as T;
             entity.initCache();
             this.pool.push(entity);
         }
@@ -145,14 +140,14 @@ export abstract class EntityPool<
         return entity;
     }
 
-    freeEntity(entity: Inst) {
+    freeEntity(entity: T) {
         entity.active = false;
 
         this.activeCount--;
 
         // free some entities if pool is too big
         if (this.pool.length > 128 && this.activeCount < this.pool.length / 2) {
-            const compact: Inst[] = [];
+            const compact: T[] = [];
             for (let i = 0; i < this.pool.length; i++) {
                 const entity = this.pool[i];
                 if (entity.active) {
@@ -167,11 +162,10 @@ export abstract class EntityPool<
 
 export class EntityManager {
     entities: Array<ServerEntity> = [];
-    idToEntity: Array<ServerEntity | null> = new Array(
-        GameConstants.maxEntityId - 1
-    ).fill(null);
+    idToEntity: Array<ServerEntity | null> = new Array(GameConstants.maxEntityId).fill(
+        null
+    );
 
-    idToType = new Uint8Array(GameConstants.maxEntityId);
     dirtyPart = new Uint8Array(GameConstants.maxEntityId);
     dirtyFull = new Uint8Array(GameConstants.maxEntityId);
 
@@ -181,10 +175,10 @@ export class EntityManager {
     freeIds: number[] = [];
 
     typeToPool: {
-        [EntityType.Player]: EntityPool<typeof Player>;
-        [EntityType.Projectile]: EntityPool<typeof Projectile>;
-        [EntityType.Obstacle]: EntityPool<typeof Obstacle>;
-        [EntityType.Loot]: EntityPool<typeof Loot>;
+        [EntityType.Player]: EntityPool<Player>;
+        [EntityType.Projectile]: EntityPool<Projectile>;
+        [EntityType.Obstacle]: EntityPool<Obstacle>;
+        [EntityType.Loot]: EntityPool<Loot>;
     };
 
     counts: DebugPacket["entityCounts"] = [];
@@ -202,7 +196,7 @@ export class EntityManager {
 
     allocId() {
         let id = 1;
-        if (this.idNext < GameConstants.maxEntityId) {
+        if (this.idNext <= GameConstants.maxEntityId) {
             id = this.idNext++;
         } else {
             if (this.freeIds.length > 0) {
@@ -219,14 +213,12 @@ export class EntityManager {
     }
 
     register(entity: ServerEntity) {
-        const type = entity.__type;
         const id = this.allocId();
         entity.id = id;
         entity.__arrayIdx = this.entities.length;
         entity.registered = true;
         this.entities[entity.__arrayIdx] = entity;
         this.idToEntity[id] = entity;
-        this.idToType[id] = type;
         this.dirtyPart[id] = 1;
         this.dirtyFull[id] = 1;
         this.updateCounts();
@@ -244,7 +236,6 @@ export class EntityManager {
 
         this.freeId(entity.id);
 
-        this.idToType[entity.id] = 0;
         this.dirtyPart[entity.id] = 0;
         this.dirtyFull[entity.id] = 0;
 

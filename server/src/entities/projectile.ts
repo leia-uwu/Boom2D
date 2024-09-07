@@ -14,7 +14,7 @@ import type { Game } from "../game";
 import { AbstractServerEntity, EntityPool, type ServerEntity } from "./entity";
 import type { Player } from "./player";
 
-export class ProjectileManager extends EntityPool<typeof Projectile> {
+export class ProjectileManager extends EntityPool<Projectile> {
     override readonly type = EntityType.Projectile;
 
     constructor(readonly game: Game) {

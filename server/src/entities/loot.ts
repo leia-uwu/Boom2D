@@ -6,7 +6,7 @@ import type { Vector } from "../../../common/src/utils/vector";
 import type { Game } from "../game";
 import { AbstractServerEntity, EntityPool } from "./entity";
 
-export class LootManager extends EntityPool<typeof Loot> {
+export class LootManager extends EntityPool<Loot> {
     override readonly type = EntityType.Loot;
     constructor(readonly game: Game) {
         super(game, Loot);

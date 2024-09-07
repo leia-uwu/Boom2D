@@ -6,7 +6,7 @@ import type { Vector } from "../../../common/src/utils/vector";
 import type { Game } from "../game";
 import { AbstractServerEntity, EntityPool } from "./entity";
 
-export class ObstacleManager extends EntityPool<typeof Obstacle> {
+export class ObstacleManager extends EntityPool<Obstacle> {
     override readonly type = EntityType.Obstacle;
     constructor(game: Game) {
         super(game, Obstacle);

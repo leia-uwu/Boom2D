@@ -61,13 +61,7 @@ export class EntityPool<T extends ClientEntity = ClientEntity> {
     pool: Array<T> = [];
     activeCount = 0;
 
-    entityCtr: new (
-        game: Game
-    ) => T;
-
-    constructor(entityCtr: new (game: Game) => T) {
-        this.entityCtr = entityCtr;
-    }
+    constructor(public entityCtr: new (game: Game) => T) {}
 
     allocEntity(game: Game, id: number) {
         let entity: T | undefined = undefined;
@@ -108,9 +102,9 @@ export class EntityPool<T extends ClientEntity = ClientEntity> {
 
 export class EntityManager {
     entities: Array<ClientEntity> = [];
-    idToEntity: Array<ClientEntity | null> = new Array(
-        GameConstants.maxEntityId - 1
-    ).fill(null);
+    idToEntity: Array<ClientEntity | null> = new Array(GameConstants.maxEntityId).fill(
+        null
+    );
 
     constructor(
         readonly game: Game,
@@ -182,9 +176,7 @@ export class EntityManager {
             this.entities[i]?.destroy();
         }
         this.entities.length = 0;
-        for (let i = 0; i < GameConstants.maxEntityId; i++) {
-            this.idToEntity[i] = null;
-        }
+        this.idToEntity.fill(null);
     }
 
     update(dt: number) {

@@ -23,7 +23,7 @@ import { AbstractServerEntity, EntityPool } from "./entity";
 import type { Loot } from "./loot";
 import { Obstacle } from "./obstacle";
 
-export class PlayerManager extends EntityPool<typeof Player> {
+export class PlayerManager extends EntityPool<Player> {
     override readonly type = EntityType.Player;
 
     players: Player[] = [];
