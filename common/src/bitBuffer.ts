@@ -13,6 +13,11 @@ function min(a: number, b: number) {
     return a < b ? a : b;
 }
 
+declare class Buffer {
+    byteLength: number;
+    length: number;
+}
+
 /**********************************************************
  *
  * BitView
