@@ -1,4 +1,4 @@
-import { BitStream } from "bit-buffer";
+import { BitStream } from "./bitBuffer";
 import { GameConstants } from "./constants";
 import { DeathPacket } from "./packets/deathPacket";
 import { DebugPacket } from "./packets/debugPacket";
@@ -207,11 +207,6 @@ export class GameBitStream extends BitStream {
         }
     }
 
-    // private field L
-    declare _view: {
-        _view: Uint8Array;
-    };
-
     /**
      * Copy bytes from a source stream to this stream
      * !!!NOTE: Both streams index must be byte aligned
@@ -222,8 +217,8 @@ export class GameBitStream extends BitStream {
     writeBytes(src: GameBitStream, offset: number, length: number): void {
         assert(this.index % 8 == 0, "WriteBytes: stream must be byte aligned");
 
-        const data = new Uint8Array(src._view._view.buffer, offset, length);
-        this._view._view.set(data, this.index / 8);
+        const data = new Uint8Array(src.view.view.buffer, offset, length);
+        this.view.view.set(data, this.index / 8);
         this.index += length * 8;
     }
 

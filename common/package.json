@@ -1,7 +1,4 @@
 {
   "name": "Boom2D Common",
-  "private": true,
-  "dependencies": {
-    "bit-buffer": "^0.2.5"
-  }
+  "private": true
 }
