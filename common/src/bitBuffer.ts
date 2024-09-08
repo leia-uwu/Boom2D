@@ -29,7 +29,7 @@ declare class Buffer {
 export class BitView {
     // Used to massage fp values so we can operate on them
     // at the bit level.
-    private static _scratch = new DataView(new ArrayBuffer(8));
+    protected static _scratch = new DataView(new ArrayBuffer(8));
 
     protected _view: Uint8Array;
 
@@ -316,9 +316,9 @@ function readString(stream: BitStream, bytes?: number, utf8?: boolean) {
  **********************************************************/
 export class BitStream {
     protected _view: BitView;
-    _index = 0;
-    _startIndex = 0;
-    _length: number;
+    protected _index = 0;
+    protected _startIndex = 0;
+    protected _length: number;
 
     constructor(
         source: ArrayBuffer | Buffer | BitView,
