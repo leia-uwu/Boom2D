@@ -275,7 +275,7 @@ function readString(stream: BitStream, bytes?: number, utf8?: boolean) {
     let append = true;
     const fixedLength = !!bytes;
     if (!bytes) {
-        bytes = Math.floor((stream._length - stream._index) / 8);
+        bytes = Math.floor((stream.length - stream.index) / 8);
     }
 
     // Read while we still have space available, or until we've
