@@ -29,7 +29,7 @@ declare class Buffer {
 export class BitView {
     // Used to massage fp values so we can operate on them
     // at the bit level.
-    static _scratch = new DataView(new ArrayBuffer(8));
+    private static _scratch = new DataView(new ArrayBuffer(8));
 
     protected _view: Uint8Array;
 
