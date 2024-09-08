@@ -63,6 +63,5 @@ jobs:
       - name: Install Packages
         run: bun install --frozen-lockfile
 
-      - name: Build
-        working-directory: ./server
+      - name: Tests
         run: bun test
