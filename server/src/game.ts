@@ -71,15 +71,15 @@ export class Game {
         // Cache entity serializations, calculate visible objects for players, send packets etc
         this.entityManager.serializeEntities();
         this.clientManager.sendPackets(dt);
+        this.debugTpsDirty = false;
+        this.debugObjCountDirty = false;
 
         // reset stuff
         this.packetStream.stream.index = 0;
-        this.entityManager.flush();
         this.playerManager.flush();
         this.bulletManager.flush();
         this.explosionManager.flush();
-        this.debugTpsDirty = false;
-        this.debugObjCountDirty = false;
+        this.entityManager.flush();
 
         this.deltaTimes.push(dt);
         this.tickTimes.push(Date.now() - this.now);
