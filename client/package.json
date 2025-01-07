@@ -1,22 +1,22 @@
 {
-  "name": "Boom2D Client",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:ci": "tsc --noEmit && vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "sass": "^1.83.1",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.7",
-    "vite-plugin-image-optimizer": "^1.1.8",
-    "svgo": "^3.3.2"
-  },
-  "dependencies": {
-    "@pixi/sound": "^6.0.1",
-    "pixi.js": "^8.6.6"
-  }
+    "name": "Boom2D Client",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "build:ci": "tsc --noEmit && vite build",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "sass": "^1.83.1",
+        "typescript": "^5.7.2",
+        "vite": "^6.0.7",
+        "vite-plugin-image-optimizer": "^1.1.8",
+        "svgo": "^3.3.2"
+    },
+    "dependencies": {
+        "@pixi/sound": "^6.0.1",
+        "pixi.js": "^8.6.6"
+    }
 }

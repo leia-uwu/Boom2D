@@ -1,23 +1,29 @@
 {
-  "name": "Boom2D",
-  "version": "0.0.1",
-  "description": "2D DeathMatch game inspired by surviv.io and Doom",
-  "scripts": {
-    "lint": "biome check --write",
-    "lint:ci": "biome check",
-    "dev:client": "cd client && bun dev",
-    "dev:server": "cd server && bun dev"
-  },
-  "workspaces": ["common", "client", "server"],
-  "keywords": [],
-  "author": {
-    "name": "Leia",
-    "email": "leia@tutamail.com"
-  },
-  "license": "GPL-3.0",
-  "devDependencies": {
-    "@types/node": "^22.10.5",
-    "typescript": "^5.7.2",
-    "@biomejs/biome": "^1.9.4"
-  }
+    "name": "Boom2D",
+    "version": "0.0.1",
+    "description": "2D DeathMatch game inspired by surviv.io and Doom",
+    "scripts": {
+        "lint": "dprint fmt; oxlint --fix",
+        "lint:ci": "dprint check; oxlint --fix",
+        "dev:client": "cd client && bun dev",
+        "dev:server": "cd server && bun dev"
+    },
+    "workspaces": [
+        "common",
+        "client",
+        "server"
+    ],
+    "keywords": [],
+    "author": {
+        "name": "Leia",
+        "email": "leia@tutamail.com"
+    },
+    "license": "GPL-3.0",
+    "devDependencies": {
+        "@biomejs/biome": "^1.9.4",
+        "@types/node": "^22.10.5",
+        "dprint": "^0.48.0",
+        "oxlint": "^0.15.5",
+        "typescript": "^5.7.2"
+    }
 }

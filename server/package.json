@@ -1,18 +1,18 @@
 {
-  "name": "Boom2D Server",
-  "private": true,
-  "main": "src/server.ts",
-  "scripts": {
-    "build": "bun build src/server.ts --target bun --minify --minify-syntax --minify-whitespace --minify-identifiers --outdir=dist --outfile=server.js",
-    "start": "bun dist/server.js",
-    "dev": "bun --watch src/server.ts"
-  },
-  "devDependencies": {
-    "@types/bun": "^1.1.15",
-    "@types/svg-parser": "^2.0.6",
-    "typescript": "^5.7.2"
-  },
-  "dependencies": {
-    "svg-parser": "^2.0.4"
-  }
+    "name": "Boom2D Server",
+    "private": true,
+    "main": "src/server.ts",
+    "scripts": {
+        "build": "bun build src/server.ts --target bun --minify --minify-syntax --minify-whitespace --minify-identifiers --outdir=dist --outfile=server.js",
+        "start": "bun dist/server.js",
+        "dev": "bun --watch src/server.ts"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.1.15",
+        "@types/svg-parser": "^2.0.6",
+        "typescript": "^5.7.2"
+    },
+    "dependencies": {
+        "svg-parser": "^2.0.4"
+    }
 }
