@@ -65,3 +65,20 @@ jobs:
 
       - name: Tests
         run: bun test
+  code_quality:
+    name: Code quality
+    runs-on: ubuntu-latest
+    concurrency: ci-tests-${{ github.ref }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Packages
+        run: bun install --frozen-lockfile
+
+      - name: Tests
+        run: bun lint:ci
