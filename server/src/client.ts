@@ -265,7 +265,7 @@ export class Client {
         this.packetStream.serializeServerPacket(packet);
     }
 
-    sendData(data: ArrayBuffer | Buffer): void {
+    sendData(data: ArrayBuffer): void {
         try {
             this.socket.sendBinary(data);
         } catch (error) {

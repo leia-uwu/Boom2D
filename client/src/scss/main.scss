@@ -1,13 +1,14 @@
+@use "sass:meta";
 @font-face {
     font-family: "Roboto Mono Semi Bold";
     font-display: swap;
     src: url("../../assets/fonts/RobotoMono-SemiBold.ttf") format("truetype");
 }
 
-@import "./home.scss";
-@import "./popup.scss";
-@import "./settingsMenu.scss";
-@import "./inputs.scss";
+@include meta.load-css("home.scss");
+@include meta.load-css("popup.scss");
+@include meta.load-css("settingsMenu.scss");
+@include meta.load-css("inputs.scss");
 
 * {
     font-family: "Roboto Mono Semi Bold";
