@@ -5,7 +5,7 @@ export const Config: ServerConfig = {
     port: 8000,
     tps: 35,
     map: "test",
-    allowDebugging: true
+    allowDebugging: true,
 };
 
 export interface ServerConfig {

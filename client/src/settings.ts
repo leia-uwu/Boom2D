@@ -15,7 +15,7 @@ const defaultSettings: GameSettings = {
     name: "",
     showFPS: false,
     showPing: false,
-    globalVolume: 1
+    globalVolume: 1,
 };
 
 class SettingsManager {
@@ -54,7 +54,7 @@ class SettingsManager {
 
     addListener<Key extends SettingKey>(
         key: Key,
-        cb: (value: GameSettings[Key]) => void
+        cb: (value: GameSettings[Key]) => void,
     ) {
         let arr: this["listeners"][Key] = this.listeners[key] ?? [];
         arr.push(cb as (value: GameSettings[SettingKey]) => void);

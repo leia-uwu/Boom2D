@@ -87,11 +87,11 @@ export class ServerBullet extends BaseBullet {
         super.update(dt);
 
         if (
-            this.position.x < 0 ||
-            this.position.y < 0 ||
-            this.position.x > this.game.map.width ||
-            this.position.y > this.game.map.height ||
-            this.dead
+            this.position.x < 0
+            || this.position.y < 0
+            || this.position.x > this.game.map.width
+            || this.position.y > this.game.map.height
+            || this.dead
         ) {
             this.active = false;
             return;
@@ -101,7 +101,7 @@ export class ServerBullet extends BaseBullet {
 
         const objs = this.game.grid.intersectLineSegment(
             this.lastPosition,
-            this.position
+            this.position,
         );
 
         const collisions = this.checkCollisions(objs, this.game.map);

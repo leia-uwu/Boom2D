@@ -1,10 +1,6 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import { AmmoDefs } from "../../../../common/src/defs/ammoDefs";
-import {
-    type GunDef,
-    type WeaponDefKey,
-    WeaponDefs
-} from "../../../../common/src/defs/weaponDefs";
+import { type GunDef, type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
@@ -22,7 +18,7 @@ class WeaponDisplay extends Container {
 
     constructor(
         readonly weapon: WeaponDefKey,
-        inputManager: InputManager
+        inputManager: InputManager,
     ) {
         super();
 
@@ -56,7 +52,7 @@ class WeaponDisplay extends Container {
 export class WeaponsUi extends Container {
     layout = new HorizontalLayout({
         width: iconSize,
-        margin: 4
+        margin: 4,
     });
 
     weaponDisplays = {} as Record<WeaponDefKey, WeaponDisplay>;
@@ -99,7 +95,7 @@ export class WeaponsUi extends Container {
             weaponDisplay.selectedTicker = MathUtils.clamp(
                 weaponDisplay.selectedTicker,
                 0,
-                1
+                1,
             );
             weaponDisplay.selectedBg.alpha = weaponDisplay.selectedTicker;
         }

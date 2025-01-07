@@ -1,23 +1,17 @@
-import {
-    type ColorSource,
-    Container,
-    Graphics,
-    Text,
-    type TextStyleOptions
-} from "pixi.js";
+import { type ColorSource, Container, Graphics, Text, type TextStyleOptions } from "pixi.js";
 import { UiTextStyle } from "./uiHelpers";
 
 const MsgMargin = 8;
 const MsgTextStyle = {
     ...UiTextStyle,
-    fontSize: 16
+    fontSize: 16,
 } satisfies TextStyleOptions;
 
 enum MsgState {
     Showing,
     Idle,
     Hiding,
-    BeingDeleted
+    BeingDeleted,
 }
 
 class FeedMsg extends Container {

@@ -1,13 +1,9 @@
-import {
-    EntityType,
-    GameConstants,
-    type ValidEntityType
-} from "../../../common/src/constants";
+import { EntityType, GameConstants, type ValidEntityType } from "../../../common/src/constants";
 import { GameBitStream } from "../../../common/src/net";
 import type { DebugPacket } from "../../../common/src/packets/debugPacket";
 import {
     type EntitiesNetData,
-    EntitySerializations
+    EntitySerializations,
 } from "../../../common/src/packets/updatePacket";
 import type { Hitbox } from "../../../common/src/utils/hitbox";
 import { assert } from "../../../common/src/utils/util";
@@ -54,7 +50,7 @@ export abstract class AbstractServerEntity<T extends ValidEntityType = ValidEnti
     initCache(): void {
         // + 3 for entity id (2 bytes) and entity type (1 byte)
         this.partialStream = GameBitStream.alloc(
-            EntitySerializations[this.__type].partialSize + 3
+            EntitySerializations[this.__type].partialSize + 3,
         );
         this.fullStream = GameBitStream.alloc(EntitySerializations[this.__type].fullSize);
     }
@@ -65,7 +61,7 @@ export abstract class AbstractServerEntity<T extends ValidEntityType = ValidEnti
         this.partialStream.writeUint8(this.__type);
         EntitySerializations[this.__type].serializePartial(
             this.partialStream,
-            this.data as EntitiesNetData[typeof this.__type]
+            this.data as EntitiesNetData[typeof this.__type],
         );
         this.partialStream.writeAlignToNextByte();
     }
@@ -110,7 +106,7 @@ export abstract class EntityPool<T extends ServerEntity> {
 
     constructor(
         public game: Game,
-        public entityCtr: new (game: Game) => T
+        public entityCtr: new(game: Game) => T,
     ) {}
 
     allocEntity(...params: Parameters<T["init"]>) {
@@ -163,7 +159,7 @@ export abstract class EntityPool<T extends ServerEntity> {
 export class EntityManager {
     entities: Array<ServerEntity> = [];
     idToEntity: Array<ServerEntity | null> = new Array(GameConstants.maxEntityId).fill(
-        null
+        null,
     );
 
     dirtyPart = new Uint8Array(GameConstants.maxEntityId);
@@ -185,7 +181,7 @@ export class EntityManager {
 
     constructor(
         readonly game: Game,
-        pools: (typeof this)["typeToPool"]
+        pools: (typeof this)["typeToPool"],
     ) {
         this.typeToPool = pools;
     }
@@ -254,7 +250,7 @@ export class EntityManager {
             return {
                 type: parseInt(type),
                 active: pool.activeCount,
-                allocated: pool.pool.length
+                allocated: pool.pool.length,
             };
         });
     }

@@ -17,7 +17,7 @@ export class App {
             antialias: true,
             preference: "webgl",
             background: "#3b3b3b",
-            eventMode: "static"
+            eventMode: "static",
         });
 
         await this.game.init();

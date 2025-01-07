@@ -10,8 +10,8 @@ import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 const DebugTextOptions = {
     style: {
         ...UiTextStyle,
-        fontSize: 13
-    }
+        fontSize: 13,
+    },
 } as TextOptions;
 
 export class DebugUi extends VerticalLayout {
@@ -26,7 +26,7 @@ export class DebugUi extends VerticalLayout {
         position: new Text(DebugTextOptions),
         entities: new Text(DebugTextOptions),
         bullets: new Text(DebugTextOptions),
-        particles: new Text(DebugTextOptions)
+        particles: new Text(DebugTextOptions),
     };
 
     serverTexts = {
@@ -34,7 +34,7 @@ export class DebugUi extends VerticalLayout {
         tps: new Text(DebugTextOptions),
         mspt: new Text(DebugTextOptions),
         entities: new Text(DebugTextOptions),
-        bullets: new Text(DebugTextOptions)
+        bullets: new Text(DebugTextOptions),
     };
 
     lastPingSentTime = 0;
@@ -44,7 +44,7 @@ export class DebugUi extends VerticalLayout {
     constructor(readonly game: Game) {
         super({
             margin: 2,
-            ignoreInvisible: true
+            ignoreInvisible: true,
         });
     }
 
@@ -109,10 +109,14 @@ export class DebugUi extends VerticalLayout {
         texts.fps.text = `FPS: ${game.fps}`;
 
         if (!this.active) return;
-        texts.position.text = `Position: ${game.camera.position.x.toFixed(4)}, ${game.camera.position.y.toFixed(4)}`;
+        texts.position.text = `Position: ${game.camera.position.x.toFixed(4)}, ${
+            game.camera.position.y.toFixed(4)
+        }`;
         texts.entities.text = `Entities: ${game.entityManager.entities.length}`;
-        texts.bullets.text = `Bullets: ${game.bulletManager.activeCount} / ${game.bulletManager.bullets.length}`;
-        texts.particles.text = `Particles: ${game.particleManager.activeCount} / ${game.particleManager.particles.length}`;
+        texts.bullets.text =
+            `Bullets: ${game.bulletManager.activeCount} / ${game.bulletManager.bullets.length}`;
+        texts.particles.text =
+            `Particles: ${game.particleManager.activeCount} / ${game.particleManager.particles.length}`;
     }
 
     onPingPacket() {
@@ -124,7 +128,8 @@ export class DebugUi extends VerticalLayout {
         const texts = this.serverTexts;
 
         if (packet.flags & DebugFlags.Tps) {
-            texts.tps.text = `TPS: ${packet.tpsAvg}, ${packet.tpsMin}, ${packet.tpsMax} (avg/min/max)`;
+            texts.tps.text =
+                `TPS: ${packet.tpsAvg}, ${packet.tpsMin}, ${packet.tpsMax} (avg/min/max)`;
             texts.mspt.text = `MSPT: ${packet.msptAvg.toFixed(2)} (avg)`;
         }
 

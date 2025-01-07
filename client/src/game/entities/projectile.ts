@@ -3,7 +3,7 @@ import { EntityType } from "../../../../common/src/constants";
 import {
     type ProjectileDef,
     type ProjectileDefKey,
-    ProjectileDefs
+    ProjectileDefs,
 } from "../../../../common/src/defs/projectileDefs";
 import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
@@ -43,7 +43,7 @@ export class Projectile extends ClientEntity {
 
     override updateFromData(
         data: EntitiesNetData[EntityType.Projectile],
-        isNew: boolean
+        isNew: boolean,
     ): void {
         super.updateFromData(data, isNew);
 
@@ -95,18 +95,18 @@ export class Projectile extends ClientEntity {
                 for (let i = 0; i < def.particles.amount; i++) {
                     const particlePos = Vec2.add(
                         pos,
-                        Vec2.rotate(Vec2.new(particles.spawnOffset, 0), rot)
+                        Vec2.rotate(Vec2.new(particles.spawnOffset, 0), rot),
                     );
                     if (def.particles.randomPlacement) {
                         Vec2.set(
                             particlePos,
-                            Random.pointInsideCircle(particlePos, def.radius)
+                            Random.pointInsideCircle(particlePos, def.radius),
                         );
                     }
                     this.game.particleManager.addParticle(
                         particlePos,
                         Vec2.fromPolar(Random.float(rot - 0.2, rot + 0.2)),
-                        def.particles.type as ParticleDefKey
+                        def.particles.type as ParticleDefKey,
                     );
                 }
             }
@@ -125,7 +125,7 @@ export class Projectile extends ClientEntity {
 
     override destroy(): void {
         this.container.destroy({
-            children: true
+            children: true,
         });
     }
 }

@@ -1,10 +1,6 @@
 import { Container, Sprite, Text, Texture } from "pixi.js";
 import { EntityType, GameConstants } from "../../../../common/src/constants";
-import {
-    type GunDef,
-    type WeaponDefKey,
-    WeaponDefs
-} from "../../../../common/src/defs/weaponDefs";
+import { type GunDef, type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../../common/src/utils/math";
@@ -26,7 +22,7 @@ export class PlayerManager extends EntityPool<Player> {
 
     getPlayerInfo(id: number) {
         const info = this.playerInfos.get(id) ?? {
-            name: "Unknown Player"
+            name: "Unknown Player",
         };
         return info;
     }
@@ -50,12 +46,12 @@ export class Player extends ClientEntity {
         leftFist: Sprite.from("player-fist.svg"),
         rightFist: Sprite.from("player-fist.svg"),
         weapon: new Sprite(),
-        muzzle: new Sprite()
+        muzzle: new Sprite(),
     };
 
     // container for stuff that doesn't rotate
     staticContainer = new Container({
-        visible: false
+        visible: false,
     });
 
     nameText = new Text({
@@ -63,8 +59,8 @@ export class Player extends ClientEntity {
             align: "center",
             fill: "white",
             fontFamily: "Roboto Mono Semi Bold",
-            fontSize: 36
-        }
+            fontSize: 36,
+        },
     });
 
     direction = Vec2.new(0, 0);
@@ -103,10 +99,9 @@ export class Player extends ClientEntity {
         this.nameText.position.set(0, 90);
         this.staticContainer.addChild(this.nameText);
 
-        const tint =
-            GameConstants.player[
-                this.id === this.game.activePlayerID ? "activeColor" : "enemyColor"
-            ];
+        const tint = GameConstants.player[
+            this.id === this.game.activePlayerID ? "activeColor" : "enemyColor"
+        ];
         this.images.base.tint = tint;
         this.images.leftFist.tint = tint;
         this.images.rightFist.tint = tint;
@@ -114,7 +109,7 @@ export class Player extends ClientEntity {
 
     override updateFromData(
         data: EntitiesNetData[EntityType.Player],
-        isNew: boolean
+        isNew: boolean,
     ): void {
         super.updateFromData(data, isNew);
 
@@ -138,7 +133,7 @@ export class Player extends ClientEntity {
             Helpers.spriteFromDef(this.images.weapon, {
                 zIndex: -1,
                 rotation: Math.PI / 2,
-                ...weaponDef.worldImg
+                ...weaponDef.worldImg,
             });
 
             this.images.rightFist.position.y = this.images.weapon.position.y;
@@ -168,7 +163,7 @@ export class Player extends ClientEntity {
     override update(dt: number): void {
         super.update(dt);
         const pos = Camera.vecToScreen(
-            Vec2.lerp(this.oldPosition, this.position, this.interpolationFactor)
+            Vec2.lerp(this.oldPosition, this.position, this.interpolationFactor),
         );
         this.container.position = pos;
         this.staticContainer.position = pos;
@@ -176,7 +171,7 @@ export class Player extends ClientEntity {
         const direction = Vec2.lerp(
             this.oldDirection,
             this.direction,
-            this.interpolationFactor
+            this.interpolationFactor,
         );
         this.container.rotation = Math.atan2(direction.y, direction.x);
 
@@ -194,13 +189,13 @@ export class Player extends ClientEntity {
 
                 const position = Vec2.add(
                     this.position,
-                    Vec2.mul(this.direction, weaponDef.barrelLength)
+                    Vec2.mul(this.direction, weaponDef.barrelLength),
                 );
                 for (let i = 0; i < weaponDef.shotParticles.amount; i++) {
                     this.game.particleManager.addParticle(
                         position,
                         Vec2.add(this.direction, Random.vector(-1, 1, -1, 1)),
-                        weaponDef.shotParticles.type as ParticleDefKey
+                        weaponDef.shotParticles.type as ParticleDefKey,
                     );
                 }
             }
@@ -213,7 +208,7 @@ export class Player extends ClientEntity {
                 this.position,
                 this.direction,
                 weaponDef.barrelLength,
-                0x0000ff
+                0x0000ff,
             );
         }
     }
@@ -223,7 +218,7 @@ export class Player extends ClientEntity {
 
         this.shotSound = this.game.audioManager.play(def.sfx.shoot, {
             position: this.position,
-            maxRange: 96
+            maxRange: 96,
         });
         const pos = Vec2.new(def.barrelLength, 0);
         const muzzle = this.images.muzzle;
@@ -233,7 +228,7 @@ export class Player extends ClientEntity {
         if (def.muzzleImgs.length) {
             muzzle.visible = true;
             muzzle.texture = Texture.from(
-                def.muzzleImgs[Random.int(0, def.muzzleImgs.length - 1)]
+                def.muzzleImgs[Random.int(0, def.muzzleImgs.length - 1)],
             );
         } else {
             muzzle.visible = false;
@@ -244,21 +239,21 @@ export class Player extends ClientEntity {
 
     killEffect(): void {
         this.game.audioManager.play("gib.mp3", {
-            position: this.position
+            position: this.position,
         });
 
         for (let i = 0; i < 60; i++) {
             this.game.particleManager.addParticle(
                 this.position,
                 Random.unitVector(),
-                "gib_blood"
+                "gib_blood",
             );
         }
         for (let i = 0; i < 20; i++) {
             this.game.particleManager.addParticle(
                 this.position,
                 Random.unitVector(),
-                "gib_bones"
+                "gib_bones",
             );
         }
     }
@@ -270,10 +265,10 @@ export class Player extends ClientEntity {
 
     override destroy(): void {
         this.container.destroy({
-            children: true
+            children: true,
         });
         this.staticContainer.destroy({
-            children: true
+            children: true,
         });
     }
 }

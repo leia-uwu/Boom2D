@@ -1,9 +1,5 @@
 import { EntityType } from "../../common/src/constants";
-import {
-    type GunDef,
-    type WeaponDefKey,
-    WeaponDefs
-} from "../../common/src/defs/weaponDefs";
+import { type GunDef, type WeaponDefKey, WeaponDefs } from "../../common/src/defs/weaponDefs";
 import { CollisionHelpers } from "../../common/src/utils/hitbox";
 import { MathUtils } from "../../common/src/utils/math";
 import { Random } from "../../common/src/utils/random";
@@ -14,7 +10,7 @@ enum WeaponState {
     Idle,
     Firing,
     Cooldown,
-    Switching
+    Switching,
 }
 
 export class WeaponManager {
@@ -38,12 +34,12 @@ export class WeaponManager {
         const gunStartPos = this.player.position;
         const gunEndPos = Vec2.add(
             Vec2.add(gunStartPos, Vec2.mul(Vec2.perp(dir), weaponDef.barrelOffset)),
-            Vec2.mul(dir, weaponDef.barrelLength)
+            Vec2.mul(dir, weaponDef.barrelLength),
         );
 
         const entities = this.player.game.grid.intersectLineSegment(
             gunStartPos,
-            gunEndPos
+            gunEndPos,
         );
 
         const intersection = CollisionHelpers.lineOfSightCheck(
@@ -51,7 +47,7 @@ export class WeaponManager {
             this.player.game.map,
             gunStartPos,
             gunEndPos,
-            [EntityType.Obstacle]
+            [EntityType.Obstacle],
         );
 
         const jitter = weaponDef.jitterRadius ?? 0;
@@ -74,9 +70,9 @@ export class WeaponManager {
                     const offset = Vec2.mul(
                         Vec2.new(
                             Random.float(-jitter, jitter),
-                            Random.float(-jitter, jitter)
+                            Random.float(-jitter, jitter),
                         ),
-                        1.11
+                        1.11,
                     );
                     bulletPos = Vec2.add(bulletPos, offset);
                 }
@@ -85,7 +81,7 @@ export class WeaponManager {
                     initialPosition: bulletPos,
                     direction: shotDir,
                     type: weaponDef.bulletType,
-                    shooterId: this.player.id
+                    shooterId: this.player.id,
                 });
             }
         }
@@ -95,7 +91,7 @@ export class WeaponManager {
                 bulletSpawnPos,
                 weaponDef.projectileType,
                 dir,
-                this.player
+                this.player,
             );
         }
     }
@@ -124,9 +120,9 @@ export class WeaponManager {
             // separated from switch case to avoid waiting for next tick to fire guns
             // so the fire rate is more accurate
             if (
-                this.state === WeaponState.Idle &&
-                this.player.mouseDown &&
-                this.player.ammo[weaponDef.ammo] >= weaponDef.ammoPerShot
+                this.state === WeaponState.Idle
+                && this.player.mouseDown
+                && this.player.ammo[weaponDef.ammo] >= weaponDef.ammoPerShot
             ) {
                 this.state = WeaponState.Firing;
                 this.stateTicker = weaponDef.fireDelay ?? 0;
@@ -139,7 +135,7 @@ export class WeaponManager {
 
                 this.player.game.bulletManager.shots.push({
                     id: this.player.id,
-                    weapon: this.player.activeWeapon
+                    weapon: this.player.activeWeapon,
                 });
             }
         }

@@ -31,19 +31,19 @@ export default defineConfig({
                     if (id.includes("node_modules")) {
                         return "vendor";
                     }
-                }
-            }
-        }
+                },
+            },
+        },
     },
     plugins: [
         ViteImageOptimizer({
             test: /\.(svg)$/i,
-            logStats: false
-        })
+            logStats: false,
+        }),
     ],
     server: {
         port: 3000,
-        host: "0.0.0.0"
+        host: "0.0.0.0",
     },
     preview: {
         port: 3000,
@@ -52,14 +52,14 @@ export default defineConfig({
             "/server_info": {
                 target: `http://${Config.host}:${Config.port}`,
                 changeOrigin: true,
-                secure: false
+                secure: false,
             },
             "/play": {
                 target: `http://${Config.host}:${Config.port}`,
                 changeOrigin: true,
                 secure: false,
-                ws: true
-            }
-        }
-    }
+                ws: true,
+            },
+        },
+    },
 });

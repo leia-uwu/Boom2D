@@ -41,7 +41,7 @@ export const Random = {
     vector(minX: number, maxX: number, minY: number, maxY: number): Vector {
         return {
             x: Random.float(minX, maxX),
-            y: Random.float(minY, maxY)
+            y: Random.float(minY, maxY),
         };
     },
 
@@ -63,7 +63,7 @@ export const Random = {
         const length = Random.float(minRadius, maxRadius);
         return {
             x: position.x + Math.cos(angle) * length,
-            y: position.y + Math.sin(angle) * length
+            y: position.y + Math.sin(angle) * length,
         };
     },
 
@@ -81,7 +81,7 @@ export const Random = {
             if (weights[i] > random) break;
         }
         return items[i];
-    }
+    },
 };
 
 export class SeededRandom {

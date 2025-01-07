@@ -5,13 +5,10 @@ import { type LootDef, LootDefs } from "../../../common/src/defs/lootDefs";
 import type { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
 import { DeathPacket } from "../../../common/src/packets/deathPacket";
 import type { InputPacket } from "../../../common/src/packets/inputPacket";
-import type { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { JoinedPacket } from "../../../common/src/packets/joinedPacket";
+import type { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { KillPacket } from "../../../common/src/packets/killPacket";
-import type {
-    EntitiesNetData,
-    LeaderboardEntry
-} from "../../../common/src/packets/updatePacket";
+import type { EntitiesNetData, LeaderboardEntry } from "../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
@@ -41,7 +38,7 @@ export class PlayerManager extends EntityPool<Player> {
     addPlayer(client: Client, joinPacket: JoinPacket): Player {
         const player = this.allocEntity(
             client,
-            joinPacket.name.trim() || GameConstants.player.defaultName
+            joinPacket.name.trim() || GameConstants.player.defaultName,
         );
 
         this.newPlayers.push(player);
@@ -67,7 +64,7 @@ export class PlayerManager extends EntityPool<Player> {
             bullet: 50,
             shell: 0,
             rocket: 0,
-            cell: 0
+            cell: 0,
         };
 
         player.weapons = {
@@ -76,7 +73,7 @@ export class PlayerManager extends EntityPool<Player> {
             ak: false,
             rocket_launcher: false,
             plasma_rifle: false,
-            bfg: false
+            bfg: false,
         };
 
         player.dirty.ammo = true;
@@ -105,7 +102,7 @@ export class PlayerManager extends EntityPool<Player> {
             .map((p) => {
                 return {
                     kills: p.kills,
-                    playerId: p.id
+                    playerId: p.id,
                 };
             })
             .slice(0, count);
@@ -197,14 +194,14 @@ export class Player extends AbstractServerEntity {
         ak: false,
         rocket_launcher: false,
         plasma_rifle: false,
-        bfg: false
+        bfg: false,
     };
 
     ammo: Record<AmmoDefKey, number> = {
         bullet: 0,
         shell: 0,
         rocket: 0,
-        cell: 0
+        cell: 0,
     };
 
     activeWeapon: WeaponDefKey = "pistol";
@@ -222,7 +219,7 @@ export class Player extends AbstractServerEntity {
         health: true,
         armor: true,
         weapons: true,
-        ammo: true
+        ammo: true,
     };
 
     private _zoom: number = GameConstants.player.defaultZoom;
@@ -277,7 +274,7 @@ export class Player extends AbstractServerEntity {
 
         this.position = Vec2.add(
             this.position,
-            Vec2.mul(movement, GameConstants.player.speed * dt)
+            Vec2.mul(movement, GameConstants.player.speed * dt),
         );
 
         const entities = this.game.grid.intersectsHitbox(this.hitbox);
@@ -290,7 +287,7 @@ export class Player extends AbstractServerEntity {
             if (collision) {
                 this.position = Vec2.sub(
                     this.position,
-                    Vec2.mul(collision.normal, collision.pen)
+                    Vec2.mul(collision.normal, collision.pen),
                 );
             }
         }
@@ -303,7 +300,7 @@ export class Player extends AbstractServerEntity {
                 if (collision) {
                     this.position = Vec2.sub(
                         this.position,
-                        Vec2.mul(collision.normal, collision.pen)
+                        Vec2.mul(collision.normal, collision.pen),
                     );
                 }
             }
@@ -313,12 +310,12 @@ export class Player extends AbstractServerEntity {
         this.position.x = MathUtils.clamp(
             this.position.x,
             rad,
-            this.game.map.width - rad
+            this.game.map.width - rad,
         );
         this.position.y = MathUtils.clamp(
             this.position.y,
             rad,
-            this.game.map.height - rad
+            this.game.map.height - rad,
         );
 
         this.weaponManager.update(dt);
@@ -462,8 +459,8 @@ export class Player extends AbstractServerEntity {
             direction: this.direction,
             full: {
                 activeWeapon: this.activeWeapon,
-                dead: this.dead
-            }
+                dead: this.dead,
+            },
         };
     }
 }

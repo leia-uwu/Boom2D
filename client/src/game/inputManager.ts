@@ -41,12 +41,11 @@ export class InputManager {
         window.addEventListener("wheel", this.handleInputEvent.bind(this, true));
 
         window.addEventListener("mousemove", (e) => {
-            const rotation =
-                Math.atan2(
-                    window.innerHeight / 2 - e.clientY,
-                    window.innerWidth / 2 - e.clientX
-                ) -
-                Math.PI / 2;
+            const rotation = Math.atan2(
+                window.innerHeight / 2 - e.clientY,
+                window.innerWidth / 2 - e.clientX,
+            )
+                - Math.PI / 2;
 
             this.mouseDir = Vec2.new(Math.sin(rotation), -Math.cos(rotation));
         });
@@ -70,8 +69,8 @@ export class InputManager {
         for (const weapon of WeaponDefs) {
             const def = WeaponDefs.typeToDef(weapon);
             if (
-                this.isInputDown(def.key) &&
-                weapon !== this.game.activePlayer?.activeWeapon
+                this.isInputDown(def.key)
+                && weapon !== this.game.activePlayer?.activeWeapon
             ) {
                 inputPacket.weaponToSwitch = weapon;
                 break;
@@ -93,7 +92,7 @@ export class InputManager {
 
     handleInputEvent(
         down: boolean,
-        event: KeyboardEvent | MouseEvent | WheelEvent
+        event: KeyboardEvent | MouseEvent | WheelEvent,
     ): void {
         /*
             We don't want to allow keybinds to work with modifiers, because firstly,
@@ -110,13 +109,14 @@ export class InputManager {
 
             // As stated before, more than one modifier or a modifier alongside another key should invalidate an input
             if (
-                (modifierCount > 1 ||
-                    (modifierCount === 1 &&
-                        !["Shift", "Control", "Alt", "Meta"].includes(event.key))) &&
-                down
+                (modifierCount > 1
+                    || (modifierCount === 1
+                        && !["Shift", "Control", "Alt", "Meta"].includes(event.key)))
+                && down
                 // …but it only invalidates pressing a key, not releasing it
-            )
+            ) {
                 return;
+            }
         }
 
         const key = this.getKeyFromInputEvent(event);

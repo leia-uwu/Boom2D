@@ -8,11 +8,10 @@ export class KillFeedUi extends MsgFeed {
     init() {}
 
     resize(width: number, _height: number) {
-        this.x =
-            width -
-            LeaderBoardUi.Width -
-            UiStyle.margin * 2 -
-            UiStyle.panels.strokeWidth * 2;
+        this.x = width
+            - LeaderBoardUi.Width
+            - UiStyle.margin * 2
+            - UiStyle.panels.strokeWidth * 2;
         this.y = UiStyle.margin;
     }
 

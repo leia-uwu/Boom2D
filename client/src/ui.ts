@@ -60,7 +60,7 @@ export class UiManager {
                 })
                 .catch((err) => {
                     console.error(
-                        `Failed to fetch server info for region ${server.name}: ${err}`
+                        `Failed to fetch server info for region ${server.name}: ${err}`,
                     );
                 });
         }

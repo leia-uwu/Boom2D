@@ -34,19 +34,17 @@ export class BitView {
     protected _view: Uint8Array;
 
     constructor(source: ArrayBuffer | Buffer, byteOffset?: number, byteLength?: number) {
-        const isBuffer =
-            source instanceof ArrayBuffer ||
-            (typeof Buffer !== "undefined" && source instanceof Buffer);
+        const isBuffer = source instanceof ArrayBuffer
+            || (typeof Buffer !== "undefined" && source instanceof Buffer);
 
         if (!isBuffer) {
             throw new Error("Must specify a valid ArrayBuffer or Buffer.");
         }
 
         byteOffset = byteOffset || 0;
-        byteLength =
-            byteLength ||
-            source.byteLength /* ArrayBuffer */ ||
-            (source as Buffer).length /* Buffer */;
+        byteLength = byteLength
+            || source.byteLength /* ArrayBuffer */
+            || (source as Buffer).length /* Buffer */;
 
         this._view = new Uint8Array(source as ArrayBufferLike, byteOffset, byteLength);
     }
@@ -68,12 +66,12 @@ export class BitView {
 
         if (bits > available) {
             throw new Error(
-                `Cannot get ${bits} bit(s) from offset ${offset}, ${available} available`
+                `Cannot get ${bits} bit(s) from offset ${offset}, ${available} available`,
             );
         }
 
         let value = 0;
-        for (let i = 0; i < bits; ) {
+        for (let i = 0; i < bits;) {
             const remaining = bits - i;
             const bitOffset = offset & 7;
             const currentByte = this._view[offset >> 3];
@@ -110,11 +108,11 @@ export class BitView {
 
         if (bits > available) {
             throw new Error(
-                `Cannot set ${bits} bit(s) from offset ${offset}, ${available} available`
+                `Cannot set ${bits} bit(s) from offset ${offset}, ${available} available`,
             );
         }
 
-        for (let i = 0; i < bits; ) {
+        for (let i = 0; i < bits;) {
             let wrote;
 
             // Write an entire byte if we can.
@@ -134,8 +132,8 @@ export class BitView {
                 // destination mask to zero all the bits we're changing first
                 const destMask = ~(mask << bitOffset);
 
-                this._view[byteOffset] =
-                    (this._view[byteOffset] & destMask) | (writeBits << bitOffset);
+                this._view[byteOffset] = (this._view[byteOffset] & destMask)
+                    | (writeBits << bitOffset);
             }
 
             value = value >> wrote;
@@ -243,7 +241,7 @@ type GetFn = `get${StreamTypes}`;
 type SetFn = `set${StreamTypes}`;
 
 function reader<Name extends GetFn>(name: Name, size: number) {
-    return function (this: BitStream) {
+    return function(this: BitStream) {
         if (this._index + size > this._length) {
             throw new Error("Trying to read past the end of the stream");
         }
@@ -254,10 +252,10 @@ function reader<Name extends GetFn>(name: Name, size: number) {
 }
 
 function writer<Name extends SetFn>(name: SetFn, size: number) {
-    return function (this: BitStream, value: Parameters<BitView[Name]>[1]) {
+    return function(this: BitStream, value: Parameters<BitView[Name]>[1]) {
         (this._view[name] as (index: number, v: typeof value) => void)(
             this._index,
-            value
+            value,
         );
         this._index += size;
     };
@@ -323,11 +321,10 @@ export class BitStream {
     constructor(
         source: ArrayBuffer | Buffer | BitView,
         byteOffset?: number,
-        byteLength?: number
+        byteLength?: number,
     ) {
-        const isBuffer =
-            source instanceof ArrayBuffer ||
-            (typeof Buffer !== "undefined" && source instanceof Buffer);
+        const isBuffer = source instanceof ArrayBuffer
+            || (typeof Buffer !== "undefined" && source instanceof Buffer);
 
         if (!(source instanceof BitView) && !isBuffer) {
             throw new Error("Must specify a valid BitView, ArrayBuffer or Buffer");

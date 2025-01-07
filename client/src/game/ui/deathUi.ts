@@ -1,11 +1,4 @@
-import {
-    Container,
-    Graphics,
-    Sprite,
-    Text,
-    type TextStyleOptions,
-    Texture
-} from "pixi.js";
+import { Container, Graphics, Sprite, Text, type TextStyleOptions, Texture } from "pixi.js";
 import type { DeathPacket } from "../../../../common/src/packets/deathPacket";
 import { RespawnPacket } from "../../../../common/src/packets/respawnPacket";
 import type { Game } from "../game";
@@ -14,7 +7,7 @@ import { Button, UiHelpers, UiTextStyle, VerticalLayout } from "./uiHelpers";
 const Stats = {
     kills: "Kills",
     damageDone: "Damage Done",
-    damageTaken: "Damage Taken"
+    damageTaken: "Damage Taken",
 } as const;
 
 type StatKey = keyof typeof Stats;
@@ -33,8 +26,8 @@ export class DeathUi extends Container {
     title = new Text({
         text: "You Died",
         style: {
-            ...UiTextStyle
-        }
+            ...UiTextStyle,
+        },
     });
 
     playerName = new Text({
@@ -42,28 +35,28 @@ export class DeathUi extends Container {
         style: {
             ...UiTextStyle,
             fontSize: 25,
-            fontWeight: "bold"
-        } satisfies TextStyleOptions
+            fontWeight: "bold",
+        } satisfies TextStyleOptions,
     });
 
     respawnBtn = new Button({
         text: "Respawn",
         color: 0x29a25f,
-        width: 150
+        width: 150,
     });
     quitBtn = new Button({
         text: "Quit Game",
         color: 0xaa0000,
-        width: 150
+        width: 150,
     });
 
     textsLayout = new VerticalLayout({
         height: 14,
-        margin: 16
+        margin: 16,
     });
     statsLayout = new VerticalLayout({
         height: 14,
-        margin: 16
+        margin: 16,
     });
 
     texts = {} as Record<StatKey, Text>;
@@ -81,7 +74,7 @@ export class DeathUi extends Container {
             this.title,
             this.playerName,
             this.textsLayout,
-            this.statsLayout
+            this.statsLayout,
         );
         this.statsContainer.pivot.set(DeathUi.Width / 2, DeathUi.Height / 2);
 
@@ -120,8 +113,8 @@ export class DeathUi extends Container {
                 text: Stats[key],
                 style: {
                     ...UiTextStyle,
-                    fontSize: 14
-                }
+                    fontSize: 14,
+                },
             });
             this.texts[key] = text;
             text.x = DeathUi.Width / 2;
@@ -132,8 +125,8 @@ export class DeathUi extends Container {
                 text: 0,
                 style: {
                     ...UiTextStyle,
-                    fontSize: 14
-                }
+                    fontSize: 14,
+                },
             });
             this.stats[key] = stat;
             this.statsLayout.addChild(stat);

@@ -58,7 +58,7 @@ export class GameSound {
             },
             filters: [this.stereoFilter],
             loop: options.loop,
-            volume: this.manager.volume
+            volume: this.manager.volume,
         });
 
         // PixiSound.sound.play returns a promise if the sound has not finished loading
@@ -82,12 +82,8 @@ export class GameSound {
     update(): void {
         if (this.instance && this.position) {
             const diff = Vec2.sub(this.manager.position, this.position);
-
-            this.instance.volume =
-                (1 -
-                    MathUtils.clamp(Math.abs(Vec2.length(diff) / this.maxRange), 0, 1)) **
-                    (1 + this.fallOff * 2) *
-                this.manager.volume;
+            const t = MathUtils.clamp(Math.abs(Vec2.length(diff) / this.maxRange), 0, 1);
+            this.instance.volume = (1 - t) ** (1 + this.fallOff * 2) * this.manager.volume;
 
             this.stereoFilter.pan = MathUtils.clamp((diff.x / this.maxRange) * -1, -1, 1);
         }
@@ -123,9 +119,9 @@ export class AudioManager {
                 maxRange: 256,
                 dynamic: false,
                 loop: false,
-                ...options
+                ...options,
             },
-            this
+            this,
         );
 
         if (sound.dynamic) this.dynamicSounds.push(sound);
@@ -155,8 +151,8 @@ export class AudioManager {
         const sounds: Record<string, { default: string }> = import.meta.glob(
             "/assets/sounds/**/*.mp3",
             {
-                eager: true
-            }
+                eager: true,
+            },
         );
 
         const soundsToLoad: Record<string, string> = {};

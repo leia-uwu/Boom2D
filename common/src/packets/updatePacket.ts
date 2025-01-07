@@ -51,7 +51,7 @@ interface EntitySerialization<T extends ValidEntityType> {
     serializePartial: (stream: GameBitStream, data: EntitiesNetData[T]) => void;
     serializeFull: (
         stream: GameBitStream,
-        data: Required<EntitiesNetData[T]>["full"]
+        data: Required<EntitiesNetData[T]>["full"],
     ) => void;
     deserializePartial: (stream: GameBitStream) => EntitiesNetData[T];
     deserializeFull: (stream: GameBitStream) => Required<EntitiesNetData[T]>["full"];
@@ -72,15 +72,15 @@ export const EntitySerializations: { [K in ValidEntityType]: EntitySerialization
         deserializePartial(stream) {
             return {
                 position: stream.readPosition(),
-                direction: stream.readUnit(16)
+                direction: stream.readUnit(16),
             };
         },
         deserializeFull(stream) {
             return {
                 activeWeapon: WeaponDefs.read(stream),
-                dead: stream.readBoolean()
+                dead: stream.readBoolean(),
             };
-        }
+        },
     },
     [EntityType.Projectile]: {
         partialSize: 7,
@@ -94,15 +94,15 @@ export const EntitySerializations: { [K in ValidEntityType]: EntitySerialization
         },
         deserializePartial(stream) {
             return {
-                position: stream.readPosition()
+                position: stream.readPosition(),
             };
         },
         deserializeFull(stream) {
             return {
                 type: ProjectileDefs.read(stream),
-                direction: stream.readUnit(16)
+                direction: stream.readUnit(16),
             };
-        }
+        },
     },
     [EntityType.Obstacle]: {
         partialSize: 7,
@@ -118,9 +118,9 @@ export const EntitySerializations: { [K in ValidEntityType]: EntitySerialization
         deserializeFull(stream) {
             return {
                 position: stream.readPosition(),
-                type: ObstacleDefs.read(stream)
+                type: ObstacleDefs.read(stream),
             };
-        }
+        },
     },
     [EntityType.Loot]: {
         partialSize: 7,
@@ -134,16 +134,16 @@ export const EntitySerializations: { [K in ValidEntityType]: EntitySerialization
         },
         deserializePartial(stream) {
             return {
-                canPickup: stream.readBoolean()
+                canPickup: stream.readBoolean(),
             };
         },
         deserializeFull(stream) {
             return {
                 position: stream.readPosition(),
-                type: LootDefs.read(stream)
+                type: LootDefs.read(stream),
             };
-        }
-    }
+        },
+    },
 };
 
 interface Entity {
@@ -174,7 +174,7 @@ export interface LeaderboardEntry {
 function serializeActivePlayerData(
     stream: GameBitStream,
     data: UpdatePacket["playerData"],
-    dirty: UpdatePacket["playerDataDirty"]
+    dirty: UpdatePacket["playerDataDirty"],
 ) {
     stream.writeBoolean(dirty.zoom);
     if (dirty.zoom) {
@@ -211,7 +211,7 @@ function serializeActivePlayerData(
 function deserializePlayerData(
     stream: GameBitStream,
     data: UpdatePacket["playerData"],
-    dirty: UpdatePacket["playerDataDirty"]
+    dirty: UpdatePacket["playerDataDirty"],
 ) {
     if (stream.readBoolean()) {
         dirty.zoom = true;
@@ -256,14 +256,13 @@ enum UpdateFlags {
     Bullets = 1 << 7,
     Explosions = 1 << 8,
     Shots = 1 << 9,
-    LeaderBoard = 1 << 10
+    LeaderBoard = 1 << 10,
 }
 
 export class UpdatePacket implements Packet {
     deletedEntities: number[] = [];
     partialEntities: Entity[] = [];
-    fullEntities: Array<Entity & { data: Required<EntitiesNetData[Entity["__type"]]> }> =
-        [];
+    fullEntities: Array<Entity & { data: Required<EntitiesNetData[Entity["__type"]]> }> = [];
 
     newPlayers: Array<{
         name: string;
@@ -277,7 +276,7 @@ export class UpdatePacket implements Packet {
         health: false,
         armor: false,
         weapons: false,
-        ammo: false
+        ammo: false,
     };
 
     cameraPositionDirty = false;
@@ -288,7 +287,7 @@ export class UpdatePacket implements Packet {
         health: 0,
         armor: 0,
         weapons: {} as Record<WeaponDefKey, boolean>,
-        ammo: {} as Record<AmmoDefKey, number>
+        ammo: {} as Record<AmmoDefKey, number>,
     };
 
     bullets: BulletParams[] = [];
@@ -329,7 +328,7 @@ export class UpdatePacket implements Packet {
                 stream.writeBytes(
                     entity.partialStream,
                     0,
-                    entity.partialStream.byteIndex
+                    entity.partialStream.byteIndex,
                 );
                 stream.writeBytes(entity.fullStream, 0, entity.fullStream.byteIndex);
             });
@@ -342,7 +341,7 @@ export class UpdatePacket implements Packet {
                 stream.writeBytes(
                     entity.partialStream,
                     0,
-                    entity.partialStream.byteIndex
+                    entity.partialStream.byteIndex,
                 );
             });
 
@@ -441,7 +440,7 @@ export class UpdatePacket implements Packet {
                 return {
                     id,
                     __type: entityType,
-                    data
+                    data,
                 };
             });
         }
@@ -455,7 +454,7 @@ export class UpdatePacket implements Packet {
                 return {
                     id,
                     __type: entityType,
-                    data
+                    data,
                 };
             });
         }
@@ -464,7 +463,7 @@ export class UpdatePacket implements Packet {
             stream.readArray(this.newPlayers, 8, () => {
                 return {
                     id: stream.readUint16(),
-                    name: stream.readASCIIString(GameConstants.player.nameMaxLength)
+                    name: stream.readASCIIString(GameConstants.player.nameMaxLength),
                 };
             });
         }
@@ -490,7 +489,7 @@ export class UpdatePacket implements Packet {
                     shooterId: stream.readUint16(),
                     initialPosition: stream.readPosition(),
                     direction: stream.readUnit(16),
-                    type: BulletDefs.read(stream)
+                    type: BulletDefs.read(stream),
                 };
             });
         }
@@ -499,7 +498,7 @@ export class UpdatePacket implements Packet {
             stream.readArray(this.explosions, 8, () => {
                 return {
                     position: stream.readPosition(),
-                    type: ExplosionDefs.read(stream)
+                    type: ExplosionDefs.read(stream),
                 };
             });
         }
@@ -508,7 +507,7 @@ export class UpdatePacket implements Packet {
             stream.readArray(this.shots, 8, () => {
                 return {
                     id: stream.readUint16(),
-                    weapon: WeaponDefs.read(stream)
+                    weapon: WeaponDefs.read(stream),
                 };
             });
         }
@@ -518,7 +517,7 @@ export class UpdatePacket implements Packet {
             stream.readArray(this.leaderboard, 8, () => {
                 return {
                     playerId: stream.readUint16(),
-                    kills: stream.readUint16()
+                    kills: stream.readUint16(),
                 };
             });
         }

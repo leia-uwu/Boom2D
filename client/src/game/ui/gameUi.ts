@@ -42,7 +42,7 @@ export class GameUi extends Container {
             this.killFeedUi,
             this.leaderBoardUi,
             this.deathUi,
-            this.debugUi
+            this.debugUi,
         );
     }
 
@@ -67,7 +67,7 @@ export class GameUi extends Container {
 
     updateUi(
         data: UpdatePacket["playerData"],
-        dirty: UpdatePacket["playerDataDirty"]
+        dirty: UpdatePacket["playerDataDirty"],
     ): void {
         this.statusUi.updateUi(data, dirty);
 

@@ -3,8 +3,8 @@ import { EntityType } from "../../../common/src/constants";
 import { type Packet, PacketStream } from "../../../common/src/net";
 import { DeathPacket } from "../../../common/src/packets/deathPacket";
 import { DebugPacket } from "../../../common/src/packets/debugPacket";
-import { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { JoinedPacket } from "../../../common/src/packets/joinedPacket";
+import { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { KillPacket } from "../../../common/src/packets/killPacket";
 import { MapPacket } from "../../../common/src/packets/mapPacket";
 import { PingPacket } from "../../../common/src/packets/pingPacket";
@@ -69,7 +69,7 @@ export class Game {
             [EntityType.Player]: this.playerManager,
             [EntityType.Loot]: this.lootManager,
             [EntityType.Obstacle]: this.obstacleManager,
-            [EntityType.Projectile]: this.projectileManager
+            [EntityType.Projectile]: this.projectileManager,
         });
     }
 
@@ -158,7 +158,7 @@ export class Game {
                 case packet instanceof DeathPacket:
                     this.ui.deathUi.show(
                         this.playerManager.getPlayerInfo(this.activePlayerID).name,
-                        packet
+                        packet,
                     );
                     break;
                 case packet instanceof MapPacket:
@@ -168,7 +168,7 @@ export class Game {
                     this.ui.killFeedUi.addMsg(
                         packet,
                         this.playerManager,
-                        this.activePlayerID
+                        this.activePlayerID,
                     );
                     break;
                 case packet instanceof PingPacket:
@@ -224,7 +224,7 @@ export class Game {
         for (let i = 0; i < packet.newPlayers.length; i++) {
             const newPlayer = packet.newPlayers[i];
             this.playerManager.playerInfos.set(newPlayer.id, {
-                name: newPlayer.name
+                name: newPlayer.name,
             });
         }
 
@@ -237,14 +237,14 @@ export class Game {
             assert(entityData.__type, "Invalid entity type");
 
             let entity: ClientEntity | undefined = this.entityManager.getById(
-                entityData.id
+                entityData.id,
             );
 
             if (entity === undefined) {
                 entity = this.entityManager.createEntity(
                     entityData.__type,
                     entityData.id,
-                    entityData.data
+                    entityData.data,
                 );
             } else {
                 this.entityManager.updateFullEntity(entityData.id, entityData.data);
@@ -278,7 +278,7 @@ export class Game {
             this.ui.leaderBoardUi.update(
                 packet.leaderboard,
                 this.playerManager,
-                this.activePlayerID
+                this.activePlayerID,
             );
         }
 
@@ -331,8 +331,7 @@ export class Game {
 
         if (this.fpsTicker > 2) {
             this.fpsTicker = 0;
-            const avgDt =
-                this.deltaTimes.reduce((a, b) => a + b) / this.deltaTimes.length;
+            const avgDt = this.deltaTimes.reduce((a, b) => a + b) / this.deltaTimes.length;
             this.fps = Math.round(1 / avgDt);
             this.deltaTimes.length = 0;
         }

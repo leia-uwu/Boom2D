@@ -32,7 +32,7 @@ class Explosion {
     constructor(
         readonly type: ExplosionDefKey,
         readonly position: Vector,
-        readonly source: Player
+        readonly source: Player,
     ) {
         const def = ExplosionDefs.typeToDef(this.type);
         this.hitbox = new CircleHitbox(def.radius, position);
@@ -53,7 +53,7 @@ class Explosion {
                 game.map,
                 this.position,
                 entity.position,
-                [EntityType.Obstacle]
+                [EntityType.Obstacle],
             );
 
             if (!intersection.entity && !intersection.wall) {

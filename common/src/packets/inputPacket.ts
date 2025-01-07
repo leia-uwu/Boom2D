@@ -43,7 +43,7 @@ export class InputPacket implements Packet {
         "moveUp",
         "moveDown",
         "mouseDown",
-        "weaponToSwitch"
+        "weaponToSwitch",
     ] as const;
     /**
      * Compare two input packets to test if they need to be resent

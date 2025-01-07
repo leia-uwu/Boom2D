@@ -140,8 +140,8 @@ export class Client {
 
         for (const entity of newVisibleEntities) {
             if (
-                !this.visibleEntities.has(entity) ||
-                game.entityManager.dirtyFull[entity.id]
+                !this.visibleEntities.has(entity)
+                || game.entityManager.dirtyFull[entity.id]
             ) {
                 updatePacket.serverFullEntities.push(entity);
             } else if (game.entityManager.dirtyPart[entity.id]) {
@@ -159,7 +159,7 @@ export class Client {
 
             this.position = Vec2.add(
                 this.position,
-                Vec2.mul(this.direction, this.speed * dt)
+                Vec2.mul(this.direction, this.speed * dt),
             );
 
             updatePacket.cameraPosition = this.position;
@@ -183,9 +183,9 @@ export class Client {
         for (let i = 0; i < game.bulletManager.newBullets.length; i++) {
             const bullet = game.bulletManager.newBullets[i];
             if (
-                rect.isPointInside(bullet.initialPosition) ||
-                rect.isPointInside(bullet.finalPosition) ||
-                rect.intersectsLine(bullet.initialPosition, bullet.finalPosition)
+                rect.isPointInside(bullet.initialPosition)
+                || rect.isPointInside(bullet.finalPosition)
+                || rect.intersectsLine(bullet.initialPosition, bullet.finalPosition)
             ) {
                 updatePacket.bullets.push(bullet);
             }
@@ -194,8 +194,8 @@ export class Client {
         for (let i = 0; i < game.explosionManager.explosions.length; i++) {
             const explosion = game.explosionManager.explosions[i];
             if (
-                rect.isPointInside(explosion.position) ||
-                rect.collidesWith(explosion.hitbox)
+                rect.isPointInside(explosion.position)
+                || rect.collidesWith(explosion.hitbox)
             ) {
                 updatePacket.explosions.push(explosion);
             }
@@ -249,7 +249,7 @@ export class Client {
         this.packetStream.stream.writeBytes(
             this.game.packetStream.stream,
             0,
-            this.game.packetStream.stream.byteIndex
+            this.game.packetStream.stream.byteIndex,
         );
 
         const buffer = this.packetStream.getBuffer();

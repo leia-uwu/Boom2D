@@ -52,7 +52,7 @@ export abstract class ClientEntity<T extends ValidEntityType = ValidEntityType> 
         this.interpolationFactor = MathUtils.clamp(
             this.interpolationTick / this.game.serverDt,
             0,
-            1
+            1,
         );
     }
 }
@@ -61,7 +61,7 @@ export class EntityPool<T extends ClientEntity = ClientEntity> {
     pool: Array<T> = [];
     activeCount = 0;
 
-    constructor(public entityCtr: new (game: Game) => T) {}
+    constructor(public entityCtr: new(game: Game) => T) {}
 
     allocEntity(game: Game, id: number) {
         let entity: T | undefined = undefined;
@@ -103,12 +103,12 @@ export class EntityPool<T extends ClientEntity = ClientEntity> {
 export class EntityManager {
     entities: Array<ClientEntity> = [];
     idToEntity: Array<ClientEntity | null> = new Array(GameConstants.maxEntityId).fill(
-        null
+        null,
     );
 
     constructor(
         readonly game: Game,
-        readonly typeToPool: Record<ValidEntityType, EntityPool>
+        readonly typeToPool: Record<ValidEntityType, EntityPool>,
     ) {}
 
     getById(id: number) {
@@ -118,7 +118,7 @@ export class EntityManager {
     createEntity(
         type: ValidEntityType,
         id: number,
-        data: Required<EntitiesNetData[ValidEntityType]>
+        data: Required<EntitiesNetData[ValidEntityType]>,
     ) {
         assert(!this.getById(id), "Entity already created");
         const entity = this.typeToPool[type].allocEntity(this.game, id);
@@ -136,7 +136,10 @@ export class EntityManager {
 
         if (!entity) {
             console.error(
-                `Tried to fully update invalid entity, ID: ${id}, data: ${JSON.stringify(data, null, 2)}`
+                "Tried to fully update invalid entity ID:",
+                id,
+                "data:",
+                JSON.stringify(data, null, 2),
             );
             return;
         }
@@ -148,7 +151,10 @@ export class EntityManager {
         const entity = this.getById(id);
         if (!entity) {
             console.error(
-                `Tried to partially update invalid entity, ID: ${id}, data: ${JSON.stringify(data, null, 2)}`
+                "Tried to partially update invalid entity, ID:",
+                id,
+                "data:",
+                JSON.stringify(data, null, 2),
             );
             return;
         }

@@ -4,7 +4,7 @@ import type { Vector } from "./utils/vector";
 
 export enum MapObjectType {
     Wall,
-    Floor
+    Floor,
 }
 
 export interface BaseMapObject {
@@ -99,10 +99,12 @@ export class BaseGameMap {
     }
 
     private _resetGrid() {
-        this._grid = Array.from({ length: this.gridWidth + 1 }, () =>
-            Array.from({ length: this.gridHeight + 1 }, () => {
-                return [];
-            })
+        this._grid = Array.from(
+            { length: this.gridWidth + 1 },
+            () =>
+                Array.from({ length: this.gridHeight + 1 }, () => {
+                    return [];
+                }),
         );
     }
 
@@ -128,7 +130,7 @@ export class BaseGameMap {
     private _roundToCells(vector: Vector): Vector {
         return {
             x: MathUtils.clamp(Math.floor(vector.x / this.cellSize), 0, this.gridWidth),
-            y: MathUtils.clamp(Math.floor(vector.y / this.cellSize), 0, this.gridHeight)
+            y: MathUtils.clamp(Math.floor(vector.y / this.cellSize), 0, this.gridHeight),
         };
     }
 }

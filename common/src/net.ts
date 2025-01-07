@@ -4,8 +4,8 @@ import { DeathPacket } from "./packets/deathPacket";
 import { DebugPacket } from "./packets/debugPacket";
 import { DebugTogglePacket } from "./packets/debugTogglePacket";
 import { InputPacket } from "./packets/inputPacket";
-import { JoinPacket } from "./packets/joinPacket";
 import { JoinedPacket } from "./packets/joinedPacket";
+import { JoinPacket } from "./packets/joinPacket";
 import { KillPacket } from "./packets/killPacket";
 import { MapPacket } from "./packets/mapPacket";
 import { PingPacket } from "./packets/pingPacket";
@@ -31,12 +31,12 @@ export class GameBitStream extends BitStream {
     writeFloat(value: number, min: number, max: number, bitCount: number): void {
         assert(
             bitCount > 0 || bitCount <= 31,
-            `bit count out of range: ${bitCount}, range: [0, 31]`
+            `bit count out of range: ${bitCount}, range: [0, 31]`,
         );
 
         assert(
             value < max || value > min,
-            `Value out of range: ${value}, range: [${min}, ${max}]`
+            `Value out of range: ${value}, range: [${min}, ${max}]`,
         );
         const range = (1 << bitCount) - 1;
         const clamped = MathUtils.clamp(value, min, max);
@@ -53,7 +53,7 @@ export class GameBitStream extends BitStream {
     readFloat(min: number, max: number, bitCount: number): number {
         assert(
             bitCount > 0 || bitCount <= 31,
-            `bit count out of range: ${bitCount}, range: [0, 31]`
+            `bit count out of range: ${bitCount}, range: [0, 31]`,
         );
         const range = (1 << bitCount) - 1;
         return min + ((max - min) * this.readBits(bitCount)) / range;
@@ -74,7 +74,7 @@ export class GameBitStream extends BitStream {
         minY: number,
         maxX: number,
         maxY: number,
-        bitCount: number
+        bitCount: number,
     ): void {
         this.writeFloat(vector.x, minX, maxX, bitCount);
         this.writeFloat(vector.y, minY, maxY, bitCount);
@@ -93,11 +93,11 @@ export class GameBitStream extends BitStream {
         minY: number,
         maxX: number,
         maxY: number,
-        bitCount: number
+        bitCount: number,
     ): Vector {
         return {
             x: this.readFloat(minX, maxX, bitCount),
-            y: this.readFloat(minY, maxY, bitCount)
+            y: this.readFloat(minY, maxY, bitCount),
         };
     }
 
@@ -112,7 +112,7 @@ export class GameBitStream extends BitStream {
             -32,
             GameConstants.maxPosition,
             GameConstants.maxPosition,
-            16
+            16,
         );
     }
 
@@ -126,7 +126,7 @@ export class GameBitStream extends BitStream {
             -32,
             GameConstants.maxPosition,
             GameConstants.maxPosition,
-            16
+            16,
         );
     }
 
@@ -143,7 +143,7 @@ export class GameBitStream extends BitStream {
             -GameBitStream.unitEps,
             GameBitStream.unitEps,
             GameBitStream.unitEps,
-            bitCount
+            bitCount,
         );
     }
 
@@ -158,7 +158,7 @@ export class GameBitStream extends BitStream {
             -GameBitStream.unitEps,
             GameBitStream.unitEps,
             GameBitStream.unitEps,
-            bitCount
+            bitCount,
         );
     }
 
@@ -171,7 +171,7 @@ export class GameBitStream extends BitStream {
     writeArray<T>(arr: T[], bitCount: number, serializeFn: (item: T) => void): void {
         assert(
             bitCount > 0 || bitCount <= 31,
-            `bit count out of range: ${bitCount}, range: [0, 31]`
+            `bit count out of range: ${bitCount}, range: [0, 31]`,
         );
 
         this.writeBits(arr.length, bitCount);
@@ -180,7 +180,7 @@ export class GameBitStream extends BitStream {
         for (let i = 0; i < arr.length; i++) {
             if (i > maxSize) {
                 console.warn(
-                    `writeArray: array overflow: max length: ${maxSize}, length: ${arr.length}`
+                    `writeArray: array overflow: max length: ${maxSize}, length: ${arr.length}`,
                 );
                 break;
             }
@@ -197,7 +197,7 @@ export class GameBitStream extends BitStream {
     readArray<T>(arr: T[], bitCount: number, deserializeFn: () => T): void {
         assert(
             bitCount > 0 || bitCount <= 31,
-            `bit count out of range: ${bitCount}, range: [0, 31]`
+            `bit count out of range: ${bitCount}, range: [0, 31]`,
         );
 
         const size = this.readBits(bitCount);
@@ -271,7 +271,7 @@ export class GameBitStream extends BitStream {
                 return {
                     type,
                     radius,
-                    position
+                    position,
                 };
             }
             case HitboxType.Rect: {
@@ -280,7 +280,7 @@ export class GameBitStream extends BitStream {
                 return {
                     type,
                     min,
-                    max
+                    max,
                 };
             }
             case HitboxType.Polygon: {
@@ -290,7 +290,7 @@ export class GameBitStream extends BitStream {
                 });
                 return {
                     type,
-                    verts
+                    verts,
                 };
             }
         }
@@ -305,9 +305,9 @@ export interface Packet {
 class PacketRegister {
     private _nextTypeId = 0;
     readonly typeToId: Record<string, number> = {};
-    readonly idToCtor: Array<new () => Packet> = [];
+    readonly idToCtor: Array<new() => Packet> = [];
 
-    register(...packets: Array<new () => Packet>) {
+    register(...packets: Array<new() => Packet>) {
         for (const packet of packets) {
             if (this.typeToId[packet.name]) {
                 console.warn(`Trying to register ${packet.name} multiple times`);
@@ -323,7 +323,7 @@ class PacketRegister {
         const type = this.typeToId[packet.constructor.name];
         assert(
             type !== undefined,
-            `Unknown packet type: ${packet.constructor.name}, did you forget to register it?`
+            `Unknown packet type: ${packet.constructor.name}, did you forget to register it?`,
         );
 
         stream.writeUint8(type);
@@ -355,7 +355,7 @@ ClientToServerPackets.register(
     RespawnPacket,
     QuitPacket,
     PingPacket,
-    DebugTogglePacket
+    DebugTogglePacket,
 );
 
 const ServerToClientPackets = new PacketRegister();
@@ -366,7 +366,7 @@ ServerToClientPackets.register(
     MapPacket,
     KillPacket,
     PingPacket,
-    DebugPacket
+    DebugPacket,
 );
 
 export class PacketStream {

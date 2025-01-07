@@ -9,31 +9,31 @@ import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 const StatusTextStyle: TextOptions = {
     style: {
         ...UiTextStyle,
-        fontSize: 30
-    }
+        fontSize: 30,
+    },
 };
 
 const healthColorSteps = [
     {
         health: GameConstants.player.maxHealth,
-        color: [0, 0xff, 0xff]
+        color: [0, 0xff, 0xff],
     },
     {
         health: GameConstants.player.defaultHealth,
-        color: [0, 0xff, 0]
+        color: [0, 0xff, 0],
     },
     {
         health: 50,
-        color: [0xb4, 0xff, 0x5e]
+        color: [0xb4, 0xff, 0x5e],
     },
     {
         health: 25,
-        color: [0xff, 84, 46]
+        color: [0xff, 84, 46],
     },
     {
         health: 0,
-        color: [0xff, 0, 0]
-    }
+        color: [0xff, 0, 0],
+    },
 ];
 
 class StatusValue extends Container {
@@ -63,7 +63,7 @@ export class StatusUi extends VerticalLayout {
     constructor() {
         super({
             height: 32,
-            margin: 8
+            margin: 8,
         });
     }
 
@@ -81,8 +81,8 @@ export class StatusUi extends VerticalLayout {
 
             let idx = 0;
             while (
-                healthColorSteps[idx].health > data.health &&
-                idx < healthColorSteps.length - 1
+                healthColorSteps[idx].health > data.health
+                && idx < healthColorSteps.length - 1
             ) {
                 idx++;
             }
@@ -92,7 +92,7 @@ export class StatusUi extends VerticalLayout {
             const rgb = [
                 MathUtils.lerp(stepA.color[0], stepB.color[0], t),
                 MathUtils.lerp(stepA.color[1], stepB.color[1], t),
-                MathUtils.lerp(stepA.color[2], stepB.color[2], t)
+                MathUtils.lerp(stepA.color[2], stepB.color[2], t),
             ];
 
             this.health.tint = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;

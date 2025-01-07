@@ -10,7 +10,7 @@ export const Helpers = {
 
         assert(
             element instanceof HTMLElement,
-            `Unknown element with selector: ${selector}`
+            `Unknown element with selector: ${selector}`,
         );
 
         return element as T;
@@ -61,5 +61,5 @@ export const Helpers = {
                 ctx.poly(hitbox.verts.map((p) => Camera.vecToScreen(p)));
                 break;
         }
-    }
+    },
 };

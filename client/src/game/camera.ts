@@ -8,7 +8,7 @@ export class Camera {
     readonly container = new Container({
         sortableChildren: true,
         isRenderGroup: true,
-        eventMode: "none"
+        eventMode: "none",
     });
 
     readonly game: Game;
@@ -81,18 +81,18 @@ export class Camera {
         const interpT = MathUtils.clamp(
             this.interpolationTicker / this.game.serverDt,
             0,
-            1
+            1,
         );
 
         const position = Camera.vecToScreen(
-            Vec2.lerp(this.oldPosition, this.position, interpT)
+            Vec2.lerp(this.oldPosition, this.position, interpT),
         );
 
         const cameraPos = Vec2.invert(
             Vec2.add(
                 Vec2.mul(position, this.container.scale.x),
-                Vec2.new(-this.width / 2, -this.height / 2)
-            )
+                Vec2.new(-this.width / 2, -this.height / 2),
+            ),
         );
 
         this.container.position.copyFrom(cameraPos);

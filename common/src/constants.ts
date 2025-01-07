@@ -3,7 +3,7 @@ export enum EntityType {
     Player,
     Projectile,
     Obstacle,
-    Loot
+    Loot,
 }
 
 export type ValidEntityType = Exclude<EntityType, EntityType.Invalid>;
@@ -23,6 +23,6 @@ export const GameConstants = {
         maxHealth: 200,
         defaultHealth: 100,
         maxArmor: 200,
-        defaultArmor: 0
-    }
+        defaultArmor: 0,
+    },
 } as const;

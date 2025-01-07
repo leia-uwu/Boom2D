@@ -4,7 +4,7 @@ import {
     type ColorSource,
     Sprite,
     Texture,
-    type TextureSourceLike
+    type TextureSourceLike,
 } from "pixi.js";
 import { EasinFunctions, MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
@@ -29,11 +29,11 @@ export class ParticleManager {
         position: Vector,
         rotation: Vector,
         type: keyof typeof ParticleDefs,
-        overrides: Partial<ParticleDef> = {}
+        overrides: Partial<ParticleDef> = {},
     ) {
         const def = {
             ...ParticleDefs[type],
-            ...overrides
+            ...overrides,
         };
 
         let particle: Particle | undefined = undefined;
@@ -92,22 +92,24 @@ interface MinMax {
     max: number;
 }
 
-type ParticleOption = (
-    | MinMax
-    | {
-          start: number;
-          end: number;
-      }
-    | {
-          value: number;
-      }
-) & {
-    /**
-     * Easing function
-     * Defaults to linear lerp
-     */
-    easing?: (t: number) => number;
-};
+type ParticleOption =
+    & (
+        | MinMax
+        | {
+            start: number;
+            end: number;
+        }
+        | {
+            value: number;
+        }
+    )
+    & {
+        /**
+         * Easing function
+         * Defaults to linear lerp
+         */
+        easing?: (t: number) => number;
+    };
 
 interface ParticleDef {
     /** Particle frame id */
@@ -146,7 +148,7 @@ function getMinMax(option: ParticleOption) {
         start,
         end,
         easing: option.easing ?? EasinFunctions.linear,
-        value: start
+        value: start,
     };
 }
 
@@ -194,7 +196,7 @@ class Particle {
             rotation: getMinMax(def.rotation),
             speed: getMinMax(def.speed),
             scale: getMinMax(def.scale),
-            alpha: getMinMax(def.alpha)
+            alpha: getMinMax(def.alpha),
         };
     }
 
@@ -219,7 +221,7 @@ class Particle {
 
         this.position = Vec2.add(
             this.position,
-            Vec2.mul(this.direction, this.data.speed.value * dt)
+            Vec2.mul(this.direction, this.data.speed.value * dt),
         );
         this.sprite.position = Camera.vecToScreen(this.position);
     }
@@ -237,7 +239,7 @@ const ParticleDefs = {
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 2, end: 0 },
-        speed: { min: 2, max: 5 }
+        speed: { min: 2, max: 5 },
     },
     rocket_explosion: {
         lifeTime: { min: 0.5, max: 1 },
@@ -250,7 +252,7 @@ const ParticleDefs = {
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 6, end: 0 },
-        speed: { min: 5, max: 10 }
+        speed: { min: 5, max: 10 },
     },
     plasma_explosion: {
         lifeTime: { min: 0.5, max: 1 },
@@ -263,7 +265,7 @@ const ParticleDefs = {
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 2, end: 0 },
-        speed: { min: 2, max: 5 }
+        speed: { min: 2, max: 5 },
     },
     bfg_trail: {
         lifeTime: { min: 0.5, max: 1 },
@@ -276,7 +278,7 @@ const ParticleDefs = {
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 2, end: 0 },
-        speed: { min: 2, max: 5 }
+        speed: { min: 2, max: 5 },
     },
     bfg_explosion: {
         lifeTime: { min: 1, max: 1.5 },
@@ -289,7 +291,7 @@ const ParticleDefs = {
         rotation: { value: 0 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 4, end: 0 },
-        speed: { min: 2, max: 5 }
+        speed: { min: 2, max: 5 },
     },
     wall_chip: {
         lifeTime: { min: 0.5, max: 0.8 },
@@ -303,9 +305,9 @@ const ParticleDefs = {
             get start() {
                 return Random.float(1, 1.8);
             },
-            end: 0.5
+            end: 0.5,
         },
-        speed: { min: 3, max: 4 }
+        speed: { min: 3, max: 4 },
     },
     blood: {
         lifeTime: { min: 0.5, max: 0.8 },
@@ -317,7 +319,7 @@ const ParticleDefs = {
         rotation: { min: 0, max: Math.PI * 2 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 0.3, end: 1.5 },
-        speed: { min: 1.5, max: 2 }
+        speed: { min: 1.5, max: 2 },
     },
     gib_blood: {
         lifeTime: { min: 0.8, max: 1.1 },
@@ -329,7 +331,7 @@ const ParticleDefs = {
         rotation: { min: 0, max: Math.PI * 2 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { start: 3, end: 0.1 },
-        speed: { min: 5, max: 8 }
+        speed: { min: 5, max: 8 },
     },
     gib_bones: {
         lifeTime: { min: 0.8, max: 1.1 },
@@ -338,8 +340,8 @@ const ParticleDefs = {
         rotation: { min: 0, max: Math.PI * 2 },
         alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
         scale: { min: 1, max: 2 },
-        speed: { min: 5, max: 8 }
-    }
+        speed: { min: 5, max: 8 },
+    },
 } satisfies Record<string, ParticleDef>;
 
 export type ParticleDefKey = keyof typeof ParticleDefs;

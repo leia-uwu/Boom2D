@@ -50,8 +50,8 @@ export class Loot extends AbstractServerEntity {
             canPickup: this.canPickup,
             full: {
                 position: this.position,
-                type: this.type
-            }
+                type: this.type,
+            },
         };
     }
 }

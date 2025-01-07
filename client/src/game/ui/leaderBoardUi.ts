@@ -6,7 +6,7 @@ import { UiHelpers, UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 
 const LineTextStyle = {
     ...UiTextStyle,
-    fontSize: 16
+    fontSize: 16,
 } satisfies TextStyleOptions;
 
 class LeaderboardEntryDisplay extends Container {
@@ -36,14 +36,13 @@ class LeaderboardEntryDisplay extends Container {
 export class LeaderBoardUi extends Container {
     static LineHeight = 20;
     static Width = 250;
-    static Height =
-        GameConstants.leaderboardMaxEntries * LeaderBoardUi.LineHeight +
-        24 +
-        UiStyle.margin * 2;
+    static Height = GameConstants.leaderboardMaxEntries * LeaderBoardUi.LineHeight
+        + 24
+        + UiStyle.margin * 2;
     bg = new Graphics();
 
     layout = new VerticalLayout({
-        height: LeaderBoardUi.LineHeight
+        height: LeaderBoardUi.LineHeight,
     });
 
     title = new Text({ text: "Kills", style: { ...LineTextStyle, fontSize: 18 } });
@@ -73,7 +72,7 @@ export class LeaderBoardUi extends Container {
     update(
         data: LeaderboardEntry[],
         playerManager: PlayerManager,
-        activePlayerId: number
+        activePlayerId: number,
     ) {
         for (let i = 0; i < GameConstants.leaderboardMaxEntries; i++) {
             const entry = data[i];

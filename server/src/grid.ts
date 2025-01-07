@@ -19,8 +19,9 @@ export class Grid {
         this.width = Math.floor(width / this.cellSize);
         this.height = Math.floor(height / this.cellSize);
 
-        this._grid = Array.from({ length: this.width + 1 }, () =>
-            Array.from({ length: this.height + 1 }, () => new Set())
+        this._grid = Array.from(
+            { length: this.width + 1 },
+            () => Array.from({ length: this.height + 1 }, () => new Set()),
         );
     }
 
@@ -109,7 +110,7 @@ export class Grid {
     private _roundToCells(vector: Vector): Vector {
         return {
             x: MathUtils.clamp(Math.floor(vector.x / this.cellSize), 0, this.width),
-            y: MathUtils.clamp(Math.floor(vector.y / this.cellSize), 0, this.height)
+            y: MathUtils.clamp(Math.floor(vector.y / this.cellSize), 0, this.height),
         };
     }
 }

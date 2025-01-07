@@ -11,27 +11,27 @@ const rawDefs: Record<AmmoDefKey, AmmoDef> = {
     bullet: {
         color: 0xffff00,
         inventoryImg: {
-            src: "ui-bullet.svg"
-        }
+            src: "ui-bullet.svg",
+        },
     },
     shell: {
         color: 0xff0000,
         inventoryImg: {
-            src: "ui-shell.svg"
-        }
+            src: "ui-shell.svg",
+        },
     },
     rocket: {
         color: 0xff510c,
         inventoryImg: {
-            src: "ui-rocket.svg"
-        }
+            src: "ui-rocket.svg",
+        },
     },
     cell: {
         color: 0x00ff00,
         inventoryImg: {
-            src: "ui-cell.svg"
-        }
-    }
+            src: "ui-cell.svg",
+        },
+    },
 };
 
 export const AmmoDefs = new DefinitionList<AmmoDefKey, AmmoDef>(rawDefs);

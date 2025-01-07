@@ -5,7 +5,7 @@ import {
     type ContainerOptions,
     Graphics,
     Text,
-    type TextStyleOptions
+    type TextStyleOptions,
 } from "pixi.js";
 
 export const UiTextStyle: TextStyleOptions = {
@@ -14,8 +14,8 @@ export const UiTextStyle: TextStyleOptions = {
     dropShadow: {
         color: 0,
         alpha: 0.6,
-        distance: 2
-    }
+        distance: 2,
+    },
 };
 
 export const UiStyle = {
@@ -27,8 +27,8 @@ export const UiStyle = {
         borderRadius: 4,
         strokeColor: 0x333333,
         strokeWidth: 5,
-        stroleAlpha: 0.5
-    }
+        stroleAlpha: 0.5,
+    },
 };
 
 export const UiHelpers = {
@@ -38,21 +38,21 @@ export const UiHelpers = {
         ctx.roundRect(0, 0, width, height, style.borderRadius);
         ctx.fill({
             color: UiStyle.panels.backgroundColor,
-            alpha: UiStyle.panels.backgroundAlpha
+            alpha: UiStyle.panels.backgroundAlpha,
         });
         ctx.roundRect(
             -style.strokeWidth / 2,
             -style.strokeWidth / 2,
             width + style.strokeWidth,
             height + style.strokeWidth,
-            style.borderRadius + style.strokeWidth / 2
+            style.borderRadius + style.strokeWidth / 2,
         );
         ctx.stroke({
             color: UiStyle.panels.strokeColor,
             width: style.strokeWidth,
-            alpha: style.stroleAlpha
+            alpha: style.stroleAlpha,
         });
-    }
+    },
 };
 
 interface LayoutOptions {
@@ -71,7 +71,7 @@ class Layout extends Container {
             height: 0,
             margin: 0,
             ignoreInvisible: false,
-            ...layout
+            ...layout,
         };
     }
 }
@@ -107,11 +107,11 @@ interface ButtonOptions {
 
 export class Button extends Container {
     bg = new Graphics({
-        cursor: "pointer"
+        cursor: "pointer",
     });
     text = new Text({
         cursor: "pointer",
-        style: UiTextStyle
+        style: UiTextStyle,
     });
 
     constructor(public options: ButtonOptions) {
@@ -138,7 +138,7 @@ export class Button extends Container {
         this.bg.fill(this.options.color);
         this.bg.stroke({
             color: new Color(this.options.color).multiply(0x444444),
-            width: 4
+            width: 4,
         });
         this.pivot.x = this.width / 2;
         this.pivot.y = this.height / 2;

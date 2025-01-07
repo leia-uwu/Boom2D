@@ -3,10 +3,10 @@ export const ClientConfig: ClientConfigType = {
         local: {
             name: "Local",
             address: "127.0.0.1:8000",
-            https: false
-        }
+            https: false,
+        },
     },
-    defaultServer: "local"
+    defaultServer: "local",
 };
 
 interface ClientConfigType {

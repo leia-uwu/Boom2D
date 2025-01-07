@@ -59,7 +59,7 @@ export class Loot extends ClientEntity {
 
     override updateFromData(
         data: EntitiesNetData[EntityType.Loot],
-        isNew: boolean
+        isNew: boolean,
     ): void {
         super.updateFromData(data, isNew);
 
@@ -113,7 +113,7 @@ export class Loot extends ClientEntity {
 
     override destroy(): void {
         this.container.destroy({
-            children: true
+            children: true,
         });
     }
 }

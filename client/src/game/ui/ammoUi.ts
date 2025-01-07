@@ -8,8 +8,8 @@ const itemHeight = 24;
 const AmmoTextStyle: TextOptions = {
     style: {
         ...UiTextStyle,
-        fontSize: itemHeight
-    }
+        fontSize: itemHeight,
+    },
 };
 
 export class AmmoUi extends VerticalLayout {
@@ -21,7 +21,7 @@ export class AmmoUi extends VerticalLayout {
     constructor() {
         super({
             height: itemHeight,
-            margin: UiStyle.margin
+            margin: UiStyle.margin,
         });
     }
 

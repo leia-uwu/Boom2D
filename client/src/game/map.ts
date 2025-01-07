@@ -7,11 +7,11 @@ import type { Game } from "./game";
 
 export class GameMap extends BaseGameMap {
     mapGraphics = new Graphics({
-        zIndex: -99
+        zIndex: -99,
     });
 
     wallGraphics = new Graphics({
-        zIndex: 50
+        zIndex: 50,
     });
 
     constructor(readonly game: Game) {
@@ -35,7 +35,7 @@ export class GameMap extends BaseGameMap {
             Helpers.drawHitbox(ctx, floor.hitbox);
 
             const fillStyle: FillStyle = {
-                color: floor.color
+                color: floor.color,
             };
             if (floor.texture) fillStyle.texture = Texture.from(floor.texture);
             ctx.fill(fillStyle);
@@ -57,7 +57,7 @@ export class GameMap extends BaseGameMap {
         ctx.stroke({
             color: 0xffffff,
             alpha: 0.1,
-            width: 2
+            width: 2,
         });
 
         const wallCtx = this.wallGraphics;
@@ -71,7 +71,7 @@ export class GameMap extends BaseGameMap {
 
             Helpers.drawHitbox(wallCtx, wall.hitbox);
             const fillStyle: FillStyle = {
-                color: wall.color
+                color: wall.color,
             };
             if (wall.texture) fillStyle.texture = Texture.from(wall.texture);
             wallCtx.fill(fillStyle);
@@ -80,7 +80,7 @@ export class GameMap extends BaseGameMap {
                 color: 0,
                 width: 10,
                 cap: "round",
-                join: "round"
+                join: "round",
             });
         }
     }

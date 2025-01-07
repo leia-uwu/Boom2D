@@ -17,9 +17,9 @@ Bun.serve<ClientData>({
     hostname: Config.host,
     tls: Config.ssl
         ? {
-              key: Bun.file(Config.ssl.keyFile),
-              cert: Bun.file(Config.ssl.certFile)
-          }
+            key: Bun.file(Config.ssl.keyFile),
+            cert: Bun.file(Config.ssl.certFile),
+        }
         : undefined,
 
     async fetch(request, server) {
@@ -30,14 +30,14 @@ Bun.serve<ClientData>({
         switch (url.pathname) {
             case "/server_info":
                 response = {
-                    playerCount: game.playerManager.players.length
+                    playerCount: game.playerManager.players.length,
                 };
                 break;
             case "/play": {
                 const upgraded = server.upgrade(request, {
                     data: {
-                        joined: false
-                    }
+                        joined: false,
+                    },
                 });
                 if (!upgraded) {
                     return new Response("Websocket upgrade failed.", { status: 400 });
@@ -50,8 +50,8 @@ Bun.serve<ClientData>({
             return new Response(JSON.stringify(response), {
                 headers: {
                     "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*"
-                }
+                    "Access-Control-Allow-Origin": "*",
+                },
             });
         }
         return new Response("404");
@@ -74,8 +74,8 @@ Bun.serve<ClientData>({
         },
         close(socket) {
             game.clientManager.removeClient(socket);
-        }
-    }
+        },
+    },
 });
 
 const logger = new Logger("Server");

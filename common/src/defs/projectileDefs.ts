@@ -32,61 +32,61 @@ const rawDefs: Record<ProjectileDefKey, ProjectileDef> = {
         speed: 40,
         damage: {
             min: 5,
-            max: 40
+            max: 40,
         },
         explosion: "rocket",
         img: {
-            src: "rocket-projectile.svg"
+            src: "rocket-projectile.svg",
         },
         particles: {
             spawnDelay: 0.01,
             spawnOffset: 1.5,
             amount: 10,
-            type: "rocket_trail"
-        }
+            type: "rocket_trail",
+        },
     },
     plasma: {
         radius: 0.25,
         speed: 50,
         damage: {
             min: 5,
-            max: 20
+            max: 20,
         },
         explosion: "plasma",
         img: {
             spin: true,
             src: "plasma-projectile.svg",
-            tint: 0x00ffff
-        }
+            tint: 0x00ffff,
+        },
     },
     bfg: {
         radius: 1,
         speed: 40,
         damage: {
             min: 25,
-            max: 50
+            max: 50,
         },
         explosion: "bfg",
         img: {
             spin: true,
             src: "bfg-projectile.svg",
-            tint: 0x00ff00
+            tint: 0x00ff00,
         },
         particles: {
             spawnDelay: 0.01,
             spawnOffset: 0,
             amount: 10,
             type: "bfg_trail",
-            randomPlacement: true
+            randomPlacement: true,
         },
         tracers: {
             type: "bfg_tracer",
             radius: 5,
-            rate: 0.2
-        }
-    }
+            rate: 0.2,
+        },
+    },
 };
 
 export const ProjectileDefs = new DefinitionList<ProjectileDefKey, ProjectileDef>(
-    rawDefs
+    rawDefs,
 );

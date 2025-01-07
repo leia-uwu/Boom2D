@@ -12,7 +12,7 @@ import {
     CircleHitbox,
     HitboxType,
     type PolygonHitboxJSON,
-    RectHitbox
+    RectHitbox,
 } from "../../common/src/utils/hitbox";
 import { Random } from "../../common/src/utils/random";
 import { Vec2, type Vector } from "../../common/src/utils/vector";
@@ -23,7 +23,7 @@ export class GameMap extends BaseGameMap {
 
     constructor(
         readonly game: Game,
-        readonly name: MapDefKey
+        readonly name: MapDefKey,
     ) {
         super();
         const def = MapDefs.typeToDef(name);
@@ -110,7 +110,7 @@ export class SvgParser {
                     type,
                     hitbox: this.parseCircle(node),
                     texture,
-                    color
+                    color,
                 });
                 break;
             }
@@ -119,7 +119,7 @@ export class SvgParser {
                     type,
                     hitbox: this.parseRectangle(node),
                     texture,
-                    color
+                    color,
                 });
                 break;
             }
@@ -131,7 +131,7 @@ export class SvgParser {
                         type,
                         hitbox: polygons[i],
                         texture,
-                        color
+                        color,
                     });
                 }
                 break;
@@ -157,12 +157,9 @@ export class SvgParser {
         assert(node.properties.r, "Circle must have radius");
         assert(node.properties.cx, "Circle must have x coordinate");
         assert(node.properties.cy, "Circle must have y coordinate");
-        const x =
-            parseFloat(node.properties.cx.toString()) * SvgParser.magicUnitToPixelScale;
-        const y =
-            parseFloat(node.properties.cy.toString()) * SvgParser.magicUnitToPixelScale;
-        const radius =
-            parseFloat(node.properties.r.toString()) * SvgParser.magicUnitToPixelScale;
+        const x = parseFloat(node.properties.cx.toString()) * SvgParser.magicUnitToPixelScale;
+        const y = parseFloat(node.properties.cy.toString()) * SvgParser.magicUnitToPixelScale;
+        const radius = parseFloat(node.properties.r.toString()) * SvgParser.magicUnitToPixelScale;
 
         return new CircleHitbox(radius, Vec2.new(x, y));
     }
@@ -174,16 +171,12 @@ export class SvgParser {
         assert(node.properties.x, "Rectangle must have x coordinate");
         assert(node.properties.y, "Rectangle must have y coordinate");
 
-        const width =
-            parseFloat(node.properties.width.toString()) *
-            SvgParser.magicUnitToPixelScale;
-        const height =
-            parseFloat(node.properties.height.toString()) *
-            SvgParser.magicUnitToPixelScale;
-        const x =
-            parseFloat(node.properties.x.toString()) * SvgParser.magicUnitToPixelScale;
-        const y =
-            parseFloat(node.properties.y.toString()) * SvgParser.magicUnitToPixelScale;
+        const width = parseFloat(node.properties.width.toString())
+            * SvgParser.magicUnitToPixelScale;
+        const height = parseFloat(node.properties.height.toString())
+            * SvgParser.magicUnitToPixelScale;
+        const x = parseFloat(node.properties.x.toString()) * SvgParser.magicUnitToPixelScale;
+        const y = parseFloat(node.properties.y.toString()) * SvgParser.magicUnitToPixelScale;
         const min = Vec2.new(x, y);
         const max = Vec2.new(x + width, y + height);
 
@@ -235,16 +228,16 @@ export class SvgParser {
                         verts = [
                             {
                                 x: parseFloat(cords[0]),
-                                y: parseFloat(cords[1])
-                            }
+                                y: parseFloat(cords[1]),
+                            },
                         ];
                         i++;
                     } else {
                         verts = [
                             {
                                 x: parseFloat(commands[i + 1]),
-                                y: parseFloat(commands[i + 2])
-                            }
+                                y: parseFloat(commands[i + 2]),
+                            },
                         ];
                         i += 2;
                     }
@@ -253,9 +246,7 @@ export class SvgParser {
                 // end path
                 case "z":
                 case "Z": {
-                    verts = verts.map((p) =>
-                        Vec2.mul(p, SvgParser.magicUnitToPixelScale)
-                    );
+                    verts = verts.map((p) => Vec2.mul(p, SvgParser.magicUnitToPixelScale));
                     polygons.push({ type: HitboxType.Polygon, verts: verts });
                     break;
                 }
@@ -263,7 +254,7 @@ export class SvgParser {
                 case "h": {
                     verts.push({
                         x: verts[verts.length - 1].x + parseFloat(commands[i + 1]),
-                        y: verts[verts.length - 1].y
+                        y: verts[verts.length - 1].y,
                     });
                     i++;
                     break;
@@ -271,7 +262,7 @@ export class SvgParser {
                 case "H": {
                     verts.push({
                         x: parseFloat(commands[i + 1]),
-                        y: verts[verts.length - 1].y
+                        y: verts[verts.length - 1].y,
                     });
                     i++;
                     break;
@@ -280,7 +271,7 @@ export class SvgParser {
                 case "v": {
                     verts.push({
                         x: verts[verts.length - 1].x,
-                        y: verts[verts.length - 1].y + parseFloat(commands[i + 1])
+                        y: verts[verts.length - 1].y + parseFloat(commands[i + 1]),
                     });
                     i++;
                     break;
@@ -288,7 +279,7 @@ export class SvgParser {
                 case "V": {
                     verts.push({
                         x: verts[verts.length - 1].x,
-                        y: parseFloat(commands[i + 1])
+                        y: parseFloat(commands[i + 1]),
                     });
                     i++;
                     break;
@@ -324,12 +315,12 @@ export class SvgParser {
                     if (cords.length === 2) {
                         point = {
                             x: parseFloat(cords[0]),
-                            y: parseFloat(cords[1])
+                            y: parseFloat(cords[1]),
                         };
                     } else {
                         point = {
                             x: parseFloat(commands[i]),
-                            y: parseFloat(commands[i + 1])
+                            y: parseFloat(commands[i + 1]),
                         };
                         i++;
                     }

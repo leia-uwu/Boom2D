@@ -2,7 +2,7 @@ import { Sprite } from "pixi.js";
 import {
     type ExplosionDef,
     type ExplosionDefKey,
-    ExplosionDefs
+    ExplosionDefs,
 } from "../../../common/src/defs/explosionDefs";
 import { CircleHitbox } from "../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../common/src/utils/math";
@@ -31,7 +31,7 @@ export class ExplosionManager {
                 this.game.particleManager.addParticle(
                     position,
                     Random.vector(-1, 1, -1, 1),
-                    def.particles.type as ParticleDefKey
+                    def.particles.type as ParticleDefKey,
                 );
             }
         }
@@ -39,7 +39,7 @@ export class ExplosionManager {
         if (def.sound) {
             this.game.audioManager.play(def.sound, {
                 position,
-                falloff: 0.3
+                falloff: 0.3,
             });
         }
     }
@@ -64,7 +64,7 @@ class Explosion {
 
     constructor(
         readonly type: ExplosionDefKey,
-        readonly position: Vector
+        readonly position: Vector,
     ) {
         const def = ExplosionDefs.typeToDef(this.type);
         Helpers.spriteFromDef(this.sprite, def.img);
@@ -91,7 +91,7 @@ class Explosion {
         if (DEBUG_ENABLED) {
             debugRenderer.addHitbox(
                 new CircleHitbox(def.radius, this.position),
-                0xff0000
+                0xff0000,
             );
         }
     }

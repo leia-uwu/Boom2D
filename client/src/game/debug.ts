@@ -4,7 +4,7 @@ import {
     type HitboxJSON,
     HitboxType,
     type PolygonHitboxJSON,
-    type RectHitboxJSON
+    type RectHitboxJSON,
 } from "../../../common/src/utils/hitbox";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { Helpers } from "../helpers";
@@ -17,7 +17,7 @@ enum ShapeType {
     Rect,
     Polygon,
     Line,
-    Ray
+    Ray,
 }
 
 interface Line {
@@ -39,7 +39,7 @@ type DebugShape = (CircleHitboxJSON | RectHitboxJSON | PolygonHitboxJSON | Line 
 
 export class DebugRenderer {
     readonly graphics = new Graphics({
-        zIndex: 999
+        zIndex: 999,
     });
 
     private shapes: DebugShape[] = [];
@@ -68,7 +68,7 @@ export class DebugRenderer {
                     const start = Camera.vecToScreen(shape.position);
                     ctx.moveTo(start.x, start.y);
                     const end = Camera.vecToScreen(
-                        Vec2.add(shape.position, Vec2.mul(shape.direction, shape.length))
+                        Vec2.add(shape.position, Vec2.mul(shape.direction, shape.length)),
                     );
                     ctx.lineTo(end.x, end.y);
                     break;
@@ -76,7 +76,7 @@ export class DebugRenderer {
             }
             ctx.stroke({
                 color: shape.color,
-                width: 2
+                width: 2,
             });
         }
     }
@@ -84,7 +84,7 @@ export class DebugRenderer {
     addHitbox(hitbox: HitboxJSON, color: ColorSource): void {
         this.shapes.push({
             ...hitbox,
-            color
+            color,
         });
     }
 
@@ -93,7 +93,7 @@ export class DebugRenderer {
             type: ShapeType.Line,
             a,
             b,
-            color
+            color,
         });
     }
 
@@ -101,14 +101,14 @@ export class DebugRenderer {
         position: Vector,
         direction: Vector,
         length: number,
-        color: ColorSource
+        color: ColorSource,
     ): void {
         this.shapes.push({
             type: ShapeType.Ray,
             position,
             direction,
             length,
-            color
+            color,
         });
     }
 

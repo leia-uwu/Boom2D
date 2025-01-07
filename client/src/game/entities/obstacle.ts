@@ -1,9 +1,6 @@
 import { Sprite } from "pixi.js";
 import { EntityType } from "../../../../common/src/constants";
-import {
-    type ObstacleDefKey,
-    ObstacleDefs
-} from "../../../../common/src/defs/obstacleDefs";
+import { type ObstacleDefKey, ObstacleDefs } from "../../../../common/src/defs/obstacleDefs";
 import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import { BaseHitbox, type Hitbox } from "../../../../common/src/utils/hitbox";
 import { Helpers } from "../../helpers";
@@ -31,7 +28,7 @@ export class Obstacle extends ClientEntity {
 
     override updateFromData(
         data: EntitiesNetData[EntityType.Obstacle],
-        isNew: boolean
+        isNew: boolean,
     ): void {
         super.updateFromData(data, isNew);
 
@@ -62,7 +59,7 @@ export class Obstacle extends ClientEntity {
 
     override destroy(): void {
         this.container.destroy({
-            children: true
+            children: true,
         });
     }
 }

@@ -100,7 +100,7 @@ export class ClientBullet extends BaseBullet {
             super.update(dt);
             const collisions = this.checkCollisions(
                 this.game.entityManager.entities,
-                this.game.map
+                this.game.map,
             );
 
             for (let i = 0; i < collisions.length; i++) {
@@ -112,7 +112,7 @@ export class ClientBullet extends BaseBullet {
                     collision.position,
                     collision.normal,
                     collision.wall,
-                    collision.entity
+                    collision.entity,
                 );
 
                 break;
@@ -126,13 +126,13 @@ export class ClientBullet extends BaseBullet {
 
         this.trailLength = MathUtils.min(
             this.trailMaxLength,
-            Vec2.distance(this.initialPosition, this.position)
+            Vec2.distance(this.initialPosition, this.position),
         );
         if (this.dead) {
             this.trailFadeTicker += dt;
             this.trailLength = MathUtils.max(
                 0,
-                this.trailLength - this.trailFadeTicker * this.speed * this.trailFadeSpeed
+                this.trailLength - this.trailFadeTicker * this.speed * this.trailFadeSpeed,
             );
         }
 
@@ -153,7 +153,7 @@ export class ClientBullet extends BaseBullet {
         position: Vector,
         normal: Vector,
         wall?: MapObject,
-        entity?: ClientEntity
+        entity?: ClientEntity,
     ) {
         if (wall || entity?.__type === EntityType.Obstacle) {
             let tint = 0xff0000;
@@ -169,15 +169,15 @@ export class ClientBullet extends BaseBullet {
                 Vec2.add(normal, Random.vector(-0.3, 0.3, -0.3, 0.3)),
                 "wall_chip",
                 {
-                    tint
-                }
+                    tint,
+                },
             );
         } else if (entity?.__type === EntityType.Player) {
             for (let i = 0; i < 20; i++) {
                 this.game.particleManager.addParticle(
                     position,
                     Vec2.add(normal, Random.vector(-0.4, 0.34, -0.4, 0.4)),
-                    "blood"
+                    "blood",
                 );
             }
         }

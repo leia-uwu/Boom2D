@@ -37,7 +37,6 @@ export const MathUtils = {
      * @param start The start value
      * @param end The end value
      * @param interpFactor The interpolation factor ranging from 0 to 1
-     *
      */
     lerp(start: number, end: number, interpFactor: number): number {
         return start * (1 - interpFactor) + end * interpFactor;
@@ -74,7 +73,7 @@ export const MathUtils = {
     },
     signedAreaTri(a: Vector, b: Vector, c: Vector): number {
         return (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x);
-    }
+    },
 };
 
 export const EasinFunctions = {
@@ -87,5 +86,5 @@ export const EasinFunctions = {
     },
     sineInOut: (t: number) => {
         return (1 - Math.cos(Math.PI * t)) / 2;
-    }
+    },
 };

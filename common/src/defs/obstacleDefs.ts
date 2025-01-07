@@ -15,9 +15,9 @@ const rawDefs: Record<ObstacleDefKey, ObstacleDef> = {
         health: 100,
         img: {
             src: "barrel.svg",
-            tint: 0x550000
-        }
-    }
+            tint: 0x550000,
+        },
+    },
 };
 
 export const ObstacleDefs = new DefinitionList(rawDefs);

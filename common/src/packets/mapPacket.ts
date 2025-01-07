@@ -27,7 +27,7 @@ export class MapPacket implements Packet {
                 type: stream.readUint8(),
                 hitbox: stream.readHitbox(),
                 color: stream.readBits(24),
-                texture: stream.readASCIIString()
+                texture: stream.readASCIIString(),
             };
         });
     }

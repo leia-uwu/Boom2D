@@ -3,7 +3,7 @@ import { EntityType } from "../../../common/src/constants";
 import {
     type ProjectileDef,
     type ProjectileDefKey,
-    ProjectileDefs
+    ProjectileDefs,
 } from "../../../common/src/defs/projectileDefs";
 import type { EntitiesNetData } from "../../../common/src/packets/updatePacket";
 import { CircleHitbox } from "../../../common/src/utils/hitbox";
@@ -82,11 +82,12 @@ export class Projectile extends AbstractServerEntity {
         for (const entity of entities) {
             if (
                 !(
-                    entity.__type === EntityType.Player ||
-                    entity.__type === EntityType.Obstacle
+                    entity.__type === EntityType.Player
+                    || entity.__type === EntityType.Obstacle
                 )
-            )
+            ) {
                 continue;
+            }
             if (entity === this.source) continue;
 
             const intersection = entity.hitbox.getIntersection(this.hitbox);
@@ -95,14 +96,14 @@ export class Projectile extends AbstractServerEntity {
                 if (entity.__type === EntityType.Player) {
                     (entity as Player).damage(
                         Random.int(def.damage.min, def.damage.max),
-                        this.source
+                        this.source,
                     );
                 }
                 this.dead = true;
 
                 this.position = Vec2.sub(
                     this.position,
-                    Vec2.mul(this.direction, intersection.pen)
+                    Vec2.mul(this.direction, intersection.pen),
                 );
                 break;
             }
@@ -119,7 +120,7 @@ export class Projectile extends AbstractServerEntity {
                     this.dead = true;
                     this.position = Vec2.sub(
                         this.position,
-                        Vec2.mul(this.direction, intersection.pen)
+                        Vec2.mul(this.direction, intersection.pen),
                     );
                     break;
                 }
@@ -145,24 +146,24 @@ export class Projectile extends AbstractServerEntity {
 
                     const angle = MathUtils.angleBetweenPoints(
                         entity.position,
-                        this.position
+                        this.position,
                     );
                     const direction = Vec2.new(Math.cos(angle), Math.sin(angle));
                     this.game.bulletManager.fireBullet(this.source, {
                         initialPosition: this.position,
                         direction,
                         type: def.tracers.type,
-                        shooterId: this.source.id
+                        shooterId: this.source.id,
                     });
                 }
             }
         }
 
         if (
-            this.position.x <= 0 ||
-            this.position.x >= this.game.map.width ||
-            this.position.y <= 0 ||
-            this.position.y >= this.game.map.height
+            this.position.x <= 0
+            || this.position.x >= this.game.map.width
+            || this.position.y <= 0
+            || this.position.y >= this.game.map.height
         ) {
             this.dead = true;
         }
@@ -177,7 +178,7 @@ export class Projectile extends AbstractServerEntity {
             this.game.explosionManager.addExplosion(
                 def.explosion,
                 this.position,
-                this.source
+                this.source,
             );
         }
     }
@@ -187,8 +188,8 @@ export class Projectile extends AbstractServerEntity {
             position: this.position,
             full: {
                 type: this.type,
-                direction: this.direction
-            }
+                direction: this.direction,
+            },
         };
     }
 }

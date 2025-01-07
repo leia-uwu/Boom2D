@@ -8,7 +8,7 @@ import { Vec2, type Vector } from "./vector";
 export enum HitboxType {
     Circle,
     Rect,
-    Polygon
+    Polygon,
 }
 
 export interface CircleHitboxJSON {
@@ -125,7 +125,7 @@ export class CircleHitbox extends BaseHitbox {
         return {
             type: this.type,
             radius: this.radius,
-            position: Vec2.clone(this.position)
+            position: Vec2.clone(this.position),
         };
     }
 
@@ -133,7 +133,7 @@ export class CircleHitbox extends BaseHitbox {
         const radius = this.radius * scale;
         const newPos = Vec2.add(
             Vec2.rotate(Vec2.mul(this.position, scale), rotation),
-            position
+            position,
         );
         return new CircleHitbox(radius, newPos);
     }
@@ -149,7 +149,7 @@ export class CircleHitbox extends BaseHitbox {
     override toRectangle(): RectHitbox {
         return new RectHitbox(
             Vec2.new(this.position.x - this.radius, this.position.y - this.radius),
-            Vec2.new(this.position.x + this.radius, this.position.y + this.radius)
+            Vec2.new(this.position.x + this.radius, this.position.y + this.radius),
         );
     }
 
@@ -175,7 +175,7 @@ export class RectHitbox extends BaseHitbox {
     static fromLine(a: Vector, b: Vector): RectHitbox {
         return new RectHitbox(
             Vec2.new(MathUtils.min(a.x, b.x), MathUtils.min(a.y, b.y)),
-            Vec2.new(MathUtils.max(a.x, b.x), MathUtils.max(a.y, b.y))
+            Vec2.new(MathUtils.max(a.x, b.x), MathUtils.max(a.y, b.y)),
         );
     }
 
@@ -189,7 +189,7 @@ export class RectHitbox extends BaseHitbox {
         return {
             type: this.type,
             min: Vec2.clone(this.min),
-            max: Vec2.clone(this.max)
+            max: Vec2.clone(this.max),
         };
     }
 
@@ -199,7 +199,7 @@ export class RectHitbox extends BaseHitbox {
     static fromCircle(radius: number, position: Vector): RectHitbox {
         return new RectHitbox(
             Vec2.new(position.x - radius, position.y - radius),
-            Vec2.new(position.x + radius, position.y + radius)
+            Vec2.new(position.x + radius, position.y + radius),
         );
     }
 
@@ -210,7 +210,7 @@ export class RectHitbox extends BaseHitbox {
             Vec2.new(c.x - e.x, c.y - e.y),
             Vec2.new(c.x - e.x, c.y + e.y),
             Vec2.new(c.x + e.x, c.y - e.y),
-            Vec2.new(c.x + e.x, c.y + e.y)
+            Vec2.new(c.x + e.x, c.y + e.y),
         ];
         const min = Vec2.new(Number.MAX_VALUE, Number.MAX_VALUE);
         const max = Vec2.new(-Number.MAX_VALUE, -Number.MAX_VALUE);
@@ -236,11 +236,11 @@ export class RectHitbox extends BaseHitbox {
 
         this.min = Vec2.new(
             (this.min.x - centerX) * scale + centerX,
-            (this.min.y - centerY) * scale + centerY
+            (this.min.y - centerY) * scale + centerY,
         );
         this.max = Vec2.new(
             (this.max.x - centerX) * scale + centerX,
-            (this.max.y - centerY) * scale + centerY
+            (this.max.y - centerY) * scale + centerY,
         );
     }
 
@@ -250,10 +250,10 @@ export class RectHitbox extends BaseHitbox {
 
     override isPointInside(point: Vector): boolean {
         return (
-            point.x > this.min.x &&
-            point.y > this.min.y &&
-            point.x < this.max.x &&
-            point.y < this.max.y
+            point.x > this.min.x
+            && point.y > this.min.y
+            && point.x < this.max.x
+            && point.y < this.max.y
         );
     }
 }
@@ -275,7 +275,7 @@ export class PolygonHitbox extends BaseHitbox {
             !Collision.isTriangleCounterClockWise(
                 this.verts[0],
                 this.verts[1],
-                this.verts[2]
+                this.verts[2],
             )
         ) {
             this.verts.reverse();
@@ -294,7 +294,7 @@ export class PolygonHitbox extends BaseHitbox {
     override toJSON(): PolygonHitboxJSON {
         return {
             type: this.type,
-            verts: this.verts.map((vert) => Vec2.clone(vert))
+            verts: this.verts.map((vert) => Vec2.clone(vert)),
         };
     }
 
@@ -353,18 +353,18 @@ const checkFunctions: Array<
 function setCheckFn<A extends HitBoxCtr, B extends HitBoxCtr>(
     hitboxA: A,
     hitboxB: B,
-    fn: (a: Hitbox & { type: A["type"] }, b: Hitbox & { type: B["type"] }) => boolean
+    fn: (a: Hitbox & { type: A["type"] }, b: Hitbox & { type: B["type"] }) => boolean,
 ) {
     const setFunction = (
         typeA: HitboxType,
         typeB: HitboxType,
         fn: (a: Hitbox & { type: A["type"] }, b: Hitbox & { type: B["type"] }) => boolean,
-        reverse: boolean
+        reverse: boolean,
     ) => {
         checkFunctions[typeA] = checkFunctions[typeA] || [];
         checkFunctions[typeA][typeB] = {
             fn,
-            reverse
+            reverse,
         };
     };
     setFunction(hitboxA.type, hitboxB.type, fn, false);
@@ -398,22 +398,22 @@ function setIntersectionFn<A extends HitBoxCtr, B extends HitBoxCtr>(
     hitboxB: B,
     fn: (
         a: Hitbox & { type: A["type"] },
-        b: Hitbox & { type: B["type"] }
-    ) => IntersectionResponse
+        b: Hitbox & { type: B["type"] },
+    ) => IntersectionResponse,
 ) {
     const setFunction = (
         typeA: HitboxType,
         typeB: HitboxType,
         fn: (
             a: Hitbox & { type: A["type"] },
-            b: Hitbox & { type: B["type"] }
+            b: Hitbox & { type: B["type"] },
         ) => IntersectionResponse,
-        reverse: boolean
+        reverse: boolean,
     ) => {
         intersectionFunctions[typeA] = intersectionFunctions[typeA] || [];
         intersectionFunctions[typeA][typeB] = {
             fn: fn as (a: Hitbox, B: Hitbox) => IntersectionResponse,
-            reverse
+            reverse,
         };
     };
     setFunction(hitboxA.type, hitboxB.type, fn, false);
@@ -440,7 +440,7 @@ setIntersectionFn(CircleHitbox, PolygonHitbox, (a, b) => {
         a.radius,
         b.center,
         b.verts,
-        b.normals
+        b.normals,
     );
 });
 
@@ -451,7 +451,7 @@ setIntersectionFn(PolygonHitbox, PolygonHitbox, (a, b) => {
         a.center,
         b.verts,
         b.normals,
-        b.center
+        b.center,
     );
 });
 
@@ -461,10 +461,9 @@ const lineIntersectionFunctions: Array<
 
 function setLineIntersectionFn<A extends HitBoxCtr>(
     hitbox: A,
-    fn: (hitbox: Hitbox & { type: A["type"] }, a: Vector, b: Vector) => LineIntersection
+    fn: (hitbox: Hitbox & { type: A["type"] }, a: Vector, b: Vector) => LineIntersection,
 ) {
-    lineIntersectionFunctions[hitbox.type] =
-        fn as (typeof lineIntersectionFunctions)[number];
+    lineIntersectionFunctions[hitbox.type] = fn as (typeof lineIntersectionFunctions)[number];
 }
 
 setLineIntersectionFn(CircleHitbox, (hitbox, a, b) => {
@@ -508,7 +507,7 @@ export const CollisionHelpers = {
         const collisionFn = intersectionFunctions[hitboxA.type][hitboxB.type];
         assert(
             collisionFn,
-            `${hitboxA.type} doesn't support intersection with ${hitboxB.type}`
+            `${hitboxA.type} doesn't support intersection with ${hitboxB.type}`,
         );
 
         let response = collisionFn.reverse
@@ -532,14 +531,14 @@ export const CollisionHelpers = {
         pointA: Vector,
         pointB: Vector,
         entitesToCollide: EntityType[],
-        entityId = 0
+        entityId = 0,
     ): LineOfSightResponse {
         let originalDist = Vec2.distanceSqrt(pointA, pointB);
 
         let res: LineOfSightResponse = {
             position: pointB,
             distance: originalDist,
-            originalDistance: originalDist
+            originalDistance: originalDist,
         };
 
         const objects = map.intersectLineSegment(pointA, pointB);
@@ -579,5 +578,5 @@ export const CollisionHelpers = {
         res.distance = Math.sqrt(res.distance);
 
         return res;
-    }
+    },
 };

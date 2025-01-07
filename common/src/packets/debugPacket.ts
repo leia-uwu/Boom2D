@@ -3,7 +3,7 @@ import type { GameBitStream, Packet } from "../net";
 
 export enum DebugFlags {
     Tps = 1 << 0,
-    Objects = 1 << 1
+    Objects = 1 << 1,
 }
 
 export class DebugPacket implements Packet {
@@ -61,7 +61,7 @@ export class DebugPacket implements Packet {
                 return {
                     type: stream.readUint8(),
                     active: stream.readUint16(),
-                    allocated: stream.readUint16()
+                    allocated: stream.readUint16(),
                 };
             });
 

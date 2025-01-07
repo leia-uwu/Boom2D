@@ -24,13 +24,13 @@ const rawDefs: Record<ExplosionDefKey, ExplosionDef> = {
             animDuration: 0.5,
             animScale: 2,
             src: "glow-particle.svg",
-            tint: 0xff0000
+            tint: 0xff0000,
         },
         particles: {
             type: "rocket_explosion",
-            amount: 50
+            amount: 50,
         },
-        sound: "rocket-explosion.mp3"
+        sound: "rocket-explosion.mp3",
     },
     plasma: {
         radius: 3,
@@ -39,12 +39,12 @@ const rawDefs: Record<ExplosionDefKey, ExplosionDef> = {
             animDuration: 0.3,
             animScale: 1.5,
             src: "glow-particle.svg",
-            tint: 0x00ffff
+            tint: 0x00ffff,
         },
         particles: {
             type: "plasma_explosion",
-            amount: 4
-        }
+            amount: 4,
+        },
     },
     bfg: {
         radius: 10,
@@ -53,14 +53,14 @@ const rawDefs: Record<ExplosionDefKey, ExplosionDef> = {
             animDuration: 1,
             animScale: 2,
             src: "glow-particle.svg",
-            tint: 0x00ff00
+            tint: 0x00ff00,
         },
         particles: {
             type: "bfg_explosion",
-            amount: 100
+            amount: 100,
         },
-        sound: "bfg-explosion.mp3"
-    }
+        sound: "bfg-explosion.mp3",
+    },
 };
 
 export const ExplosionDefs = new DefinitionList(rawDefs);

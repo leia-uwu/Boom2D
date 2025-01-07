@@ -30,7 +30,7 @@ export const Collision = {
     checkRectCircle(min: Vector, max: Vector, pos: Vector, rad: number): boolean {
         const cpt = {
             x: MathUtils.clamp(pos.x, min.x, max.x),
-            y: MathUtils.clamp(pos.y, min.y, max.y)
+            y: MathUtils.clamp(pos.y, min.y, max.y),
         };
 
         const distX = pos.x - cpt.x;
@@ -38,8 +38,8 @@ export const Collision = {
         const distSquared = distX * distX + distY * distY;
 
         return (
-            distSquared < rad * rad ||
-            (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y)
+            distSquared < rad * rad
+            || (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y)
         );
     },
 
@@ -65,7 +65,7 @@ export const Collision = {
         position: Vector,
         radius: number,
         verts: Vector[],
-        normals: Vector[]
+        normals: Vector[],
     ): boolean {
         let normal = Vec2.new(0, 0);
 
@@ -76,7 +76,7 @@ export const Collision = {
             const { min: minB, max: maxB } = Collision.projectCircle(
                 position,
                 radius,
-                normal
+                normal,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -91,7 +91,7 @@ export const Collision = {
         const { min: minB, max: maxB } = Collision.projectCircle(
             position,
             radius,
-            normal
+            normal,
         );
 
         if (minA >= maxB || minB >= maxA) {
@@ -112,18 +112,18 @@ export const Collision = {
         vertsA: Vector[],
         normalsA: Vector[],
         vertsB: Vector[],
-        normalsB: Vector[]
+        normalsB: Vector[],
     ): boolean {
         for (let i = 0; i < normalsA.length; i++) {
             let vertNormal = normalsA[i];
 
             const { min: minA, max: maxA } = Collision.projectVertices(
                 vertsA,
-                vertNormal
+                vertNormal,
             );
             const { min: minB, max: maxB } = Collision.projectVertices(
                 vertsB,
-                vertNormal
+                vertNormal,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -136,11 +136,11 @@ export const Collision = {
 
             const { min: minA, max: maxA } = Collision.projectVertices(
                 vertsA,
-                vertNormal
+                vertNormal,
             );
             const { min: minB, max: maxB } = Collision.projectVertices(
                 vertsB,
-                vertNormal
+                vertNormal,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -184,7 +184,7 @@ export const Collision = {
         s0: Vector,
         s1: Vector,
         pos: Vector,
-        rad: number
+        rad: number,
     ): LineIntersection {
         let d = Vec2.sub(s1, s0);
         const len = MathUtils.max(Vec2.length(d), 0.000001);
@@ -208,7 +208,7 @@ export const Collision = {
             const point = Vec2.add(s0, Vec2.mul(d, t));
             return {
                 point,
-                normal: Vec2.normalize(Vec2.sub(point, pos))
+                normal: Vec2.normalize(Vec2.sub(point, pos)),
             };
         }
         return null;
@@ -226,7 +226,7 @@ export const Collision = {
         s0: Vector,
         s1: Vector,
         min: Vector,
-        max: Vector
+        max: Vector,
     ): LineIntersection {
         let tmin = 0;
         let tmax = Number.MAX_VALUE;
@@ -281,13 +281,13 @@ export const Collision = {
         const normal = Vec2.normalizeSafe(
             {
                 x: x < 0 ? Math.ceil(x) : Math.floor(x),
-                y: y < 0 ? Math.ceil(y) : Math.floor(y)
+                y: y < 0 ? Math.ceil(y) : Math.floor(y),
             },
-            Vec2.new(1, 0)
+            Vec2.new(1, 0),
         );
         return {
             point,
-            normal
+            normal,
         };
     },
 
@@ -323,7 +323,7 @@ export const Collision = {
         if (point && normal) {
             return {
                 point,
-                normal
+                normal,
             };
         }
 
@@ -342,7 +342,7 @@ export const Collision = {
         pos0: Vector,
         rad0: number,
         pos1: Vector,
-        rad1: number
+        rad1: number,
     ): IntersectionResponse {
         const r = rad0 + rad1;
         const toP1 = Vec2.sub(pos1, pos0);
@@ -351,7 +351,7 @@ export const Collision = {
             const dist = Math.sqrt(distSqr);
             return {
                 normal: dist > 0.00001 ? Vec2.div(toP1, dist) : Vec2.new(1.0, 0.0),
-                pen: r - dist
+                pen: r - dist,
             };
         }
         return null;
@@ -369,7 +369,7 @@ export const Collision = {
         min: Vector,
         max: Vector,
         pos: Vector,
-        radius: number
+        radius: number,
     ): IntersectionResponse {
         if (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y) {
             const e = Vec2.mul(Vec2.sub(max, min), 0.5);
@@ -380,17 +380,17 @@ export const Collision = {
             if (xp > yp) {
                 return {
                     normal: Vec2.new(p.x > 0.0 ? 1.0 : -1.0, 0.0),
-                    pen: -xp
+                    pen: -xp,
                 };
             }
             return {
                 normal: Vec2.new(0.0, p.y > 0.0 ? 1.0 : -1.0),
-                pen: -yp
+                pen: -yp,
             };
         }
         const cpt = Vec2.new(
             MathUtils.clamp(pos.x, min.x, max.x),
-            MathUtils.clamp(pos.y, min.y, max.y)
+            MathUtils.clamp(pos.y, min.y, max.y),
         );
 
         const dir = Vec2.sub(pos, cpt);
@@ -400,7 +400,7 @@ export const Collision = {
             const dst = Math.sqrt(dstSqr);
             return {
                 normal: dst > 0.0001 ? Vec2.div(dir, dst) : Vec2.new(1.0, 0.0),
-                pen: radius - dst
+                pen: radius - dst,
             };
         }
 
@@ -419,7 +419,7 @@ export const Collision = {
         min0: Vector,
         max0: Vector,
         min1: Vector,
-        max1: Vector
+        max1: Vector,
     ): IntersectionResponse {
         const e0 = Vec2.mul(Vec2.sub(max0, min0), 0.5);
         const c0 = Vec2.add(min0, e0);
@@ -433,12 +433,12 @@ export const Collision = {
                 if (xo > yo) {
                     return {
                         normal: n.x < 0.0 ? Vec2.new(-1.0, 0.0) : Vec2.new(1.0, 0.0),
-                        pen: xo
+                        pen: xo,
                     };
                 }
                 return {
                     normal: n.y < 0.0 ? Vec2.new(0.0, -1.0) : Vec2.new(0.0, 1.0),
-                    pen: yo
+                    pen: yo,
                 };
             }
         }
@@ -459,7 +459,7 @@ export const Collision = {
         radius: number,
         polygonCenter: Vector,
         verts: Vector[],
-        normals: Vector[]
+        normals: Vector[],
     ): IntersectionResponse {
         let normal = Vec2.new(0, 0);
         let pen = Number.MAX_VALUE;
@@ -474,7 +474,7 @@ export const Collision = {
             const { min: minB, max: maxB } = Collision.projectCircle(
                 position,
                 radius,
-                axis
+                axis,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -514,7 +514,7 @@ export const Collision = {
 
         return {
             pen,
-            normal
+            normal,
         };
     },
 
@@ -534,7 +534,7 @@ export const Collision = {
         centerA: Vector,
         vertsB: Vector[],
         normalsB: Vector[],
-        centerB: Vector
+        centerB: Vector,
     ): IntersectionResponse {
         let normal = Vec2.new(0, 0);
         let pen = Number.MAX_VALUE;
@@ -544,11 +544,11 @@ export const Collision = {
 
             const { min: minA, max: maxA } = Collision.projectVertices(
                 vertsA,
-                vertNormal
+                vertNormal,
             );
             const { min: minB, max: maxB } = Collision.projectVertices(
                 vertsB,
-                vertNormal
+                vertNormal,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -568,11 +568,11 @@ export const Collision = {
 
             const { min: minA, max: maxA } = Collision.projectVertices(
                 vertsA,
-                vertNormal
+                vertNormal,
             );
             const { min: minB, max: maxB } = Collision.projectVertices(
                 vertsB,
-                vertNormal
+                vertNormal,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -595,7 +595,7 @@ export const Collision = {
 
         return {
             normal,
-            pen
+            pen,
         };
     },
 
@@ -630,7 +630,7 @@ export const Collision = {
     projectCircle(
         center: Vector,
         radius: number,
-        normal: Vector
+        normal: Vector,
     ): { min: number; max: number } {
         const direction = Vec2.normalize(normal);
         const directionAndRadius = Vec2.mul(direction, radius);
@@ -717,5 +717,5 @@ export const Collision = {
      */
     isTriangleCounterClockWise(a: Vector, b: Vector, c: Vector): boolean {
         return b.x * a.y + c.x * b.y + a.x * c.y < a.x * b.y + b.x * c.y + c.x * a.y;
-    }
+    },
 };

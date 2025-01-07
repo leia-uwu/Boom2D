@@ -32,8 +32,8 @@ export class Obstacle extends AbstractServerEntity {
         return {
             full: {
                 position: this.position,
-                type: this.type
-            }
+                type: this.type,
+            },
         };
     }
 }

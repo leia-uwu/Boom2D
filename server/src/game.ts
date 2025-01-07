@@ -52,7 +52,7 @@ export class Game {
             [EntityType.Player]: this.playerManager,
             [EntityType.Loot]: this.lootManager,
             [EntityType.Obstacle]: this.obstacleManager,
-            [EntityType.Projectile]: this.projectileManager
+            [EntityType.Projectile]: this.projectileManager,
         });
         this.map = new GameMap(this, config.map);
         this.timer = setInterval(this.update.bind(this), 1000 / config.tps);
@@ -87,8 +87,7 @@ export class Game {
         this.perfTicker += dt;
         if (this.perfTicker > 5) {
             this.perfTicker = 0;
-            const avgDt =
-                this.deltaTimes.reduce((a, b) => a + b) / this.deltaTimes.length;
+            const avgDt = this.deltaTimes.reduce((a, b) => a + b) / this.deltaTimes.length;
             this.tpsAvg = Math.round(1 / avgDt);
             this.tpsMin = Math.round(1 / Math.max(...this.deltaTimes));
             this.tpsMax = Math.round(1 / Math.min(...this.deltaTimes));

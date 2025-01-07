@@ -60,7 +60,7 @@ export class BaseBullet implements BulletParams {
 
         this.finalPosition = Vec2.add(
             this.position,
-            Vec2.mul(this.direction, def.maxDistance)
+            Vec2.mul(this.direction, def.maxDistance),
         );
     }
 
@@ -68,7 +68,7 @@ export class BaseBullet implements BulletParams {
         this.lastPosition = Vec2.clone(this.position);
         this.position = Vec2.add(
             this.position,
-            Vec2.mul(this.direction, this.speed * dt)
+            Vec2.mul(this.direction, this.speed * dt),
         );
 
         this.distanceTraveled = Vec2.distance(this.initialPosition, this.position);
@@ -81,7 +81,7 @@ export class BaseBullet implements BulletParams {
 
     protected checkCollisions<T extends GameEntity>(
         entities: Iterable<T>,
-        gameMap: BaseGameMap
+        gameMap: BaseGameMap,
     ) {
         const collisions: Array<{
             entity?: T;
@@ -92,10 +92,10 @@ export class BaseBullet implements BulletParams {
         }> = [];
 
         if (
-            this.position.x < 0 ||
-            this.position.y < 0 ||
-            this.position.x > gameMap.width ||
-            this.position.y > gameMap.height
+            this.position.x < 0
+            || this.position.y < 0
+            || this.position.x > gameMap.width
+            || this.position.y > gameMap.height
         ) {
             return collisions;
         }
@@ -108,12 +108,13 @@ export class BaseBullet implements BulletParams {
             const isObstacle = entity.__type === EntityType.Obstacle;
             if (!(isObstacle || isPlayer)) continue;
 
-            if (isPlayer && (entity as GameEntity<EntityType.Player>).data.full?.dead)
+            if (isPlayer && (entity as GameEntity<EntityType.Player>).data.full?.dead) {
                 continue;
+            }
 
             const intersection = entity.hitbox.intersectsLine(
                 this.lastPosition,
-                this.position
+                this.position,
             );
 
             if (intersection) {
@@ -121,7 +122,7 @@ export class BaseBullet implements BulletParams {
                     entity,
                     position: intersection.point,
                     normal: intersection.normal,
-                    distSquared: Vec2.distanceSqrt(this.lastPosition, intersection.point)
+                    distSquared: Vec2.distanceSqrt(this.lastPosition, intersection.point),
                 });
             }
         }
@@ -133,14 +134,14 @@ export class BaseBullet implements BulletParams {
 
             const intersection = object.hitbox.intersectsLine(
                 this.lastPosition,
-                this.position
+                this.position,
             );
             if (intersection) {
                 collisions.push({
                     wall: object,
                     position: intersection.point,
                     normal: intersection.normal,
-                    distSquared: Vec2.distanceSqrt(this.lastPosition, intersection.point)
+                    distSquared: Vec2.distanceSqrt(this.lastPosition, intersection.point),
                 });
             }
         }

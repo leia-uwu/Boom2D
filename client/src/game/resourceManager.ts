@@ -19,8 +19,8 @@ export class ResourceManager {
         const imgs: Record<string, { default: string }> = import.meta.glob(
             "/assets/img/**/*.svg",
             {
-                eager: true
-            }
+                eager: true,
+            },
         );
 
         for (const img in imgs) {
@@ -33,7 +33,7 @@ export class ResourceManager {
 
             const promise = Assets.load({
                 alias: [name, src],
-                src: realPath
+                src: realPath,
             });
             promises.push(promise);
         }

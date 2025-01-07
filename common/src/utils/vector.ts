@@ -171,7 +171,7 @@ export const Vec2 = {
         const len = Vec2.length(a);
         return {
             x: len > eps ? a.x / len : a.x,
-            y: len > eps ? a.y / len : a.y
+            y: len > eps ? a.y / len : a.y,
         };
     },
 
@@ -181,7 +181,7 @@ export const Vec2 = {
         const len = Vec2.length(a);
         return {
             x: len > eps ? a.x / len : b.x,
-            y: len > eps ? a.y / len : b.y
+            y: len > eps ? a.y / len : b.y,
         };
     },
 
@@ -229,7 +229,7 @@ export const Vec2 = {
     fromPolar(angle: number, magnitude = 1): Vector {
         return {
             x: Math.cos(angle) * magnitude,
-            y: Math.sin(angle) * magnitude
+            y: Math.sin(angle) * magnitude,
         };
-    }
+    },
 };

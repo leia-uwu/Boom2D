@@ -61,17 +61,17 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
         barrelLength: 2.2,
         barrelOffset: 0,
         lootImg: {
-            src: "pistol.svg"
+            src: "pistol.svg",
         },
         worldImg: {
             src: "pistol-world.svg",
-            position: Vec2.new(90, 0)
+            position: Vec2.new(90, 0),
         },
         muzzleImgs: ["muzzle-01.svg", "muzzle-02.svg"],
         sfx: {
-            shoot: "pistol-fire.mp3"
+            shoot: "pistol-fire.mp3",
         },
-        leftFistPos: Vec2.new(0, 0)
+        leftFistPos: Vec2.new(0, 0),
     },
     shotgun: {
         type: "gun",
@@ -91,17 +91,17 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
         barrelOffset: 0,
         lootImg: {
             src: "shotgun.svg",
-            scale: 0.8
+            scale: 0.8,
         },
         worldImg: {
             src: "shotgun-world.svg",
-            position: Vec2.new(90, 0)
+            position: Vec2.new(90, 0),
         },
         muzzleImgs: ["muzzle-01.svg", "muzzle-02.svg"],
         sfx: {
-            shoot: "shotgun-fire.mp3"
+            shoot: "shotgun-fire.mp3",
         },
-        leftFistPos: Vec2.new(100, 5)
+        leftFistPos: Vec2.new(100, 5),
     },
     ak: {
         type: "gun",
@@ -120,17 +120,17 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
         barrelOffset: 0,
         lootImg: {
             src: "ak.svg",
-            scale: 0.8
+            scale: 0.8,
         },
         worldImg: {
             src: "ak-world.svg",
-            position: Vec2.new(90, 0)
+            position: Vec2.new(90, 0),
         },
         muzzleImgs: ["muzzle-01.svg", "muzzle-02.svg"],
         sfx: {
-            shoot: "ak-fire.mp3"
+            shoot: "ak-fire.mp3",
         },
-        leftFistPos: Vec2.new(130, 5)
+        leftFistPos: Vec2.new(130, 5),
     },
     rocket_launcher: {
         type: "gun",
@@ -149,17 +149,17 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
         barrelOffset: 0,
         lootImg: {
             src: "rocket-launcher.svg",
-            scale: 0.8
+            scale: 0.8,
         },
         worldImg: {
             src: "rocket-launcher-world.svg",
-            position: Vec2.new(70, 0)
+            position: Vec2.new(70, 0),
         },
         muzzleImgs: ["muzzle-02.svg"],
         sfx: {
-            shoot: "rocket-launcher-fire.mp3"
+            shoot: "rocket-launcher-fire.mp3",
         },
-        leftFistPos: Vec2.new(120, 8)
+        leftFistPos: Vec2.new(120, 8),
     },
     plasma_rifle: {
         type: "gun",
@@ -178,17 +178,17 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
         barrelOffset: 0,
         lootImg: {
             src: "plasma-rifle.svg",
-            scale: 0.8
+            scale: 0.8,
         },
         worldImg: {
             src: "plasma-rifle-world.svg",
-            position: Vec2.new(90, 0)
+            position: Vec2.new(90, 0),
         },
         muzzleImgs: ["muzzle-01.svg", "muzzle-02.svg"],
         sfx: {
-            shoot: "plasma-fire.mp3"
+            shoot: "plasma-fire.mp3",
         },
-        leftFistPos: Vec2.new(160, 8)
+        leftFistPos: Vec2.new(160, 8),
     },
     bfg: {
         type: "gun",
@@ -209,24 +209,24 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
         lootImg: {
             src: "bfg.svg",
             scale: 0.8,
-            anchor: Vec2.new(0.55, 0.55)
+            anchor: Vec2.new(0.55, 0.55),
         },
         worldImg: {
             src: "bfg-world.svg",
-            position: Vec2.new(90, 0)
+            position: Vec2.new(90, 0),
         },
         muzzleImgs: [],
         sfx: {
             shoot: "bfg-fire.mp3",
-            stopOnSwitch: true
+            stopOnSwitch: true,
         },
         leftFistPos: Vec2.new(100, 32),
         shotParticles: {
             type: "bfg_trail",
             amount: 10,
-            spawnDelay: 0.03
-        }
-    }
+            spawnDelay: 0.03,
+        },
+    },
 };
 
 export const WeaponDefs = new DefinitionList<WeaponDefKey, GunDef>(rawDefs);

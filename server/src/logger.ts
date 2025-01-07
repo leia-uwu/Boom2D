@@ -1,40 +1,40 @@
 export const Colors = {
     black: {
         normal: 30,
-        bright: 90
+        bright: 90,
     },
     red: {
         normal: 31,
-        bright: 91
+        bright: 91,
     },
     green: {
         normal: 32,
-        bright: 92
+        bright: 92,
     },
     yellow: {
         normal: 33,
-        bright: 93
+        bright: 93,
     },
     blue: {
         normal: 34,
-        bright: 94
+        bright: 94,
     },
     magenta: {
         normal: 35,
-        bright: 95
+        bright: 95,
     },
     cyan: {
         normal: 36,
-        bright: 96
+        bright: 96,
     },
     white: {
         normal: 37,
-        bright: 97
+        bright: 97,
     },
     default: {
         normal: 39,
-        bright: 39
-    }
+        bright: 39,
+    },
 } as const;
 
 type Color = keyof typeof Colors;
@@ -58,7 +58,7 @@ export class Logger {
             styleText(dateString, Colors.cyan.normal),
             styleText(this.prefix, Colors.green.normal),
             "|",
-            message.join(" ")
+            message.join(" "),
         );
     }
     warn(...message: any[]): void {

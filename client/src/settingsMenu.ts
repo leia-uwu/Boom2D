@@ -5,7 +5,7 @@ import { PopUpModal } from "./uiHelpers";
 
 enum SettingType {
     Slider,
-    CheckBox
+    CheckBox,
 }
 
 interface SliderOptions {
@@ -34,18 +34,18 @@ const SettingsData: Array<SettingData> = [
         type: SettingType.Slider,
         min: 0,
         max: 1,
-        step: 0.1
+        step: 0.1,
     },
     {
         label: "Show FPS",
         settingKey: "showFPS",
-        type: SettingType.CheckBox
+        type: SettingType.CheckBox,
     },
     {
         label: "Show Ping",
         settingKey: "showPing",
-        type: SettingType.CheckBox
-    }
+        type: SettingType.CheckBox,
+    },
 ];
 
 export class SettingsMenu extends PopUpModal {
@@ -56,7 +56,7 @@ export class SettingsMenu extends PopUpModal {
             "click",
             () => {
                 this.open();
-            }
+            },
         );
 
         for (const settingData of SettingsData) {
@@ -85,7 +85,7 @@ export class SettingsMenu extends PopUpModal {
                     data.settingKey,
                     data.min,
                     data.max,
-                    data.step
+                    data.step,
                 );
                 break;
             case SettingType.CheckBox:
