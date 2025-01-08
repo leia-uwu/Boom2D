@@ -159,7 +159,7 @@ export class ClientBullet extends BaseBullet {
             let tint = 0xff0000;
             if (wall) {
                 tint = wall.color;
-            } else if (entity && entity.__type == EntityType.Obstacle) {
+            } else if (entity && entity.__type === EntityType.Obstacle) {
                 const def = ObstacleDefs.typeToDef((entity as Obstacle).type);
                 tint = def.img.tint ?? tint;
             }

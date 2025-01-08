@@ -215,7 +215,7 @@ export class GameBitStream extends BitStream {
      * @param length The amount of bytes to copy
      */
     writeBytes(src: GameBitStream, offset: number, length: number): void {
-        assert(this.index % 8 == 0, "WriteBytes: stream must be byte aligned");
+        assert(this.index % 8 === 0, "WriteBytes: stream must be byte aligned");
 
         const data = new Uint8Array(src.view.view.buffer, offset, length);
         this.view.view.set(data, this.index / 8);

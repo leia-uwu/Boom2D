@@ -1,6 +1,7 @@
 import { EntityType } from "../../common/src/constants";
 import { type ExplosionDefKey, ExplosionDefs } from "../../common/src/defs/explosionDefs";
-import { CircleHitbox, CollisionHelpers } from "../../common/src/utils/hitbox";
+import { CollisionHelpers } from "../../common/src/utils/collisionHelpers";
+import { CircleHitbox } from "../../common/src/utils/hitbox";
 import { MathUtils } from "../../common/src/utils/math";
 import { Vec2, type Vector } from "../../common/src/utils/vector";
 import type { Player } from "./entities/player";

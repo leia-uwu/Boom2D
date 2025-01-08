@@ -80,5 +80,5 @@ jobs:
       - name: Install Packages
         run: bun install --frozen-lockfile
 
-      - name: Tests
+      - name: Format and Lint
         run: bun lint:ci

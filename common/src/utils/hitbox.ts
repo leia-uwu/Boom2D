@@ -1,5 +1,3 @@
-import { type BaseGameMap, type BaseMapObject, MapObjectType } from "../baseMap";
-import type { EntityType } from "../constants";
 import { Collision, type IntersectionResponse, type LineIntersection } from "./collision";
 import { MathUtils } from "./math";
 import { assert } from "./util";
@@ -57,7 +55,11 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
      * @return `true` if both {@link Hitbox}es collide
      */
     collidesWith(that: Hitbox): boolean {
-        return CollisionHelpers.hitboxCheck(this as unknown as Hitbox, that);
+        const collisionFn = checkFunctions[this.type][that.type];
+        assert(collisionFn, `${this.type} doesn't support check with ${that.type}`);
+        return collisionFn.reverse
+            ? collisionFn.fn(that, this as unknown as Hitbox)
+            : collisionFn.fn(this as unknown as Hitbox, that);
     }
 
     /**
@@ -67,7 +69,19 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
      * @return The intersection response with direction normal and penetration depth
      */
     getIntersection(that: Hitbox): IntersectionResponse {
-        return CollisionHelpers.hitboxIntersection(this as unknown as Hitbox, that);
+        const collisionFn = intersectionFunctions[this.type][that.type];
+        assert(
+            collisionFn,
+            `${this.type} doesn't support intersection with ${that.type}`,
+        );
+
+        let response = collisionFn.reverse
+            ? collisionFn.fn(that, this as unknown as Hitbox)
+            : collisionFn.fn(this as unknown as Hitbox, that);
+        if (response && collisionFn.reverse) {
+            response.normal = Vec2.neg(response.normal);
+        }
+        return response;
     }
 
     /**
@@ -77,7 +91,9 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
      * @return An intersection response containing the intersection position and normal
      */
     intersectsLine(a: Vector, b: Vector): LineIntersection {
-        return CollisionHelpers.lineHitboxIntersection(this as unknown as Hitbox, a, b);
+        const intersectionFn = lineIntersectionFunctions[this.type];
+        assert(intersectionFn, `Hitbox ${this.type} doens't support line intersection`);
+        return intersectionFn(this as unknown as Hitbox, a, b);
     }
 
     /**
@@ -350,25 +366,30 @@ const checkFunctions: Array<
     Array<{ fn: (a: Hitbox, b: Hitbox) => boolean; reverse: boolean }>
 > = [];
 
-function setCheckFn<A extends HitBoxCtr, B extends HitBoxCtr>(
+function setCheckFn<
+    A extends HitBoxCtr,
+    B extends HitBoxCtr,
+    AInst = Hitbox & { type: A["type"] },
+    BInst = Hitbox & { type: B["type"] },
+>(
     hitboxA: A,
     hitboxB: B,
-    fn: (a: Hitbox & { type: A["type"] }, b: Hitbox & { type: B["type"] }) => boolean,
+    fn: (a: AInst, b: BInst) => boolean,
 ) {
     const setFunction = (
         typeA: HitboxType,
         typeB: HitboxType,
-        fn: (a: Hitbox & { type: A["type"] }, b: Hitbox & { type: B["type"] }) => boolean,
+        fn: (a: AInst, b: BInst) => boolean,
         reverse: boolean,
     ) => {
-        checkFunctions[typeA] = checkFunctions[typeA] || [];
+        checkFunctions[typeA] ??= [];
         checkFunctions[typeA][typeB] = {
-            fn,
+            fn: fn as (a: Hitbox, B: Hitbox) => boolean,
             reverse,
         };
     };
     setFunction(hitboxA.type, hitboxB.type, fn, false);
-    if (hitboxA.type != hitboxB.type) {
+    if (hitboxA.type !== hitboxB.type) {
         setFunction(hitboxB.type, hitboxA.type, fn, true);
     }
 }
@@ -390,34 +411,42 @@ setCheckFn(PolygonHitbox, PolygonHitbox, (a, b) => {
 });
 
 const intersectionFunctions: Array<
-    Array<{ fn: (a: Hitbox, b: Hitbox) => IntersectionResponse; reverse: boolean }>
+    Array<{
+        fn: (a: Hitbox, b: Hitbox) => IntersectionResponse;
+        reverse: boolean;
+    }>
 > = [];
 
-function setIntersectionFn<A extends HitBoxCtr, B extends HitBoxCtr>(
+function setIntersectionFn<
+    A extends HitBoxCtr,
+    B extends HitBoxCtr,
+    AInst = Hitbox & { type: A["type"] },
+    BInst = Hitbox & { type: B["type"] },
+>(
     hitboxA: A,
     hitboxB: B,
     fn: (
-        a: Hitbox & { type: A["type"] },
-        b: Hitbox & { type: B["type"] },
+        a: AInst,
+        b: BInst,
     ) => IntersectionResponse,
 ) {
     const setFunction = (
         typeA: HitboxType,
         typeB: HitboxType,
         fn: (
-            a: Hitbox & { type: A["type"] },
-            b: Hitbox & { type: B["type"] },
+            a: AInst,
+            b: BInst,
         ) => IntersectionResponse,
         reverse: boolean,
     ) => {
-        intersectionFunctions[typeA] = intersectionFunctions[typeA] || [];
+        intersectionFunctions[typeA] ??= [];
         intersectionFunctions[typeA][typeB] = {
             fn: fn as (a: Hitbox, B: Hitbox) => IntersectionResponse,
             reverse,
         };
     };
     setFunction(hitboxA.type, hitboxB.type, fn, false);
-    if (hitboxA.type != hitboxB.type) {
+    if (hitboxA.type !== hitboxB.type) {
         setFunction(hitboxB.type, hitboxA.type, fn, true);
     }
 }
@@ -477,106 +506,3 @@ setLineIntersectionFn(RectHitbox, (hitbox, a, b) => {
 setLineIntersectionFn(PolygonHitbox, (hitbox, a, b) => {
     return Collision.lineIntersectsPolygon(a, b, hitbox.verts);
 });
-
-interface Entity {
-    __type: EntityType;
-    id: number;
-    position: Vector;
-    hitbox: Hitbox;
-}
-
-interface LineOfSightResponse {
-    entity?: Entity;
-    wall?: BaseMapObject;
-    normal?: Vector;
-    position: Vector;
-    distance: number;
-    originalDistance: number;
-}
-
-export const CollisionHelpers = {
-    hitboxCheck(hitboxA: Hitbox, hitboxB: Hitbox): boolean {
-        const collisionFn = checkFunctions[hitboxA.type][hitboxB.type];
-        assert(collisionFn, `${hitboxA.type} doesn't support check with ${hitboxB.type}`);
-        return collisionFn.reverse
-            ? collisionFn.fn(hitboxB, hitboxA)
-            : collisionFn.fn(hitboxA, hitboxB);
-    },
-
-    hitboxIntersection(hitboxA: Hitbox, hitboxB: Hitbox): IntersectionResponse {
-        const collisionFn = intersectionFunctions[hitboxA.type][hitboxB.type];
-        assert(
-            collisionFn,
-            `${hitboxA.type} doesn't support intersection with ${hitboxB.type}`,
-        );
-
-        let response = collisionFn.reverse
-            ? collisionFn.fn(hitboxB, hitboxA)
-            : collisionFn.fn(hitboxA, hitboxB);
-        if (response && collisionFn.reverse) {
-            response.normal = Vec2.neg(response.normal);
-        }
-        return response;
-    },
-
-    lineHitboxIntersection(hitbox: Hitbox, a: Vector, b: Vector): LineIntersection {
-        const intersectionFn = lineIntersectionFunctions[hitbox.type];
-        assert(intersectionFn, `Hitbox ${hitbox.type} doens't support line intersection`);
-        return intersectionFn(hitbox, a, b);
-    },
-
-    lineOfSightCheck(
-        entities: Iterable<Entity>,
-        map: BaseGameMap,
-        pointA: Vector,
-        pointB: Vector,
-        entitesToCollide: EntityType[],
-        entityId = 0,
-    ): LineOfSightResponse {
-        let originalDist = Vec2.distanceSqrt(pointA, pointB);
-
-        let res: LineOfSightResponse = {
-            position: pointB,
-            distance: originalDist,
-            originalDistance: originalDist,
-        };
-
-        const objects = map.intersectLineSegment(pointA, pointB);
-
-        for (const wall of objects) {
-            if (wall.type !== MapObjectType.Wall) continue;
-
-            const intersection = wall.hitbox.intersectsLine(pointA, pointB);
-            if (intersection) {
-                const intersectionDist = Vec2.distanceSqrt(pointA, intersection.point);
-                if (intersectionDist < res.distance) {
-                    res.normal = intersection.normal;
-                    res.position = intersection.point;
-                    res.distance = intersectionDist;
-                    res.wall = wall;
-                }
-            }
-        }
-
-        for (const entity of entities) {
-            if (!entitesToCollide.includes(entity.__type)) continue;
-            if (entity.id === entityId) continue;
-
-            const intersection = entity.hitbox.intersectsLine(pointA, pointB);
-            if (intersection) {
-                const intersectionDist = Vec2.distanceSqrt(pointA, intersection.point);
-                if (intersectionDist < res.distance) {
-                    res.normal = intersection.normal;
-                    res.position = intersection.point;
-                    res.distance = intersectionDist;
-                    res.wall = undefined;
-                    res.entity = entity;
-                }
-            }
-        }
-
-        res.distance = Math.sqrt(res.distance);
-
-        return res;
-    },
-};
