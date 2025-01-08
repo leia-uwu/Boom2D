@@ -76,8 +76,9 @@ export class PlayerManager extends EntityPool<Player> {
             bfg: false,
         };
 
-        player.dirty.ammo = true;
-        player.dirty.weapons = true;
+        for (const key in player.dirty) {
+            player.dirty[key as keyof typeof player.dirty] = true;
+        }
 
         player.activeWeapon = "pistol";
 
