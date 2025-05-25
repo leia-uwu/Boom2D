@@ -20,10 +20,9 @@
     },
     "license": "GPL-3.0",
     "devDependencies": {
-        "@biomejs/biome": "^1.9.4",
-        "@types/node": "^22.10.5",
-        "dprint": "^0.48.0",
-        "oxlint": "^0.15.5",
-        "typescript": "^5.7.2"
+        "@types/node": "^22.15.21",
+        "dprint": "^0.50.0",
+        "oxlint": "^0.16.11",
+        "typescript": "^5.8.3"
     }
 }
