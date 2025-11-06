@@ -1,3 +1,4 @@
+import { WebSocketHandler } from "bun";
 import type { ServerAPIResponse } from "../../common/src/apiTypings";
 import { version } from "../../package.json";
 import type { Client } from "./client";
@@ -12,7 +13,7 @@ export interface ClientData {
 }
 
 // Initialize the server
-Bun.serve<ClientData>({
+Bun.serve({
     port: Config.port,
     hostname: Config.host,
     tls: Config.ssl
@@ -75,7 +76,7 @@ Bun.serve<ClientData>({
         close(socket) {
             game.clientManager.removeClient(socket);
         },
-    },
+    } as WebSocketHandler<ClientData>,
 });
 
 const logger = new Logger("Server");
