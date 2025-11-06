@@ -97,11 +97,6 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
     }
 
     /**
-     * Resolve collision between {@link Hitbox}es.
-     * @param that The other {@link Hitbox}
-     */
-
-    /**
      * Clone this {@link Hitbox}.
      * @return a new {@link Hitbox} cloned from this one
      */
@@ -401,13 +396,20 @@ setCheckFn(CircleHitbox, RectHitbox, (a, b) => {
     return Collision.checkRectCircle(b.min, b.max, a.position, a.radius);
 });
 setCheckFn(CircleHitbox, PolygonHitbox, (a, b) => {
-    return Collision.checkCirclePolygon(a.position, a.radius, b.verts, b.normals);
+    return Collision.checkCirclePolygon(a.position, a.radius, b.verts, b.normals, b.center);
 });
 setCheckFn(RectHitbox, RectHitbox, (a, b) => {
     return Collision.checkRectRect(a.min, a.min, b.min, b.max);
 });
 setCheckFn(PolygonHitbox, PolygonHitbox, (a, b) => {
-    return Collision.checkPolygonPolygon(a.verts, a.normals, b.verts, b.normals);
+    return Collision.checkPolygonPolygon(
+        a.verts,
+        a.normals,
+        a.center,
+        b.verts,
+        b.normals,
+        b.center,
+    );
 });
 
 const intersectionFunctions: Array<

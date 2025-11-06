@@ -66,15 +66,17 @@ export const Collision = {
         radius: number,
         verts: Vector[],
         normals: Vector[],
+        center: Vector,
     ): boolean {
         let normal = Vec2.new(0, 0);
 
+        const circToPoly = Vec2.sub(center, position);
         for (let i = 0; i < normals.length; i++) {
             normal = normals[i];
 
-            const { min: minA, max: maxA } = Collision.projectVertices(verts, normal);
+            const { min: minA, max: maxA } = Collision.projectVertices(verts, normal, center);
             const { min: minB, max: maxB } = Collision.projectCircle(
-                position,
+                circToPoly,
                 radius,
                 normal,
             );
@@ -85,11 +87,11 @@ export const Collision = {
         }
 
         const cpIndex = Collision.findClosestPointOnPolygon(position, verts);
-        normal = normals[cpIndex];
+        normal = Vec2.normalize(Vec2.sub(verts[cpIndex], position));
 
-        const { min: minA, max: maxA } = Collision.projectVertices(verts, normal);
+        const { min: minA, max: maxA } = Collision.projectVertices(verts, normal, center);
         const { min: minB, max: maxB } = Collision.projectCircle(
-            position,
+            circToPoly,
             radius,
             normal,
         );
@@ -111,8 +113,10 @@ export const Collision = {
     checkPolygonPolygon(
         vertsA: Vector[],
         normalsA: Vector[],
+        centerA: Vector,
         vertsB: Vector[],
         normalsB: Vector[],
+        centerB: Vector,
     ): boolean {
         for (let i = 0; i < normalsA.length; i++) {
             let vertNormal = normalsA[i];
@@ -120,10 +124,12 @@ export const Collision = {
             const { min: minA, max: maxA } = Collision.projectVertices(
                 vertsA,
                 vertNormal,
+                centerA,
             );
             const { min: minB, max: maxB } = Collision.projectVertices(
                 vertsB,
                 vertNormal,
+                centerB,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -137,10 +143,12 @@ export const Collision = {
             const { min: minA, max: maxA } = Collision.projectVertices(
                 vertsA,
                 vertNormal,
+                centerA,
             );
             const { min: minB, max: maxB } = Collision.projectVertices(
                 vertsB,
                 vertNormal,
+                centerB,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -461,20 +469,25 @@ export const Collision = {
         verts: Vector[],
         normals: Vector[],
     ): IntersectionResponse {
-        let normal = Vec2.new(0, 0);
+        let resNormal = Vec2.new(0, 0);
         let pen = Number.MAX_VALUE;
 
-        let axis = Vec2.new(0, 0);
+        let normal = Vec2.new(0, 0);
         let axisDepth = 0;
 
+        const circToPoly = Vec2.sub(polygonCenter, position);
         for (let i = 0; i < normals.length; i++) {
-            axis = normals[i];
+            normal = normals[i];
 
-            const { min: minA, max: maxA } = Collision.projectVertices(verts, axis);
+            const { min: minA, max: maxA } = Collision.projectVertices(
+                verts,
+                normal,
+                polygonCenter,
+            );
             const { min: minB, max: maxB } = Collision.projectCircle(
-                position,
+                circToPoly,
                 radius,
-                axis,
+                normal,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -485,15 +498,19 @@ export const Collision = {
 
             if (axisDepth < pen) {
                 pen = axisDepth;
-                normal = axis;
+                resNormal = normal;
             }
         }
 
         const cpIndex = Collision.findClosestPointOnPolygon(position, verts);
-        axis = normals[cpIndex];
+        normal = Vec2.normalize(Vec2.sub(verts[cpIndex], position));
 
-        const { min: minA, max: maxA } = Collision.projectVertices(verts, axis);
-        const { min: minB, max: maxB } = Collision.projectCircle(position, radius, axis);
+        const { min: minA, max: maxA } = Collision.projectVertices(verts, normal, polygonCenter);
+        const { min: minB, max: maxB } = Collision.projectCircle(
+            circToPoly,
+            radius,
+            normal,
+        );
 
         if (minA >= maxB || minB >= maxA) {
             return null;
@@ -503,18 +520,18 @@ export const Collision = {
 
         if (axisDepth < pen) {
             pen = axisDepth;
-            normal = axis;
+            resNormal = normal;
         }
 
         const direction = Vec2.sub(polygonCenter, position);
 
-        if (Vec2.dot(direction, normal) < 0) {
-            normal = Vec2.neg(normal);
+        if (Vec2.dot(direction, resNormal) < 0) {
+            resNormal = Vec2.invert(resNormal);
         }
 
         return {
             pen,
-            normal,
+            normal: resNormal,
         };
     },
 
@@ -545,10 +562,12 @@ export const Collision = {
             const { min: minA, max: maxA } = Collision.projectVertices(
                 vertsA,
                 vertNormal,
+                centerA,
             );
             const { min: minB, max: maxB } = Collision.projectVertices(
                 vertsB,
                 vertNormal,
+                centerB,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -569,10 +588,12 @@ export const Collision = {
             const { min: minA, max: maxA } = Collision.projectVertices(
                 vertsA,
                 vertNormal,
+                centerA,
             );
             const { min: minB, max: maxB } = Collision.projectVertices(
                 vertsB,
                 vertNormal,
+                centerB,
             );
 
             if (minA >= maxB || minB >= maxA) {
@@ -655,13 +676,13 @@ export const Collision = {
      * @param verts The polygon vertices
      * @param normal the normal to project the vertices
      */
-    projectVertices(verts: Vector[], normal: Vector): { min: number; max: number } {
+    projectVertices(verts: Vector[], normal: Vector, center: Vector): { min: number; max: number } {
         let min = Number.MAX_VALUE;
-        let max = Number.MIN_VALUE;
+        let max = -Number.MAX_VALUE;
 
         for (let i = 0; i < verts.length; i++) {
             const v = verts[i];
-            const proj = Vec2.dot(v, normal);
+            const proj = Vec2.dot(Vec2.sub(center, v), normal);
 
             if (proj < min) {
                 min = proj;
