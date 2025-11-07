@@ -89,6 +89,7 @@ export class MsgFeed extends Container<FeedMsg> {
             if (msg.msgHeight < 0) {
                 i--;
                 this.removeChild(msg);
+                msg.destroy(true);
             }
         }
     }
