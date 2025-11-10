@@ -164,7 +164,7 @@ export class EntityManager {
     deleteEntity(id: number) {
         const entity = this.getById(id);
         if (!entity) {
-            console.error(`Tried to destroy delete entity, ID: ${id}`);
+            console.error(`Tried to destroy deleted entity, ID: ${id}`);
             return;
         }
         const lastEntity = this.entities.pop()!;
