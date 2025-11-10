@@ -1,5 +1,5 @@
 import { MapObjectType } from "../../../common/src/baseMap";
-import { EntityType } from "../../../common/src/constants";
+import { DamageType, EntityType } from "../../../common/src/constants";
 import {
     type ProjectileDef,
     type ProjectileDefKey,
@@ -94,10 +94,16 @@ export class Projectile extends AbstractServerEntity {
 
             if (intersection) {
                 if (entity.__type === EntityType.Player) {
-                    (entity as Player).damage(
-                        Random.int(def.damage.min, def.damage.max),
-                        this.source,
-                    );
+                    entity.damage({
+                        type: DamageType.Player,
+                        amount: Random.int(def.damage.min, def.damage.max),
+                        position: Vec2.add(
+                            entity.position,
+                            Vec2.mul(intersection.normal, entity.hitbox.radius),
+                        ),
+                        direction: intersection.normal,
+                        sourceEntity: this.source,
+                    });
                 }
                 this.dead = true;
 

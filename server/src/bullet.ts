@@ -1,4 +1,5 @@
 import { BaseBullet, type BulletParams } from "../../common/src/baseBullet";
+import { DamageType } from "../../common/src/constants";
 import { BulletDefs } from "../../common/src/defs/bulletDefs";
 import type { Shot } from "../../common/src/packets/updatePacket";
 import { Random } from "../../common/src/utils/random";
@@ -113,7 +114,13 @@ export class ServerBullet extends BaseBullet {
 
             switch (true) {
                 case entity instanceof Player:
-                    entity.damage(damage, this.shooter);
+                    entity.damage({
+                        type: DamageType.Player,
+                        amount: damage,
+                        position,
+                        direction: collision.normal,
+                        sourceEntity: this.shooter,
+                    });
                     break;
             }
 

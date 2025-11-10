@@ -10,6 +10,7 @@ import { PlayerManager } from "./entities/player";
 import { ProjectileManager } from "./entities/projectile";
 import { ExplosionManager } from "./explosion";
 import { Grid } from "./grid";
+import { HitManager } from "./hits";
 import { Logger } from "./logger";
 import { GameMap } from "./map";
 
@@ -28,6 +29,7 @@ export class Game {
     lootManager = new LootManager(this);
     bulletManager = new BulletManager(this);
     explosionManager = new ExplosionManager(this);
+    hitManager = new HitManager();
 
     packetStream = new PacketStream(new ArrayBuffer(1 << 10));
 
@@ -67,6 +69,7 @@ export class Game {
         this.entityManager.update(dt);
         this.bulletManager.update(dt);
         this.explosionManager.update();
+        this.hitManager.update(dt);
 
         // Cache entity serializations, calculate visible objects for players, send packets etc
         this.entityManager.serializeEntities();
@@ -80,6 +83,7 @@ export class Game {
         this.bulletManager.flush();
         this.explosionManager.flush();
         this.entityManager.flush();
+        this.hitManager.flush();
 
         this.deltaTimes.push(dt);
         this.tickTimes.push(Date.now() - this.now);

@@ -167,6 +167,14 @@ export interface LeaderboardEntry {
     kills: number;
 }
 
+export interface HitData {
+    sourceId: number;
+    targetId: number;
+    amount: number;
+    position: Vector;
+    direction: Vector;
+}
+
 //
 // Active player serialization
 //
@@ -257,6 +265,7 @@ enum UpdateFlags {
     Explosions = 1 << 8,
     Shots = 1 << 9,
     LeaderBoard = 1 << 10,
+    Hits = 1 << 11,
 }
 
 export class UpdatePacket implements Packet {
@@ -298,6 +307,8 @@ export class UpdatePacket implements Packet {
 
     leaderboardDirty = false;
     leaderboard: LeaderboardEntry[] = [];
+
+    hits: HitData[] = [];
 
     // server side cached entity serializations
     serverPartialEntities: Array<{
@@ -413,6 +424,18 @@ export class UpdatePacket implements Packet {
             flags |= UpdateFlags.LeaderBoard;
         }
 
+        if (this.hits.length) {
+            stream.writeArray(this.hits, 8, (hit) => {
+                stream.writeUint16(hit.sourceId);
+                stream.writeUint16(hit.targetId);
+                stream.writeUint16(hit.amount);
+                stream.writePosition(hit.position);
+                stream.writeUnit(hit.direction, 8);
+            });
+
+            flags |= UpdateFlags.Hits;
+        }
+
         // write flags and restore stream index
         const idx = stream.index;
         stream.index = flagsIdx;
@@ -518,6 +541,18 @@ export class UpdatePacket implements Packet {
                 return {
                     playerId: stream.readUint16(),
                     kills: stream.readUint16(),
+                };
+            });
+        }
+
+        if (flags & UpdateFlags.Hits) {
+            stream.readArray(this.hits, 8, () => {
+                return {
+                    sourceId: stream.readUint16(),
+                    targetId: stream.readUint16(),
+                    amount: stream.readUint16(),
+                    position: stream.readPosition(),
+                    direction: stream.readUnit(8),
                 };
             });
         }

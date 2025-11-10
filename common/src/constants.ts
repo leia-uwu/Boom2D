@@ -8,6 +8,11 @@ export enum EntityType {
 
 export type ValidEntityType = Exclude<EntityType, EntityType.Invalid>;
 
+export enum DamageType {
+    None, // "their head just did that"
+    Player,
+}
+
 export const GameConstants = {
     maxPosition: 512,
     maxEntityId: (1 << 16) - 1,

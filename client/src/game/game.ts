@@ -24,6 +24,7 @@ import { ObstacleManager } from "./entities/obstacle";
 import { type Player, PlayerManager } from "./entities/player";
 import { ProjectileManager } from "./entities/projectile";
 import { ExplosionManager } from "./explosion";
+import { hitParticleManager } from "./hitParticles";
 import { InputManager } from "./inputManager";
 import { GameMap } from "./map";
 import { ParticleManager } from "./particle";
@@ -51,6 +52,7 @@ export class Game {
     inputManager = new InputManager(this);
     audioManager = new AudioManager(this);
     particleManager = new ParticleManager(this);
+    hitManager = new hitParticleManager();
     bulletManager = new BulletManager(this);
     explosionManager = new ExplosionManager(this);
 
@@ -283,6 +285,10 @@ export class Game {
             );
         }
 
+        for (let i = 0; i < packet.hits.length; i++) {
+            this.hitManager.addHit(packet.hits[i], this.camera);
+        }
+
         if (packet.cameraPositionDirty) {
             this.camera.position = packet.cameraPosition;
         } else if (this.activePlayer) {
@@ -321,6 +327,7 @@ export class Game {
         this.entityManager.update(dt);
         this.bulletManager.update(dt);
         this.particleManager.update(dt);
+        this.hitManager.update(dt);
         this.explosionManager.update(dt);
         this.audioManager.update();
 

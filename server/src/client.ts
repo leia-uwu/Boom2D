@@ -16,6 +16,7 @@ import { Vec2, type Vector } from "../../common/src/utils/vector";
 import type { ServerEntity } from "./entities/entity";
 import type { Player } from "./entities/player";
 import type { Game } from "./game";
+import { HitManager } from "./hits";
 import type { ClientData } from "./server";
 
 export class ClientManager {
@@ -213,6 +214,14 @@ export class Client {
             updatePacket.leaderboardDirty = true;
             updatePacket.leaderboard = this.game.playerManager.leaderBoard;
         }
+
+        for (let i = 0; i < this.game.hitManager.hits.length; i++) {
+            const h = this.game.hitManager.hits[i];
+            if (h.active && h.time >= HitManager.AccTimeMax && rect.isPointInside(h.position)) {
+                updatePacket.hits.push(h);
+            }
+        }
+
         this.sendPacket(updatePacket);
 
         if (this.debug) {

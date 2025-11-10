@@ -1,5 +1,5 @@
 import { MapObjectType } from "../../../common/src/baseMap";
-import { EntityType, GameConstants } from "../../../common/src/constants";
+import { DamageType, EntityType, GameConstants } from "../../../common/src/constants";
 import { type AmmoDefKey, AmmoDefs } from "../../../common/src/defs/ammoDefs";
 import { type LootDef, LootDefs } from "../../../common/src/defs/lootDefs";
 import type { WeaponDefKey } from "../../../common/src/defs/weaponDefs";
@@ -16,7 +16,7 @@ import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import type { Client } from "../client";
 import type { Game } from "../game";
 import { WeaponManager } from "../weaponManager";
-import { AbstractServerEntity, EntityPool } from "./entity";
+import { AbstractServerEntity, EntityPool, ServerEntity } from "./entity";
 import type { Loot } from "./loot";
 import { Obstacle } from "./obstacle";
 
@@ -145,6 +145,14 @@ export class PlayerManager extends EntityPool<Player> {
             }
         }
     }
+}
+
+export interface PlayerDamageParams {
+    type: DamageType;
+    amount: number;
+    position: Vector;
+    direction: Vector;
+    sourceEntity?: ServerEntity;
 }
 
 export class Player extends AbstractServerEntity {
@@ -391,7 +399,9 @@ export class Player extends AbstractServerEntity {
         }
     }
 
-    damage(amount: number, source: Player) {
+    damage(params: PlayerDamageParams) {
+        let { amount, sourceEntity } = params;
+
         if (this.dead) return;
 
         if (this.health - amount > GameConstants.player.maxHealth) {
@@ -406,19 +416,30 @@ export class Player extends AbstractServerEntity {
 
         amount = Math.round(amount);
 
+        if (amount === 0) return;
+
         this.health -= amount;
 
-        if (source !== this) {
-            source.damageDone += amount;
+        if (sourceEntity?.__type === EntityType.Player && sourceEntity !== this) {
+            sourceEntity.damageDone += amount;
         }
+
         this.damageTaken += amount;
+
+        this.game.hitManager.addHit({
+            sourceId: sourceEntity?.id ?? 0,
+            targetId: this.id,
+            amount,
+            position: params.position,
+            direction: params.direction,
+        });
 
         if (this.health <= 0) {
             this.dead = true;
             this.setFullDirty();
 
-            if (source !== this) {
-                source.kills++;
+            if (sourceEntity?.__type === EntityType.Player && sourceEntity !== this) {
+                sourceEntity.kills++;
             }
             this.game.playerManager.updateLeaderBoard();
 
@@ -430,7 +451,7 @@ export class Player extends AbstractServerEntity {
 
             const killPacket = new KillPacket();
             killPacket.killedId = this.id;
-            killPacket.killerId = source.id;
+            killPacket.killerId = sourceEntity?.id ?? 0;
             this.game.sendPacket(killPacket);
         }
     }

@@ -1,4 +1,4 @@
-import { EntityType } from "../../common/src/constants";
+import { DamageType, EntityType } from "../../common/src/constants";
 import { type ExplosionDefKey, ExplosionDefs } from "../../common/src/defs/explosionDefs";
 import { CollisionHelpers } from "../../common/src/utils/collisionHelpers";
 import { CircleHitbox } from "../../common/src/utils/hitbox";
@@ -60,7 +60,20 @@ class Explosion {
             if (!intersection.entity && !intersection.wall) {
                 const dist = Vec2.distance(this.position, entity.position);
                 const damage = MathUtils.remap(dist, 0, def.radius, def.damage, 0);
-                (entity as Player).damage(damage, this.source);
+
+                const direction = Vec2.normalize(Vec2.sub(this.position, entity.position));
+                const position = Vec2.add(
+                    entity.position,
+                    Vec2.mul(direction, entity.hitbox.radius),
+                );
+
+                entity.damage({
+                    amount: damage,
+                    sourceEntity: this.source,
+                    type: DamageType.Player,
+                    position: position,
+                    direction: direction,
+                });
             }
         }
     }
