@@ -1,99 +1,123 @@
-import { MathUtils } from "./math";
-import type { Vector } from "./vector";
+import { Vec2, type Vector } from "./vector";
 
-export const Random = {
-    /**
-     * Generate a random floating-point value.
-     * @param min The minimum value that can be generated.
-     * @param max The maximum value that can be generated.
-     */
-    float(min: number, max: number): number {
-        return Math.random() * (max - min) + min;
-    },
-
-    /**
-     * Generate a random integer.
-     * @param min The minimum value that can be generated.
-     * @param max The maximum value that can be generated.
-     */
-    int(min: number, max: number): number {
-        return Math.floor(Random.float(min, max + 1));
-    },
-
-    /**
-     * @return A random boolean.
-     */
-    boolean(): boolean {
-        return Math.random() < 0.5;
-    },
-
-    itemInArray<T>(array: T[]): T {
-        return array[Random.int(0, array.length - 1)];
-    },
-
-    /**
-     * Generate a vector of random direction and magnitude.
-     * @param minX The minimum length in the x-direction.
-     * @param maxX The maximum length in the x-direction.
-     * @param minY The minimum length in the y-direction.
-     * @param maxY The maximum length in the y-direction.
-     */
-    vector(minX: number, maxX: number, minY: number, maxY: number): Vector {
-        return {
-            x: Random.float(minX, maxX),
-            y: Random.float(minY, maxY),
-        };
-    },
-
-    /**
-     * Generate a random vector with x and y between -1 and 1
-     */
-    unitVector() {
-        return Random.vector(-1, 1, -1, 1);
-    },
-
-    /**
-     * Generate a random point inside of a circle.
-     * @param position The center of the circle.
-     * @param radius The radius of the circle.
-     * @returns A random point inside the circle radius.
-     */
-    pointInsideCircle(position: Vector, maxRadius: number, minRadius = 0): Vector {
-        const angle = Random.float(0, Math.PI * 2);
-        const length = Random.float(minRadius, maxRadius);
-        return {
-            x: position.x + Math.cos(angle) * length,
-            y: position.y + Math.sin(angle) * length,
-        };
-    },
-
-    /**
-     * Pick a random element from a weighted series of elements.
-     * @param items The elements to choose from.
-     * @param weights A legend of the elements' relative weights.
-     */
-    weightedRandom<T>(items: T[], weights: number[]): T {
-        let i: number;
-        for (i = 1; i < weights.length; i++) weights[i] += weights[i - 1];
-
-        const random = Math.random() * weights[weights.length - 1];
-        for (i = 0; i < weights.length; i++) {
-            if (weights[i] > random) break;
-        }
-        return items[i];
-    },
-};
-
-export class SeededRandom {
+// https://en.wikipedia.org/wiki/Lehmer_random_number_generator
+export class ParkMillerRandom {
     rng = 0;
 
     constructor(seed: number) {
         this.rng = seed;
     }
 
-    get(min = 0, max = 1): number {
+    get(): number {
         this.rng = (this.rng * 16807) % 2147483647;
-        const t = this.rng / 2147483647;
-        return MathUtils.lerp(min, max, t);
+        return this.rng / 2147483647;
+    }
+}
+
+export class WeightedGenerator<T extends { weight: number }> {
+    private generator: RandomGenerator;
+    private total = 0;
+
+    data: T[];
+
+    constructor(generator: RandomGenerator, data: T[]) {
+        this.generator = generator;
+        this.data = data;
+
+        for (let i = 0; i < data.length; i++) {
+            this.total += data[i].weight;
+        }
+    }
+
+    next(): T {
+        let rng = this.generator.float(0, this.total);
+        let idx = 0;
+        while (rng > this.data[idx].weight) {
+            rng -= this.data[idx].weight;
+            idx++;
+        }
+        return this.data[idx];
+    }
+}
+
+export abstract class RandomGenerator {
+    abstract get(): number;
+
+    float(min: number, max: number): number {
+        return this.get() * (max - min) + min;
+    }
+
+    int(min: number, max: number): number {
+        return Math.floor(this.float(min, max + 1));
+    }
+
+    boolean(): boolean {
+        return this.get() < 0.5;
+    }
+
+    itemInArray<T>(array: T[]): T {
+        return array[this.int(0, array.length - 1)];
+    }
+
+    vector(minX: number, maxX: number, minY: number, maxY: number): Vector {
+        return Vec2.new(
+            this.float(minX, maxX),
+            this.float(minY, maxY),
+        );
+    }
+
+    /**
+     * Random direction vector
+     */
+    unitVector(): Vector {
+        return Vec2.normalizeSafe(
+            Vec2.new(this.float(-0.5, 0.5), this.float(-0.5, 0.5)),
+            Vec2.new(1, 0),
+        );
+    }
+
+    pointInsideCircle(position: Vector, maxRadius: number, minRadius = 0): Vector {
+        const angle = this.float(0, Math.PI * 2);
+        const length = this.float(minRadius, maxRadius);
+        return {
+            x: position.x + Math.cos(angle) * length,
+            y: position.y + Math.sin(angle) * length,
+        };
+    }
+
+    weightedGenerator<T extends { weight: number }>(data: T[]): WeightedGenerator<T> {
+        return new WeightedGenerator<T>(this, data);
+    }
+}
+
+/**
+ * Default random generator using Math.random()
+ */
+export class DefaultRandom extends RandomGenerator {
+    constructor() {
+        super();
+    }
+
+    override get() {
+        return Math.random();
+    }
+}
+export const Random = new DefaultRandom();
+
+/**
+ * Park–Miller random generator
+ *
+ * https://en.wikipedia.org/wiki/Lehmer_random_number_generator
+ */
+export class SeededRandom extends RandomGenerator {
+    private seededRand: ParkMillerRandom;
+
+    constructor(seed: number) {
+        super();
+        this.seededRand = new ParkMillerRandom(seed);
+    }
+
+    override get() {
+        return this.seededRand.get();
     }
 }
