@@ -60,7 +60,7 @@ export class Game {
 
     update(): void {
         const now = Date.now();
-        const dt = (now - this.now) / 1000;
+        const dt = (now - this.now) / 1000 * GameConstants.gameSpeed;
         this.now = now;
 
         // update entities

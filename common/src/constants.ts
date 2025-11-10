@@ -12,6 +12,7 @@ export const GameConstants = {
     maxPosition: 512,
     maxEntityId: (1 << 16) - 1,
     leaderboardMaxEntries: 10,
+    gameSpeed: 1, // for debugging, this multiplies the delta time on client and server
     player: {
         nameMaxLength: 16,
         radius: 1,

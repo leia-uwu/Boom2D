@@ -1,5 +1,5 @@
 import type { Application } from "pixi.js";
-import { EntityType } from "../../../common/src/constants";
+import { EntityType, GameConstants } from "../../../common/src/constants";
 import { type Packet, PacketStream } from "../../../common/src/net";
 import { DeathPacket } from "../../../common/src/packets/deathPacket";
 import { DebugPacket } from "../../../common/src/packets/debugPacket";
@@ -311,7 +311,7 @@ export class Game {
 
     update(): void {
         const now = Date.now();
-        const dt = (now - this.now) / 1000;
+        const dt = (now - this.now) / 1000 * GameConstants.gameSpeed;
         this.now = now;
 
         this.deltaTimes.push(dt);
