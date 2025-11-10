@@ -3,10 +3,26 @@ import { InputPacket } from "../../../common/src/packets/inputPacket";
 import { Vec2 } from "../../../common/src/utils/vector";
 import type { Game } from "./game";
 
+interface Input {
+    type: "key" | "mouse" | "wheel";
+    down: boolean;
+}
+
+const wheelEvents = [
+    "MWheelRight",
+    "MWheelLeft",
+    "MWheelDown",
+    "MWheelUp",
+    "MWheelForwards",
+    "MWheelBackwards",
+] as const;
+
 export class InputManager {
     readonly game: Game;
 
-    private _inputsDown: Record<string, boolean> = {};
+    private _inputsDown: Record<string, Input> = {};
+
+    mousePos = Vec2.new(0, 0);
 
     /**
      * The angle between the mouse pointer and the screen center
@@ -20,60 +36,151 @@ export class InputManager {
 
     weaponToSwitch = "" as WeaponDefKey;
 
+    inputPacket = new InputPacket();
+    ticker = 0;
+
     /**
      * Gets if an input is down
      * @param input The input key or mouse button
-     * Single keys must be upper case
+     * Key events are `KeyboardEvent.code`
      * Mouse buttons are `Mouse${ButtonNumber}`
      * @returns true if the bind is pressed
      */
     isInputDown(input: string): boolean {
-        return this._inputsDown[input] ?? false;
+        return this._inputsDown[input]?.down ?? false;
     }
 
     constructor(game: Game) {
         this.game = game;
-
-        window.addEventListener("keydown", this.handleInputEvent.bind(this, true));
-        window.addEventListener("keyup", this.handleInputEvent.bind(this, false));
-        window.addEventListener("pointerdown", this.handleInputEvent.bind(this, true));
-        window.addEventListener("pointerup", this.handleInputEvent.bind(this, false));
-        window.addEventListener("wheel", this.handleInputEvent.bind(this, true));
-
-        window.addEventListener("mousemove", (e) => {
-            const rotation = Math.atan2(
-                window.innerHeight / 2 - e.clientY,
-                window.innerWidth / 2 - e.clientX,
-            )
-                - Math.PI / 2;
-
-            this.mouseDir = Vec2.new(Math.sin(rotation), -Math.cos(rotation));
-        });
     }
 
-    inputPacket = new InputPacket();
-    ticker = 0;
+    init() {
+        window.addEventListener("keydown", this.onKeyDown.bind(this));
+        window.addEventListener("keyup", this.onKeyUp.bind(this));
+
+        this.game.pixi.stage.on("pointerdown", this.onPointerDown.bind(this));
+        this.game.pixi.stage.on("pointerup", this.onPointerUp.bind(this));
+        this.game.pixi.stage.on("pointermove", this.onPointerMove.bind(this));
+
+        this.game.pixi.stage.on("wheel", this.onWheel.bind(this));
+    }
+
+    onKeyDown(e: KeyboardEvent) {
+        this._inputsDown[e.code] = {
+            type: "key",
+            down: true,
+        };
+    }
+
+    onKeyUp(e: KeyboardEvent) {
+        this._inputsDown[e.code] = {
+            type: "key",
+            down: false,
+        };
+    }
+
+    onPointerDown(e: MouseEvent) {
+        this._inputsDown[`Mouse${e.button}`] = {
+            type: "mouse",
+            down: true,
+        };
+    }
+
+    onPointerUp(e: MouseEvent) {
+        this._inputsDown[`Mouse${e.button}`] = {
+            type: "mouse",
+            down: false,
+        };
+    }
+
+    onPointerMove(e: MouseEvent) {
+        this.mousePos = Vec2.new(e.clientX, e.clientY);
+
+        const rotation = Math.atan2(
+            window.innerHeight / 2 - e.clientY,
+            window.innerWidth / 2 - e.clientX,
+        )
+            - Math.PI / 2;
+
+        this.mouseDir = Vec2.new(Math.sin(rotation), -Math.cos(rotation));
+    }
+
+    onWheel(e: WheelEvent) {
+        let key: typeof wheelEvents[number] | undefined = undefined;
+        switch (true) {
+            case e.deltaX > 0: {
+                key = "MWheelRight";
+                break;
+            }
+            case e.deltaX < 0: {
+                key = "MWheelLeft";
+                break;
+            }
+            case e.deltaY > 0: {
+                key = "MWheelDown";
+                break;
+            }
+            case e.deltaY < 0: {
+                key = "MWheelUp";
+                break;
+            }
+            case e.deltaZ > 0: {
+                key = "MWheelForwards";
+                break;
+            }
+            case e.deltaZ < 0: {
+                key = "MWheelBackwards";
+                break;
+            }
+        }
+
+        if (!key) {
+            console.error(`Unknown wheel event:`, e);
+            return;
+        }
+
+        this._inputsDown[key] = {
+            type: "wheel",
+            down: true,
+        };
+    }
 
     update(dt: number): void {
         this.ticker += dt;
         const inputPacket = new InputPacket();
-        inputPacket.moveLeft = this.isInputDown("A");
-        inputPacket.moveRight = this.isInputDown("D");
-        inputPacket.moveDown = this.isInputDown("S");
-        inputPacket.moveUp = this.isInputDown("W");
+        inputPacket.moveLeft = this.isInputDown("KeyA");
+        inputPacket.moveRight = this.isInputDown("KeyD");
+        inputPacket.moveDown = this.isInputDown("KeyS");
+        inputPacket.moveUp = this.isInputDown("KeyW");
 
         inputPacket.mouseDown = this.isInputDown("Mouse0");
 
         inputPacket.weaponToSwitch = this.weaponToSwitch;
 
-        for (const weapon of WeaponDefs) {
-            const def = WeaponDefs.typeToDef(weapon);
-            if (
-                this.isInputDown(def.key)
-                && weapon !== this.game.activePlayer?.activeWeapon
-            ) {
-                inputPacket.weaponToSwitch = weapon;
-                break;
+        let i = 1;
+
+        if (this.game.activePlayer) {
+            const validWeaps = this.game.ui.weaponsUi.validWeapons;
+            for (const weapon of WeaponDefs) {
+                if (
+                    this.isInputDown(`Digit${i}`)
+                    && weapon !== this.game.activePlayer.activeWeapon
+                    && validWeaps.includes(weapon)
+                ) {
+                    inputPacket.weaponToSwitch = weapon;
+                    break;
+                }
+                i++;
+            }
+
+            if (this.isInputDown("MWheelDown")) {
+                let idx = validWeaps.indexOf(this.game.activePlayer.activeWeapon);
+                idx = (idx + 1) % validWeaps.length;
+                inputPacket.weaponToSwitch = validWeaps.at(idx) || "" as WeaponDefKey;
+            } else if (this.isInputDown("MWheelUp")) {
+                let idx = validWeaps.indexOf(this.game.activePlayer.activeWeapon);
+                idx = (idx - 1) % validWeaps.length;
+                inputPacket.weaponToSwitch = validWeaps.at(idx) || "" as WeaponDefKey;
             }
         }
 
@@ -88,105 +195,12 @@ export class InputManager {
         this.weaponToSwitch = "" as WeaponDefKey;
     }
 
-    private _mWheelStopTimer: number | undefined;
-
-    handleInputEvent(
-        down: boolean,
-        event: KeyboardEvent | MouseEvent | WheelEvent,
-    ): void {
-        /*
-            We don't want to allow keybinds to work with modifiers, because firstly,
-            pressing ctrl + R to reload is dumb and secondly, doing that refreshes the page.
-            In essence, we need to only process inputs which are a single modifier key or which are
-            a normal key without modifiers.
-            This only applies to keyboard events
-        */
-        if (event instanceof KeyboardEvent) {
-            let modifierCount = 0;
-            (
-                ["altKey", "metaKey", "ctrlKey", "shiftKey"] as Array<keyof KeyboardEvent>
-            ).forEach((modifier) => event[modifier] && modifierCount++);
-
-            // As stated before, more than one modifier or a modifier alongside another key should invalidate an input
-            if (
-                (modifierCount > 1
-                    || (modifierCount === 1
-                        && !["Shift", "Control", "Alt", "Meta"].includes(event.key)))
-                && down
-                // …but it only invalidates pressing a key, not releasing it
-            ) {
-                return;
+    flushInputs() {
+        // reset wheel events at the end of every frame
+        for (const e of wheelEvents) {
+            if (this._inputsDown[e]) {
+                this._inputsDown[e].down = false;
             }
         }
-
-        const key = this.getKeyFromInputEvent(event);
-
-        if (event instanceof WheelEvent) {
-            // The browser doesn't emit mouse wheel "stop" events.
-            // so instead, we set it to false after a timeout
-
-            clearTimeout(this._mWheelStopTimer);
-            this._mWheelStopTimer = window.setTimeout(() => {
-                this._inputsDown[key] = false;
-            }, 50);
-
-            this._inputsDown[key] = true;
-
-            return;
-        }
-        this._inputsDown[key] = event.type === "keydown" || event.type === "pointerdown";
-
-        if (event.type === "keydown" && key === "Home") {
-            this.game.ui.debugUi.toggle();
-        }
-    }
-
-    getKeyFromInputEvent(event: KeyboardEvent | MouseEvent | WheelEvent): string {
-        let key = "";
-        if (event instanceof KeyboardEvent) {
-            key = event.key.length > 1 ? event.key : event.key.toUpperCase();
-            if (key === " ") {
-                key = "Space";
-            }
-        }
-
-        if (event instanceof WheelEvent) {
-            switch (true) {
-                case event.deltaX > 0: {
-                    key = "MWheelRight";
-                    break;
-                }
-                case event.deltaX < 0: {
-                    key = "MWheelLeft";
-                    break;
-                }
-                case event.deltaY > 0: {
-                    key = "MWheelDown";
-                    break;
-                }
-                case event.deltaY < 0: {
-                    key = "MWheelUp";
-                    break;
-                }
-                case event.deltaZ > 0: {
-                    key = "MWheelForwards";
-                    break;
-                }
-                case event.deltaZ < 0: {
-                    key = "MWheelBackwards";
-                    break;
-                }
-            }
-            if (key === "") {
-                console.error("An unrecognized scroll wheel event was received: ", event);
-            }
-            return key;
-        }
-
-        if (event instanceof MouseEvent) {
-            key = `Mouse${event.button}`;
-        }
-
-        return key;
     }
 }

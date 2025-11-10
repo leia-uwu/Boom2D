@@ -76,6 +76,7 @@ export class Game {
     async init(): Promise<void> {
         await this.loadAssets();
         this.ui.init();
+        this.inputManager.init();
         this.pixi.ticker.add(this.update.bind(this));
         this.pixi.renderer.on("resize", this.resize.bind(this));
 
@@ -328,6 +329,7 @@ export class Game {
         debugRenderer.render();
 
         debugRenderer.flush();
+        this.inputManager.flushInputs();
 
         if (this.fpsTicker > 2) {
             this.fpsTicker = 0;

@@ -1,7 +1,7 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import { AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import { type GunDef, type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
-import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
+import { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
 import type { InputManager } from "../inputManager";
@@ -37,8 +37,9 @@ class WeaponDisplay extends Container {
         this.selectedBg.tint = ammoDef.color;
         this.addChild(this.selectedBg);
 
-        this.on("click", () => {
+        this.on("pointerdown", (e) => {
             inputManager.weaponToSwitch = this.weapon;
+            e.stopPropagation();
         });
 
         this.weaponIcon.anchor.set(0.5, 0.5);
@@ -59,6 +60,10 @@ export class WeaponsUi extends Container {
 
     activeWeapon: WeaponDefKey = "pistol";
 
+    weapons = {} as UpdatePacket["playerData"]["weapons"];
+
+    validWeapons: WeaponDefKey[] = [];
+
     init(inputManager: InputManager) {
         this.addChild(this.layout);
 
@@ -77,27 +82,40 @@ export class WeaponsUi extends Container {
     }
 
     updateUi(data: UpdatePacket["playerData"]["weapons"]) {
+        this.weapons = data;
+
+        this.validWeapons.length = 0;
         for (const weapon of WeaponDefs) {
-            this.weaponDisplays[weapon].weaponIcon.alpha = data[weapon] ? 1 : 0.1;
+            this.weaponDisplays[weapon].alpha = data[weapon] ? 1 : 0.1;
+            if (data[weapon]) {
+                this.validWeapons.push(weapon);
+            }
         }
     }
 
     render(dt: number) {
         const activeDef = WeaponDefs.typeToDef(this.activeWeapon) as GunDef;
+
         for (const weaponType in this.weaponDisplays) {
             const weaponDisplay = this.weaponDisplays[weaponType as WeaponDefKey];
 
-            if (weaponType === this.activeWeapon) {
+            const hasWeapon = !!this.weapons[weaponType as WeaponDefKey];
+            const isSelected = weaponType === this.activeWeapon;
+
+            if (isSelected) {
                 weaponDisplay.selectedTicker += dt / activeDef.switchDelay;
             } else {
                 weaponDisplay.selectedTicker -= dt / activeDef.switchDelay;
             }
+
             weaponDisplay.selectedTicker = MathUtils.clamp(
                 weaponDisplay.selectedTicker,
                 0,
                 1,
             );
             weaponDisplay.selectedBg.alpha = weaponDisplay.selectedTicker;
+
+            weaponDisplay.interactive = hasWeapon && !isSelected;
         }
     }
 

@@ -7,7 +7,6 @@ import type { ProjectileDefKey } from "./projectileDefs";
 
 export interface GunDef extends BaseLootDef {
     type: "gun";
-    key: string;
     ammo: AmmoDefKey;
     ammoPerShot: number;
     ammoOnPickup: number;
@@ -48,7 +47,6 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     pistol: {
         type: "gun",
         lootRadius: 2.5,
-        key: "1",
         respawnTime: 0,
         ammo: "bullet",
         ammoPerShot: 1,
@@ -76,7 +74,6 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     shotgun: {
         type: "gun",
         lootRadius: 2.5,
-        key: "2",
         respawnTime: 10,
         ammo: "shell",
         ammoPerShot: 1,
@@ -106,7 +103,6 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     ak: {
         type: "gun",
         lootRadius: 2.5,
-        key: "3",
         respawnTime: 10,
         ammo: "bullet",
         ammoPerShot: 1,
@@ -135,7 +131,6 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     rocket_launcher: {
         type: "gun",
         lootRadius: 2.5,
-        key: "4",
         respawnTime: 15,
         ammo: "rocket",
         ammoPerShot: 1,
@@ -164,7 +159,6 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     plasma_rifle: {
         type: "gun",
         lootRadius: 2.5,
-        key: "5",
         respawnTime: 15,
         ammo: "cell",
         ammoPerShot: 1,
@@ -193,7 +187,6 @@ const rawDefs: Record<WeaponDefKey, GunDef> = {
     bfg: {
         type: "gun",
         lootRadius: 2.5,
-        key: "6",
         respawnTime: 25,
         ammo: "cell",
         ammoPerShot: 40,

@@ -19,6 +19,9 @@ export class App {
             background: "#3b3b3b",
             eventMode: "static",
         });
+        this.pixi.stage.interactive = true;
+        this.pixi.stage.hitArea = this.pixi.screen;
+        this.pixi.renderer.events.cursorStyles.default = "crosshair";
 
         await this.game.init();
 

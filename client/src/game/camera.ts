@@ -8,6 +8,7 @@ export class Camera {
     readonly container = new Container({
         sortableChildren: true,
         isRenderGroup: true,
+        interactive: false,
         eventMode: "none",
     });
 
