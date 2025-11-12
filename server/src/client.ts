@@ -68,6 +68,10 @@ export class Client {
     debug = false;
     forceSendDebugInfo = false;
 
+    private packetStream = PacketStream.alloc(1 << 16);
+    private firstPacket = true;
+    private visibleEntities = new Set<ServerEntity>();
+
     constructor(game: Game, socket: ServerWebSocket<SocketData>) {
         this.game = game;
         this.socket = socket;
@@ -134,10 +138,37 @@ export class Client {
         }
     }
 
-    firstPacket = true;
-    visibleEntities = new Set<ServerEntity>();
     sendPackets(dt: number) {
         const game = this.game;
+
+        this.sendUpdatePacket(dt);
+
+        if (this.debug) {
+            this.sendDebugPacket();
+            this.forceSendDebugInfo = false;
+        }
+
+        if (this.firstPacket) {
+            const mapStream = game.map.serializedData.stream;
+            this.packetStream.stream.writeBytes(mapStream, 0, mapStream.byteIndex);
+        }
+
+        this.packetStream.stream.writeBytes(
+            this.game.packetStream.stream,
+            0,
+            this.game.packetStream.stream.byteIndex,
+        );
+
+        const buffer = this.packetStream.getBuffer();
+        this.sendData(buffer);
+
+        this.firstPacket = false;
+        this.packetStream.stream.index = 0;
+    }
+
+    sendUpdatePacket(dt: number) {
+        const game = this.game;
+
         // calculate visible, deleted, and dirty entities
         // and send them to the client
         const updatePacket = new UpdatePacket();
@@ -237,52 +268,33 @@ export class Client {
         }
 
         this.sendPacket(updatePacket);
-
-        if (this.debug) {
-            const debugPacket = new DebugPacket();
-            debugPacket.tpsAvg = game.tpsAvg;
-            debugPacket.tpsMin = game.tpsMin;
-            debugPacket.tpsMax = game.tpsMax;
-
-            if (game.debugTpsDirty || this.forceSendDebugInfo) {
-                debugPacket.flags |= DebugFlags.Tps;
-            }
-
-            debugPacket.msptAvg = game.msptAvg;
-
-            debugPacket.entityCounts = game.entityManager.counts;
-            debugPacket.bullets = game.bulletManager.activeCount;
-
-            if (game.debugObjCountDirty || this.forceSendDebugInfo) {
-                debugPacket.flags |= DebugFlags.Objects;
-            }
-
-            if (debugPacket.flags > 0) {
-                this.sendPacket(debugPacket);
-            }
-
-            this.forceSendDebugInfo = false;
-        }
-
-        if (this.firstPacket) {
-            const mapStream = game.map.serializedData.stream;
-            this.packetStream.stream.writeBytes(mapStream, 0, mapStream.byteIndex);
-        }
-
-        this.packetStream.stream.writeBytes(
-            this.game.packetStream.stream,
-            0,
-            this.game.packetStream.stream.byteIndex,
-        );
-
-        const buffer = this.packetStream.getBuffer();
-        this.sendData(buffer);
-
-        this.firstPacket = false;
-        this.packetStream.stream.index = 0;
     }
 
-    packetStream = PacketStream.alloc(1 << 16);
+    sendDebugPacket() {
+        const game = this.game;
+
+        const debugPacket = new DebugPacket();
+        debugPacket.tpsAvg = game.tpsAvg;
+        debugPacket.tpsMin = game.tpsMin;
+        debugPacket.tpsMax = game.tpsMax;
+
+        if (game.debugTpsDirty || this.forceSendDebugInfo) {
+            debugPacket.flags |= DebugFlags.Tps;
+        }
+
+        debugPacket.msptAvg = game.msptAvg;
+
+        debugPacket.entityCounts = game.entityManager.counts;
+        debugPacket.bullets = game.bulletManager.activeCount;
+
+        if (game.debugObjCountDirty || this.forceSendDebugInfo) {
+            debugPacket.flags |= DebugFlags.Objects;
+        }
+
+        if (debugPacket.flags > 0) {
+            this.sendPacket(debugPacket);
+        }
+    }
 
     sendPacket(packet: Packet): void {
         this.packetStream.serializeServerPacket(packet);
