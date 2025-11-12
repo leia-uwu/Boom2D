@@ -146,6 +146,7 @@ export class Projectile extends AbstractServerEntity {
                     if (!entity.hitbox.collidesWith(hitbox)) continue;
                     if (entity.__type !== EntityType.Player) continue;
                     if (entity === this.source) continue;
+                    if (entity.dead) continue;
                     if (this.damagedEntities.has(entity)) continue;
 
                     this.damagedEntities.add(entity);
