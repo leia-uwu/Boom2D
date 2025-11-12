@@ -1,5 +1,3 @@
-import { WebSocketHandler } from "bun";
-import type { ServerAPIResponse } from "../../common/src/apiTypings";
 import { version } from "../../package.json";
 import type { Client } from "./client";
 import { Config } from "./config";
@@ -8,12 +6,14 @@ import { Logger } from "./logger";
 
 const game = new Game(Config);
 
-export interface ClientData {
+const logger = new Logger("Server");
+
+export interface SocketData {
     client: Client;
 }
 
 // Initialize the server
-Bun.serve({
+Bun.serve<SocketData>({
     port: Config.port,
     hostname: Config.host,
     tls: Config.ssl
@@ -23,63 +23,47 @@ Bun.serve({
         }
         : undefined,
 
-    async fetch(request, server) {
-        const url = new URL(request.url);
-
-        let response: ServerAPIResponse | undefined = undefined;
-
-        switch (url.pathname) {
-            case "/server_info":
-                response = {
-                    playerCount: game.playerManager.players.length,
-                };
-                break;
-            case "/play": {
-                const upgraded = server.upgrade(request, {
-                    data: {
-                        joined: false,
-                    },
-                });
-                if (!upgraded) {
-                    return new Response("Websocket upgrade failed.", { status: 400 });
-                }
-                return new Response("Upgrade success");
-            }
-        }
-
-        if (response !== undefined) {
-            return new Response(JSON.stringify(response), {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                },
+    routes: {
+        "/server_info": (_req) => {
+            return Response.json({
+                playerCount: game.playerManager.players.length,
             });
-        }
-        return new Response("404");
+        },
+        "/play": (req, server) => {
+            const upgraded = server.upgrade(req, {
+                data: {
+                    client: undefined,
+                } as unknown as SocketData,
+            });
+            if (!upgraded) {
+                return new Response("Websocket upgrade failed.", { status: 400 });
+            }
+            return new Response("Upgrade success");
+        },
     },
+
+    async fetch(_request, _server) {
+        return new Response("Not found!", { status: 404 });
+    },
+
     websocket: {
         idleTimeout: 30,
         open(socket) {
             game.clientManager.addClient(socket);
         },
         message(socket, message) {
-            try {
-                if (message instanceof Buffer) {
-                    socket.data.client.processPacket(message.buffer as ArrayBuffer);
-                } else {
-                    console.error(`Received invalid message type: ${typeof message}`);
-                }
-            } catch (e) {
-                console.warn("Error parsing message:", e);
+            if (message instanceof Buffer) {
+                socket.data.client.processPacket(message.buffer as ArrayBuffer);
+            } else {
+                logger.warn(`Received invalid message type: ${typeof message}`);
+                socket.close();
             }
         },
         close(socket) {
             game.clientManager.removeClient(socket);
         },
-    } as WebSocketHandler<ClientData>,
+    },
 });
-
-const logger = new Logger("Server");
 
 logger.log(`Boom2D server version ${version}`);
 logger.log(`Websocket server running on ${Config.host}:${Config.port}`);

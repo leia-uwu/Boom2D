@@ -17,7 +17,7 @@ import type { ServerEntity } from "./entities/entity";
 import type { Player } from "./entities/player";
 import type { Game } from "./game";
 import { HitManager } from "./hits";
-import type { ClientData } from "./server";
+import type { SocketData } from "./server";
 
 export class ClientManager {
     clients: Client[] = [];
@@ -38,14 +38,14 @@ export class ClientManager {
         }
     }
 
-    addClient(socket: ServerWebSocket<ClientData>) {
+    addClient(socket: ServerWebSocket<SocketData>) {
         const client = new Client(this.game, socket);
         this.clients.push(client);
         socket.data.client = client;
         return client;
     }
 
-    removeClient(socket: ServerWebSocket<ClientData>) {
+    removeClient(socket: ServerWebSocket<SocketData>) {
         const client = socket.data.client;
         this.clients.splice(this.clients.indexOf(client), 1);
         if (client.player) {
@@ -56,7 +56,7 @@ export class ClientManager {
 
 export class Client {
     game: Game;
-    socket: ServerWebSocket<ClientData>;
+    socket: ServerWebSocket<SocketData>;
     position: Vector;
 
     speed = 4;
@@ -68,7 +68,7 @@ export class Client {
     debug = false;
     forceSendDebugInfo = false;
 
-    constructor(game: Game, socket: ServerWebSocket<ClientData>) {
+    constructor(game: Game, socket: ServerWebSocket<SocketData>) {
         this.game = game;
         this.socket = socket;
         this.position = Random.vector(0, game.map.width, 0, game.map.height);
@@ -77,8 +77,22 @@ export class Client {
     processPacket(buff: ArrayBuffer) {
         const packetStream = new PacketStream(buff);
 
-        const packet = packetStream.deserializeClientPacket();
-        if (packet === undefined) return;
+        let packet: Packet | undefined = undefined;
+
+        // only deserialization should be on try catch
+        // because catching this whole method could easily leave the game
+        // on an inconsistent state
+        // so its better to just crash
+        try {
+            packet = packetStream.deserializeClientPacket();
+        } catch (err) {
+            this.game.logger.warn(`Failed to deserialize packet:`, err);
+            this.socket.close();
+        }
+
+        if (packet === undefined) {
+            return;
+        }
 
         let player = this.player;
 
