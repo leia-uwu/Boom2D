@@ -1,4 +1,3 @@
-import "./scss/main.scss";
 import { Application } from "pixi.js";
 import { Game } from "./game/game";
 import { Helpers } from "./helpers";
