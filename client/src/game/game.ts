@@ -1,4 +1,4 @@
-import type { Application } from "pixi.js";
+import type { Application, Ticker } from "pixi.js";
 import { EntityType, GameConstants } from "../../../common/src/constants";
 import { type Packet, PacketStream } from "../../../common/src/net";
 import { DeathPacket } from "../../../common/src/packets/deathPacket";
@@ -10,6 +10,7 @@ import { MapPacket } from "../../../common/src/packets/mapPacket";
 import { PingPacket } from "../../../common/src/packets/pingPacket";
 import { QuitPacket } from "../../../common/src/packets/quitPacket";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
+import { MathUtils } from "../../../common/src/utils/math";
 import { assert } from "../../../common/src/utils/util";
 import { ClientConfig } from "../config";
 import type { App } from "../main";
@@ -212,8 +213,9 @@ export class Game {
      * Process a game update packet
      */
     updateFromPacket(packet: UpdatePacket): void {
-        this.serverDt = (Date.now() - this.lastUpdateTime) / 1000;
-        this.lastUpdateTime = Date.now();
+        const now = performance.now();
+        this.serverDt = (now - this.lastUpdateTime) / 1000;
+        this.lastUpdateTime = now;
 
         if (packet.playerDataDirty.zoom) {
             this.camera.zoom = packet.playerData.zoom;
@@ -309,16 +311,12 @@ export class Game {
         this.ui.resize();
     }
 
-    now = Date.now();
-
     deltaTimes: number[] = [];
     fpsTicker = 0;
     fps = 0;
 
-    update(): void {
-        const now = Date.now();
-        const dt = (now - this.now) / 1000 * GameConstants.gameSpeed;
-        this.now = now;
+    update(ticker: Ticker): void {
+        const dt = MathUtils.clamp(ticker.deltaMS / 1000, 0.001, 1 / 8) * GameConstants.gameSpeed;
 
         this.deltaTimes.push(dt);
         this.fpsTicker += dt;

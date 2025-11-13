@@ -1,5 +1,6 @@
 import { EntityType, GameConstants } from "../../common/src/constants";
 import { type Packet, PacketStream } from "../../common/src/net";
+import { MathUtils } from "../../common/src/utils/math";
 import { BulletManager } from "./bullet";
 import { ClientManager } from "./client";
 import type { ServerConfig } from "./config";
@@ -33,7 +34,7 @@ export class Game {
 
     packetStream = new PacketStream(new ArrayBuffer(1 << 10));
 
-    now = Date.now();
+    now = performance.now();
 
     tpsAvg = 0;
     tpsMin = 0;
@@ -61,8 +62,8 @@ export class Game {
     }
 
     update(): void {
-        const now = Date.now();
-        const dt = (now - this.now) / 1000 * GameConstants.gameSpeed;
+        const now = performance.now();
+        const dt = MathUtils.clamp((now - this.now) / 1000, 0.001, 1 / 8) * GameConstants.gameSpeed;
         this.now = now;
 
         // update entities
@@ -86,7 +87,7 @@ export class Game {
         this.hitManager.flush();
 
         this.deltaTimes.push(dt);
-        this.tickTimes.push(Date.now() - this.now);
+        this.tickTimes.push(performance.now() - this.now);
 
         this.perfTicker += dt;
         if (this.perfTicker > 5) {
