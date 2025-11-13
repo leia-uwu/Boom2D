@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
         "target": "ES2022",
-        "module": "CommonJS",
-        "moduleResolution": "node",
-        "outDir": "./dist",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "noEmit": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,

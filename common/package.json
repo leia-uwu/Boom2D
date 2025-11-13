@@ -1,4 +1,5 @@
 {
     "name": "Boom2D Common",
-    "private": true
+    "private": true,
+    "type": "module"
 }

@@ -4,7 +4,7 @@
         "target": "ESNext",
         "module": "ESNext",
         "moduleResolution": "Bundler",
-        "outDir": "./dist",
+        "noEmit": true,
         "newLine": "lf",
         "allowSyntheticDefaultImports": true,
         "useDefineForClassFields": true,
