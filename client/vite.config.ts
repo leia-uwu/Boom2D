@@ -28,11 +28,6 @@ export default defineConfig({
                 },
                 entryFileNames: "js/app-[hash].js",
                 chunkFileNames: "js/[name]-[hash].js",
-                manualChunks(id, _chunkInfo) {
-                    if (id.includes("node_modules")) {
-                        return "vendor";
-                    }
-                },
             },
         },
     },
