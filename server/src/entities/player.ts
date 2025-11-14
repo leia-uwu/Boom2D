@@ -16,7 +16,7 @@ import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import type { Client } from "../client";
 import type { Game } from "../game";
 import { WeaponManager } from "../weaponManager";
-import { AbstractServerEntity, EntityPool, ServerEntity } from "./entity";
+import { AbstractServerEntity, EntityPool, type ServerEntity } from "./entity";
 import type { Loot } from "./loot";
 import { Obstacle } from "./obstacle";
 
@@ -31,7 +31,7 @@ export class PlayerManager extends EntityPool<Player> {
     leaderBoardDirty = true;
     leaderBoard: LeaderboardEntry[] = [];
 
-    constructor(readonly game: Game) {
+    constructor(game: Game) {
         super(game, Player);
     }
 
@@ -243,11 +243,11 @@ export class Player extends AbstractServerEntity {
         this.dirty.zoom = true;
     }
 
-    get position(): Vector {
+    override get position(): Vector {
         return this.hitbox.position;
     }
 
-    set position(pos: Vector) {
+    override set position(pos: Vector) {
         this.hitbox.position = pos;
         this._position = pos;
     }

@@ -17,7 +17,7 @@ import type { Player } from "./player";
 export class ProjectileManager extends EntityPool<Projectile> {
     override readonly type = EntityType.Projectile;
 
-    constructor(readonly game: Game) {
+    constructor(game: Game) {
         super(game, Projectile);
     }
 }
@@ -34,11 +34,11 @@ export class Projectile extends AbstractServerEntity {
 
     isNew = true;
 
-    get position(): Vector {
+    override get position(): Vector {
         return this.hitbox.position;
     }
 
-    set position(pos: Vector) {
+    override set position(pos: Vector) {
         this.hitbox.position = pos;
         this._position = pos;
     }
@@ -178,7 +178,7 @@ export class Projectile extends AbstractServerEntity {
         this.position.y = MathUtils.clamp(this.position.y, 0, this.game.map.height);
     }
 
-    destroy() {
+    override destroy() {
         super.destroy();
         const def = ProjectileDefs.typeToDef(this.type) as ProjectileDef;
         if (def.explosion) {

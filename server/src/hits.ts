@@ -1,4 +1,4 @@
-import { HitData } from "../../common/src/packets/updatePacket";
+import type { HitData } from "../../common/src/packets/updatePacket";
 import { Vec2 } from "../../common/src/utils/vector";
 
 interface Hit extends HitData {

@@ -1,7 +1,7 @@
-import { BaseGameMap, BaseMapObject, MapObjectType } from "../baseMap";
+import { BaseGameMap, type BaseMapObject, MapObjectType } from "../baseMap";
 import { EntityType } from "../constants";
-import { Hitbox } from "./hitbox";
-import { Vec2, Vector } from "./vector";
+import type { Hitbox } from "./hitbox";
+import { Vec2, type Vector } from "./vector";
 
 interface Entity {
     __type: EntityType;

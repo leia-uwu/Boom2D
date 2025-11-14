@@ -120,7 +120,7 @@ export abstract class BaseHitbox<T extends HitboxType = HitboxType> {
 
 export class CircleHitbox extends BaseHitbox {
     override readonly type = HitboxType.Circle;
-    static readonly type = HitboxType.Circle;
+    static override readonly type = HitboxType.Circle;
 
     position: Vector;
     radius: number;
@@ -171,7 +171,7 @@ export class CircleHitbox extends BaseHitbox {
 
 export class RectHitbox extends BaseHitbox {
     override readonly type = HitboxType.Rect;
-    static readonly type = HitboxType.Rect;
+    static override readonly type = HitboxType.Rect;
 
     min: Vector;
     max: Vector;
@@ -271,7 +271,7 @@ export class RectHitbox extends BaseHitbox {
 
 export class PolygonHitbox extends BaseHitbox {
     override readonly type = HitboxType.Polygon;
-    static readonly type = HitboxType.Polygon;
+    static override readonly type = HitboxType.Polygon;
 
     verts: Vector[];
     normals: Vector[] = [];

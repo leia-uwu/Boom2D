@@ -28,7 +28,8 @@ export class PlayerManager extends EntityPool<Player> {
         return info;
     }
 
-    clear() {
+    override clear() {
+        super.clear();
         this.playerInfos.clear();
     }
 }

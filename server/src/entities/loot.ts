@@ -8,7 +8,7 @@ import { AbstractServerEntity, EntityPool } from "./entity";
 
 export class LootManager extends EntityPool<Loot> {
     override readonly type = EntityType.Loot;
-    constructor(readonly game: Game) {
+    constructor(game: Game) {
         super(game, Loot);
     }
 }

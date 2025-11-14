@@ -1,20 +1,9 @@
 {
     "compilerOptions": {
-        "lib": ["DOM", "ESNext"],
-        "target": "ESNext",
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
-        "noEmit": true,
-        "newLine": "lf",
-        "allowSyntheticDefaultImports": true,
-        "useDefineForClassFields": true,
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "allowJs": true,
-        "checkJs": true,
-        "strict": true,
-        "skipLibCheck": true,
-        "types": ["vite/client"]
+        "lib": ["DOM", "ESNext"]
     },
+    "extends": [
+        "../baseTsconfig.json"
+    ],
     "include": ["src", "../common/src"]
 }

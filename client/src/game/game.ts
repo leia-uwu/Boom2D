@@ -142,7 +142,6 @@ export class Game {
 
     resetGame() {
         this.entityManager.clear();
-        this.playerManager.clear();
         this.particleManager.clear();
         this.ui.clear();
     }

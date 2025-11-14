@@ -1,17 +1,12 @@
 {
-    "compilerOptions": {
-        "target": "ES2022",
-        "module": "ESNext",
-        "moduleResolution": "bundler",
-        "noEmit": true,
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "resolveJsonModule": true,
-        "sourceMap": true,
-        "strictNullChecks": true,
-        "strict": true,
-        "skipLibCheck": true
-    },
-    "exclude": ["node_modules"],
-    "include": ["src", "../common/src"]
+    "extends": [
+        "../baseTsconfig.json"
+    ],
+    "include": [
+        "src",
+        "../common/src"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }

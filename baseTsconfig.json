@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "moduleDetection": "force",
+        "newLine": "lf",
+        "noEmit": true,
+        "allowSyntheticDefaultImports": true,
+        "useDefineForClassFields": true,
+        "verbatimModuleSyntax": true,
+        "resolveJsonModule": true,
+        "strictNullChecks": true,
+        "isolatedModules": true,
+        "skipLibCheck": true,
+        "allowJs": true,
+        "checkJs": true,
+        "strict": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true
+    }
+}
