@@ -25,9 +25,16 @@ Bun.serve<SocketData>({
 
     routes: {
         "/server_info": (_req) => {
-            return Response.json({
-                playerCount: game.playerManager.players.length,
-            });
+            return Response.json(
+                {
+                    playerCount: game.playerManager.players.length,
+                },
+                {
+                    headers: {
+                        "Access-Control-Allow-Origin": "*",
+                    },
+                },
+            );
         },
         "/play": (req, server) => {
             const upgraded = server.upgrade(req, {
