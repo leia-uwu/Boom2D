@@ -107,6 +107,7 @@ export class StatusUi extends VerticalLayout {
         const def = AmmoDefs.typeToDef(type);
         this.ammo.tint = def.color;
         Helpers.spriteFromDef(this.ammo.icon, def.inventoryImg);
+        this.ammo.icon.anchor = { x: 0, y: 0 };
         this.ammo.setText(ammo);
     }
 

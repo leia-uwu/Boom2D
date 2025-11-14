@@ -37,6 +37,7 @@ export class AmmoUi extends VerticalLayout {
             Helpers.spriteFromDef(icon, def.inventoryImg);
             icon.width = icon.height = itemHeight;
             icon.x = -itemHeight - UiStyle.margin;
+            icon.anchor = { x: 0, y: 0 };
             container.addChild(icon);
 
             icon.tint = text.tint = def.color;
