@@ -58,7 +58,10 @@ export abstract class ClientEntity<T extends ValidEntityType = ValidEntityType> 
 }
 
 export class EntityPool<T extends ClientEntity = ClientEntity> {
-    pool: Array<T> = [];
+    private pool: Array<T> = [];
+    get allocatedCount() {
+        return this.pool.length;
+    }
     activeCount = 0;
 
     constructor(public entityCtr: new(game: Game) => T) {}
@@ -97,6 +100,14 @@ export class EntityPool<T extends ClientEntity = ClientEntity> {
             }
             this.pool = compact;
         }
+    }
+
+    clear() {
+        for (let i = 0; i < this.pool.length; i++) {
+            this.pool[i].destroy();
+        }
+        this.pool.length = 0;
+        this.activeCount = 0;
     }
 }
 
@@ -178,8 +189,8 @@ export class EntityManager {
     }
 
     clear() {
-        for (let i = 0; i < this.entities.length; i++) {
-            this.entities[i]?.destroy();
+        for (const pool of Object.values(this.typeToPool)) {
+            pool.clear();
         }
         this.entities.length = 0;
         this.idToEntity.fill(null);
