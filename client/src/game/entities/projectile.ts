@@ -12,6 +12,7 @@ import { Vec2 } from "../../../../common/src/utils/vector";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
 import { DEBUG_ENABLED, debugRenderer } from "../debug";
+import { Game } from "../game";
 import type { ParticleDefKey } from "../particle";
 import { ClientEntity, EntityPool } from "./entity";
 
@@ -24,7 +25,9 @@ export class ProjectileManager extends EntityPool<Projectile> {
 export class Projectile extends ClientEntity {
     readonly __type = EntityType.Projectile;
     hitbox!: CircleHitbox;
-    sprite = new Sprite();
+    sprite = new Sprite({
+        anchor: { x: 0.5, y: 0.5 },
+    });
 
     type!: ProjectileDefKey;
     initialPosition = Vec2.new(0, 0);
@@ -36,10 +39,13 @@ export class Projectile extends ClientEntity {
     direction = Vec2.new(0, 0);
     rotation = 0;
 
-    override init() {
+    constructor(game: Game) {
+        super(game);
         this.container.addChild(this.sprite);
+    }
+
+    override init() {
         this.container.visible = true;
-        this.sprite.anchor.set(0.5, 0.5);
     }
 
     override updateFromData(

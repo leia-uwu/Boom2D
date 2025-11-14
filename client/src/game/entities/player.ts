@@ -10,6 +10,7 @@ import { Helpers } from "../../helpers";
 import type { GameSound } from "../audioManager";
 import { Camera } from "../camera";
 import { DEBUG_ENABLED, debugRenderer } from "../debug";
+import { Game } from "../game";
 import type { ParticleDefKey } from "../particle";
 import { ClientEntity, EntityPool } from "./entity";
 
@@ -52,6 +53,7 @@ export class Player extends ClientEntity {
     // container for stuff that doesn't rotate
     staticContainer = new Container({
         visible: false,
+        zIndex: 3,
     });
 
     nameText = new Text({
@@ -71,15 +73,23 @@ export class Player extends ClientEntity {
 
     shotSound?: GameSound;
 
-    override init() {
-        this.container.visible = true;
-        this.staticContainer.visible = true;
+    constructor(game: Game) {
+        super(game);
 
         const images = Object.values(this.images);
         for (const image of images) {
             image.anchor.set(0.5);
         }
         this.container.addChild(...images);
+
+        this.nameText.anchor.set(0.5);
+
+        this.container.zIndex = 2;
+    }
+
+    override init() {
+        this.container.visible = true;
+        this.staticContainer.visible = true;
 
         this.images.leftFist.position.set(48, 48);
         this.images.rightFist.position.set(48, -48);
@@ -88,11 +98,6 @@ export class Player extends ClientEntity {
         this.images.muzzle.zIndex = -2;
         this.images.muzzle.anchor.y = 1;
 
-        this.container.zIndex = 2;
-
-        this.nameText.anchor.set(0.5);
-
-        this.staticContainer.zIndex = 3;
         this.game.camera.addObject(this.staticContainer);
 
         this.nameText.text = this.game.playerManager.getPlayerInfo(this.id).name;

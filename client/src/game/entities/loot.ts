@@ -7,6 +7,7 @@ import { CircleHitbox } from "../../../../common/src/utils/hitbox";
 import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
+import { Game } from "../game";
 import { ClientEntity, EntityPool } from "./entity";
 
 export class LootManager extends EntityPool<Loot> {
@@ -21,8 +22,15 @@ export class Loot extends ClientEntity {
     canPickup = true;
     type = "" as LootDefKey;
 
-    sprite = new Sprite();
-    background = new Sprite(Texture.from("glow-particle.svg"));
+    sprite = new Sprite({
+        anchor: { x: 0.5, y: 0.5 },
+    });
+
+    background = new Sprite({
+        texture: Texture.from("glow-particle.svg"),
+        anchor: { x: 0.5, y: 0.5 },
+    });
+
     hitbox = new CircleHitbox(0);
 
     scaleTicker!: number;
@@ -47,12 +55,14 @@ export class Loot extends ClientEntity {
         }
     }
 
+    constructor(game: Game) {
+        super(game);
+        this.container.addChild(this.background, this.sprite);
+    }
+
     override init() {
         this.container.visible = true;
-        this.container.addChild(this.background, this.sprite);
-        this.sprite.anchor.set(0.5, 0.5);
 
-        this.background.anchor.set(0.5, 0.5);
         this.scaleTicker = Math.random();
         this.scalingDown = false;
     }

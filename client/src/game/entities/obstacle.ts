@@ -6,6 +6,7 @@ import { BaseHitbox, type Hitbox } from "../../../../common/src/utils/hitbox";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
 import { DEBUG_ENABLED, debugRenderer } from "../debug";
+import { Game } from "../game";
 import { ClientEntity, EntityPool } from "./entity";
 
 export class ObstacleManager extends EntityPool<Obstacle> {
@@ -18,11 +19,16 @@ export class Obstacle extends ClientEntity {
     readonly __type = EntityType.Obstacle;
     hitbox!: Hitbox;
     type = "" as ObstacleDefKey;
-    sprite = new Sprite();
+    sprite = new Sprite({
+        anchor: { x: 0.5, y: 0.5 },
+    });
+
+    constructor(game: Game) {
+        super(game);
+        this.container.addChild(this.sprite);
+    }
 
     override init() {
-        this.container.addChild(this.sprite);
-        this.sprite.anchor.set(0.5, 0.5);
         this.container.visible = true;
     }
 
