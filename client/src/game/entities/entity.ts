@@ -64,19 +64,19 @@ export class EntityPool<T extends ClientEntity = ClientEntity> {
     constructor(public entityCtr: new(game: Game) => T) {}
 
     allocEntity(game: Game, id: number) {
-        let entity: T | undefined = undefined;
-        for (let i = 0; i < this.pool.length; i++) {
-            if (!this.pool[i].active) {
-                entity = this.pool[i];
-                break;
-            }
-        }
+        let entity = this.pool.find(t => !t.active);
+
         if (!entity) {
             entity = new this.entityCtr(game);
+            this.pool.push(entity);
         }
+
         entity.active = true;
         entity.id = id;
         entity.init();
+
+        this.activeCount++;
+
         return entity;
     }
 

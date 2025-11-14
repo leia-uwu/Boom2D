@@ -18,28 +18,17 @@ export const Helpers = {
     spriteFromDef(sprite: Sprite, def: ImgDefinition) {
         sprite.texture = Texture.from(def.src);
 
-        if (def.rotation !== undefined) {
-            sprite.rotation = def.rotation;
-        }
+        sprite.rotation = def.rotation ?? 0;
 
-        if (def.tint !== undefined) {
-            sprite.tint = def.tint;
-        }
+        sprite.tint = def.tint ?? 0xffffff;
 
-        if (def.scale !== undefined) {
-            sprite.scale.set(def.scale);
-        }
+        sprite.scale.set(def.scale ?? 1);
 
-        if (def.zIndex !== undefined) {
-            sprite.zIndex = def.zIndex;
-        }
+        sprite.zIndex = def.zIndex ?? 0;
 
-        if (def.position) {
-            sprite.position = def.position;
-        }
-        if (def.anchor) {
-            sprite.anchor = def.anchor;
-        }
+        sprite.position = def.position ?? { x: 0, y: 0 };
+
+        sprite.anchor = def.anchor ?? { x: 0.5, y: 0.5 };
     },
 
     drawHitbox(ctx: Graphics, hitbox: HitboxJSON) {

@@ -38,6 +38,7 @@ export class Projectile extends ClientEntity {
 
     override init() {
         this.container.addChild(this.sprite);
+        this.container.visible = true;
         this.sprite.anchor.set(0.5, 0.5);
     }
 
