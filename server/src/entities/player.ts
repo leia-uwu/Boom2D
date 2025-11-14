@@ -195,7 +195,7 @@ export class Player extends AbstractServerEntity {
         this.dirty.armor = true;
     }
 
-    readonly weaponManager = new WeaponManager(this);
+    weaponManager!: WeaponManager;
 
     weapons: Record<WeaponDefKey, boolean> = {
         pistol: false,
@@ -253,6 +253,8 @@ export class Player extends AbstractServerEntity {
     }
 
     init(client: Client, name: string) {
+        this.weaponManager = new WeaponManager(this);
+
         const pos = Vec2.new(0, 0);
         this.position = pos;
         this.client = client;
