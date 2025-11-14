@@ -1,4 +1,4 @@
-import { Container } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { GameConstants, type ValidEntityType } from "../../../../common/src/constants";
 import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
 import type { Hitbox } from "../../../../common/src/utils/hitbox";
@@ -17,7 +17,7 @@ export abstract class ClientEntity<T extends ValidEntityType = ValidEntityType> 
     game: Game;
     position = Vec2.new(0, 0);
 
-    container = new Container();
+    container = new PIXI.Container();
 
     data!: Required<EntitiesNetData[T]>;
 

@@ -1,4 +1,4 @@
-import { Container } from "pixi.js";
+import * as PIXI from "pixi.js";
 import type { AmmoDefKey } from "../../../../common/src/defs/ammoDefs";
 import { WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
@@ -11,7 +11,7 @@ import { LeaderBoardUi } from "./leaderBoardUi";
 import { StatusUi } from "./statusUi";
 import { WeaponsUi } from "./weaponsUi";
 
-export class GameUi extends Container {
+export class GameUi extends PIXI.Container {
     statusUi = new StatusUi();
     weaponsUi = new WeaponsUi();
     ammoUi = new AmmoUi();

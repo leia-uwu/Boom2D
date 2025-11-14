@@ -1,11 +1,11 @@
-import { Application } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { Game } from "./game/game";
 import { Helpers } from "./helpers";
 import { UiManager } from "./ui";
 
 export class App {
     ui = new UiManager(this);
-    pixi = new Application();
+    pixi = new PIXI.Application();
     game = new Game(this);
 
     async init(): Promise<void> {

@@ -1,11 +1,11 @@
-import { type CanvasTextOptions, Container, Sprite, Text } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { Helpers } from "../../helpers";
 import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 
 const itemHeight = 24;
-const AmmoTextStyle: CanvasTextOptions = {
+const AmmoTextStyle: PIXI.CanvasTextOptions = {
     style: {
         ...UiTextStyle,
         fontSize: itemHeight,
@@ -16,7 +16,7 @@ export class AmmoUi extends VerticalLayout {
     screenHeight = 0;
     screenWidth = 0;
 
-    ammoTexts = {} as Record<AmmoDefKey, Text>;
+    ammoTexts = {} as Record<AmmoDefKey, PIXI.Text>;
 
     constructor() {
         super({
@@ -27,13 +27,13 @@ export class AmmoUi extends VerticalLayout {
 
     init() {
         for (const ammo of AmmoDefs) {
-            const container = new Container();
-            const text = new Text(AmmoTextStyle);
+            const container = new PIXI.Container();
+            const text = new PIXI.Text(AmmoTextStyle);
             this.ammoTexts[ammo] = text;
             container.addChild(text);
 
             const def = AmmoDefs.typeToDef(ammo);
-            const icon = new Sprite();
+            const icon = new PIXI.Sprite();
             Helpers.spriteFromDef(icon, def.inventoryImg);
             icon.width = icon.height = itemHeight;
             icon.x = -itemHeight - UiStyle.margin;

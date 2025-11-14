@@ -1,4 +1,4 @@
-import { Container, Graphics, Sprite, Text, type TextStyleOptions, Texture } from "pixi.js";
+import * as PIXI from "pixi.js";
 import type { DeathPacket } from "../../../../common/src/packets/deathPacket";
 import { RespawnPacket } from "../../../../common/src/packets/respawnPacket";
 import type { Game } from "../game";
@@ -12,31 +12,31 @@ const Stats = {
 
 type StatKey = keyof typeof Stats;
 
-export class DeathUi extends Container {
+export class DeathUi extends PIXI.Container {
     ticker = 0;
 
     static Height = 200;
     static Width = 340;
 
-    overlay = new Sprite(Texture.WHITE);
+    overlay = new PIXI.Sprite(PIXI.Texture.WHITE);
 
-    statsContainer = new Container();
-    bg = new Graphics();
+    statsContainer = new PIXI.Container();
+    bg = new PIXI.Graphics();
 
-    title = new Text({
+    title = new PIXI.Text({
         text: "You Died",
         style: {
             ...UiTextStyle,
         },
     });
 
-    playerName = new Text({
+    playerName = new PIXI.Text({
         text: "Player",
         style: {
             ...UiTextStyle,
             fontSize: 25,
             fontWeight: "bold",
-        } satisfies TextStyleOptions,
+        } satisfies PIXI.TextStyleOptions,
     });
 
     respawnBtn = new Button({
@@ -59,8 +59,8 @@ export class DeathUi extends Container {
         margin: 16,
     });
 
-    texts = {} as Record<StatKey, Text>;
-    stats = {} as Record<StatKey, Text>;
+    texts = {} as Record<StatKey, PIXI.Text>;
+    stats = {} as Record<StatKey, PIXI.Text>;
 
     init(game: Game) {
         this.addChild(this.overlay, this.statsContainer, this.respawnBtn, this.quitBtn);
@@ -109,7 +109,7 @@ export class DeathUi extends Container {
         const keys = Object.keys(Stats) as StatKey[];
 
         for (const key of keys) {
-            const text = new Text({
+            const text = new PIXI.Text({
                 text: Stats[key],
                 style: {
                     ...UiTextStyle,
@@ -121,7 +121,7 @@ export class DeathUi extends Container {
             text.anchor.x = 1;
             this.textsLayout.addChild(text);
 
-            const stat = new Text({
+            const stat = new PIXI.Text({
                 text: 0,
                 style: {
                     ...UiTextStyle,

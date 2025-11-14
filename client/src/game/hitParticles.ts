@@ -1,4 +1,4 @@
-import { Text } from "pixi.js";
+import * as PIXI from "pixi.js";
 import type { HitData } from "../../../common/src/packets/updatePacket";
 import { Random } from "../../../common/src/utils/random";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
@@ -64,7 +64,7 @@ export class hitParticleManager {
 }
 
 export class HitParticle {
-    text = new Text();
+    text = new PIXI.Text();
     active = false;
 
     hit!: HitData;

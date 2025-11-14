@@ -1,4 +1,4 @@
-import { Container, Sprite, Texture } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import { type GunDef, type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import { UpdatePacket } from "../../../../common/src/packets/updatePacket";
@@ -9,10 +9,10 @@ import { HorizontalLayout, UiStyle } from "./uiHelpers";
 
 const iconSize = 96;
 
-class WeaponDisplay extends Container {
-    bg = new Sprite();
-    selectedBg = new Sprite();
-    weaponIcon = new Sprite();
+class WeaponDisplay extends PIXI.Container {
+    bg = new PIXI.Sprite();
+    selectedBg = new PIXI.Sprite();
+    weaponIcon = new PIXI.Sprite();
 
     selectedTicker = 0;
 
@@ -22,14 +22,14 @@ class WeaponDisplay extends Container {
     ) {
         super();
 
-        this.bg.texture = Texture.from("ui-weapon-slot.svg");
+        this.bg.texture = PIXI.Texture.from("ui-weapon-slot.svg");
         this.bg.anchor.set(0.5, 0.5);
         this.bg.width = this.bg.height = iconSize;
         this.addChild(this.bg);
 
         const weaponDef = WeaponDefs.typeToDef(weapon);
 
-        this.selectedBg.texture = Texture.from("ui-weapon-selected.svg");
+        this.selectedBg.texture = PIXI.Texture.from("ui-weapon-selected.svg");
         this.selectedBg.anchor.set(0.5, 0.5);
         this.selectedBg.width = this.selectedBg.height = iconSize;
         this.selectedBg.alpha = 0;
@@ -50,7 +50,7 @@ class WeaponDisplay extends Container {
     }
 }
 
-export class WeaponsUi extends Container {
+export class WeaponsUi extends PIXI.Container {
     layout = new HorizontalLayout({
         width: iconSize,
         margin: 4,

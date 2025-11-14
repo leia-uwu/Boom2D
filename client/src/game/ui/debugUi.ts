@@ -1,4 +1,4 @@
-import { type CanvasTextOptions, Text } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { EntityType } from "../../../../common/src/constants";
 import { DebugFlags, DebugPacket } from "../../../../common/src/packets/debugPacket";
 import { DebugTogglePacket } from "../../../../common/src/packets/debugTogglePacket";
@@ -11,12 +11,12 @@ const DebugTextOptions = {
         ...UiTextStyle,
         fontSize: 13,
     },
-} as CanvasTextOptions;
+} as PIXI.CanvasTextOptions;
 
 export class DebugUi extends VerticalLayout {
     active = false;
 
-    texts: Text[] = [];
+    texts: PIXI.Text[] = [];
 
     serverInfo = {
         tpsAvg: 0,
@@ -127,7 +127,7 @@ export class DebugUi extends VerticalLayout {
     addLine(line: string) {
         let text = this.texts.find(t => !t.visible);
         if (!text) {
-            text = new Text(DebugTextOptions);
+            text = new PIXI.Text(DebugTextOptions);
             this.addChild(text);
             this.texts.push(text);
         }

@@ -1,4 +1,4 @@
-import type { Application, Ticker } from "pixi.js";
+import type * as PIXI from "pixi.js";
 import { EntityType, GameConstants } from "../../../common/src/constants";
 import { type Packet, PacketStream } from "../../../common/src/net";
 import { DeathPacket } from "../../../common/src/packets/deathPacket";
@@ -34,7 +34,7 @@ import { GameUi } from "./ui/gameUi";
 export class Game {
     app: App;
     socket?: WebSocket;
-    pixi: Application;
+    pixi: PIXI.Application;
 
     inGame = false;
 
@@ -320,7 +320,7 @@ export class Game {
     fpsTicker = 0;
     fps = 0;
 
-    update(ticker: Ticker): void {
+    update(ticker: PIXI.Ticker): void {
         const dt = MathUtils.clamp(ticker.deltaMS / 1000, 0.001, 1 / 8) * GameConstants.gameSpeed;
 
         this.deltaTimes.push(dt);

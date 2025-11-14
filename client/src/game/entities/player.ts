@@ -1,4 +1,4 @@
-import { Container, Sprite, Text, Texture } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { EntityType, GameConstants } from "../../../../common/src/constants";
 import { type GunDef, type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
 import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
@@ -44,20 +44,20 @@ export class Player extends ClientEntity {
     dead = false;
 
     images = {
-        base: Sprite.from("player-base.svg"),
-        leftFist: Sprite.from("player-fist.svg"),
-        rightFist: Sprite.from("player-fist.svg"),
-        weapon: new Sprite(),
-        muzzle: new Sprite(),
+        base: PIXI.Sprite.from("player-base.svg"),
+        leftFist: PIXI.Sprite.from("player-fist.svg"),
+        rightFist: PIXI.Sprite.from("player-fist.svg"),
+        weapon: new PIXI.Sprite(),
+        muzzle: new PIXI.Sprite(),
     };
 
     // container for stuff that doesn't rotate
-    staticContainer = new Container({
+    staticContainer = new PIXI.Container({
         visible: false,
         zIndex: 3,
     });
 
-    nameText = new Text({
+    nameText = new PIXI.Text({
         style: {
             align: "center",
             fill: "white",
@@ -233,7 +233,7 @@ export class Player extends ClientEntity {
 
         if (def.muzzleImgs.length) {
             muzzle.visible = true;
-            muzzle.texture = Texture.from(
+            muzzle.texture = PIXI.Texture.from(
                 def.muzzleImgs[Random.int(0, def.muzzleImgs.length - 1)],
             );
         } else {

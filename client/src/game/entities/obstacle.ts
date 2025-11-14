@@ -1,4 +1,4 @@
-import { Sprite } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { EntityType } from "../../../../common/src/constants";
 import { type ObstacleDefKey, ObstacleDefs } from "../../../../common/src/defs/obstacleDefs";
 import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
@@ -19,7 +19,7 @@ export class Obstacle extends ClientEntity {
     readonly __type = EntityType.Obstacle;
     hitbox!: Hitbox;
     type = "" as ObstacleDefKey;
-    sprite = new Sprite({
+    sprite = new PIXI.Sprite({
         anchor: { x: 0.5, y: 0.5 },
     });
 

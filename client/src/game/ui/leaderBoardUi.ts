@@ -1,4 +1,4 @@
-import { Container, Graphics, Text, type TextStyleOptions } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { GameConstants } from "../../../../common/src/constants";
 import type { LeaderboardEntry } from "../../../../common/src/packets/updatePacket";
 import type { PlayerManager } from "../entities/player";
@@ -7,12 +7,12 @@ import { UiHelpers, UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 const LineTextStyle = {
     ...UiTextStyle,
     fontSize: 16,
-} satisfies TextStyleOptions;
+} satisfies PIXI.TextStyleOptions;
 
-class LeaderboardEntryDisplay extends Container {
-    index = new Text({ style: LineTextStyle });
-    playerName = new Text({ style: LineTextStyle });
-    kills = new Text({ style: LineTextStyle });
+class LeaderboardEntryDisplay extends PIXI.Container {
+    index = new PIXI.Text({ style: LineTextStyle });
+    playerName = new PIXI.Text({ style: LineTextStyle });
+    kills = new PIXI.Text({ style: LineTextStyle });
     constructor(index: number) {
         super();
         this.addChild(this.index, this.playerName, this.kills);
@@ -33,19 +33,19 @@ class LeaderboardEntryDisplay extends Container {
     }
 }
 
-export class LeaderBoardUi extends Container {
+export class LeaderBoardUi extends PIXI.Container {
     static LineHeight = 20;
     static Width = 250;
     static Height = GameConstants.leaderboardMaxEntries * LeaderBoardUi.LineHeight
         + 24
         + UiStyle.margin * 2;
-    bg = new Graphics();
+    bg = new PIXI.Graphics();
 
     layout = new VerticalLayout({
         height: LeaderBoardUi.LineHeight,
     });
 
-    title = new Text({ text: "Kills", style: { ...LineTextStyle, fontSize: 18 } });
+    title = new PIXI.Text({ text: "Kills", style: { ...LineTextStyle, fontSize: 18 } });
 
     init() {
         this.addChild(this.bg, this.title, this.layout);

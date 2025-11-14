@@ -1,4 +1,4 @@
-import { type CanvasTextOptions, Container, Sprite, Text, Texture } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { GameConstants } from "../../../../common/src/constants";
 import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
@@ -6,7 +6,7 @@ import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
 import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 
-const StatusTextStyle: CanvasTextOptions = {
+const StatusTextStyle: PIXI.CanvasTextOptions = {
     style: {
         ...UiTextStyle,
         fontSize: 30,
@@ -36,9 +36,9 @@ const healthColorSteps = [
     },
 ];
 
-class StatusValue extends Container {
-    text = new Text(StatusTextStyle);
-    icon = new Sprite();
+class StatusValue extends PIXI.Container {
+    text = new PIXI.Text(StatusTextStyle);
+    icon = new PIXI.Sprite();
 
     constructor() {
         super();
@@ -51,7 +51,7 @@ class StatusValue extends Container {
         this.text.text = text;
     }
     setIcon(icon: string) {
-        this.icon.texture = Texture.from(icon);
+        this.icon.texture = PIXI.Texture.from(icon);
     }
 }
 

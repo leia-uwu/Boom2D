@@ -1,4 +1,4 @@
-import { Assets } from "pixi.js";
+import * as PIXI from "pixi.js";
 
 export class ResourceManager {
     private readonly _pathToSrc: Record<string, string> = {};
@@ -15,7 +15,7 @@ export class ResourceManager {
         // instead of:
         // new Sprite("./game/img/player.svg")
 
-        const promises: Array<ReturnType<(typeof Assets)["load"]>> = [];
+        const promises: Array<ReturnType<(typeof PIXI.Assets)["load"]>> = [];
         const imgs: Record<string, { default: string }> = import.meta.glob(
             "/assets/img/**/*.svg",
             {
@@ -31,7 +31,7 @@ export class ResourceManager {
             this._pathToSrc[img] = realPath;
             this._pathToSrc[name] = realPath;
 
-            const promise = Assets.load({
+            const promise = PIXI.Assets.load({
                 alias: [name, src],
                 src: realPath,
             });

@@ -1,11 +1,4 @@
-import {
-    type BLEND_MODES,
-    Color,
-    type ColorSource,
-    Sprite,
-    Texture,
-    type TextureSourceLike,
-} from "pixi.js";
+import * as PIXI from "pixi.js";
 import { EasinFunctions, MathUtils } from "../../../common/src/utils/math";
 import { Random } from "../../../common/src/utils/random";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
@@ -113,13 +106,13 @@ type ParticleOption =
 
 interface ParticleDef {
     /** Particle frame id */
-    sprite: TextureSourceLike[];
+    sprite: PIXI.TextureSourceLike[];
     /** Particle sprite zIndex */
     zIndex?: number;
     /** Particle sprite blend mode */
-    blendMode?: BLEND_MODES;
+    blendMode?: PIXI.BLEND_MODES;
     /** Particle Sprite tint */
-    tint?: ColorSource;
+    tint?: PIXI.ColorSource;
     /** Particle life time in seconds */
     lifeTime: MinMax | number;
     /** Particle rotation */
@@ -161,7 +154,7 @@ class Particle {
     position = Vec2.new(0, 0);
     direction = Vec2.new(0, 0);
 
-    sprite = new Sprite();
+    sprite = new PIXI.Sprite();
 
     data!: {
         [K in keyof ParticleInterpData]: {
@@ -177,7 +170,7 @@ class Particle {
         this.tick = 0;
         this.position = position;
         this.direction = direction;
-        this.sprite.texture = Texture.from(Random.itemInArray(def.sprite));
+        this.sprite.texture = PIXI.Texture.from(Random.itemInArray(def.sprite));
         this.sprite.anchor.set(0.5);
 
         this.sprite.zIndex = def.zIndex ?? 0;
@@ -233,7 +226,7 @@ const ParticleDefs = {
         blendMode: "add",
         zIndex: -1,
         get tint() {
-            return new Color(`hsl(${Random.int(0, 25)}, 100%, 50%)`);
+            return new PIXI.Color(`hsl(${Random.int(0, 25)}, 100%, 50%)`);
         },
         sprite: ["glow-particle.svg"],
         rotation: { value: 0 },
@@ -246,7 +239,7 @@ const ParticleDefs = {
         blendMode: "add",
         zIndex: -1,
         get tint() {
-            return new Color(`hsl(${Random.int(0, 25)}, 100%, 50%)`);
+            return new PIXI.Color(`hsl(${Random.int(0, 25)}, 100%, 50%)`);
         },
         sprite: ["glow-particle.svg"],
         rotation: { value: 0 },
@@ -259,7 +252,7 @@ const ParticleDefs = {
         blendMode: "add",
         zIndex: -1,
         get tint() {
-            return new Color(`hsl(${Random.int(160, 200)}, 100%, 50%)`);
+            return new PIXI.Color(`hsl(${Random.int(160, 200)}, 100%, 50%)`);
         },
         sprite: ["glow-particle.svg"],
         rotation: { value: 0 },
@@ -272,7 +265,7 @@ const ParticleDefs = {
         blendMode: "add",
         zIndex: -1,
         get tint() {
-            return new Color(`hsl(${Random.int(90, 140)}, 100%, 50%)`);
+            return new PIXI.Color(`hsl(${Random.int(90, 140)}, 100%, 50%)`);
         },
         sprite: ["glow-particle.svg"],
         rotation: { value: 0 },
@@ -285,7 +278,7 @@ const ParticleDefs = {
         blendMode: "add",
         zIndex: -1,
         get tint() {
-            return new Color(`hsl(${Random.int(90, 140)}, 100%, 50%)`);
+            return new PIXI.Color(`hsl(${Random.int(90, 140)}, 100%, 50%)`);
         },
         sprite: ["glow-particle.svg"],
         rotation: { value: 0 },
@@ -313,7 +306,7 @@ const ParticleDefs = {
         lifeTime: { min: 0.5, max: 0.8 },
         zIndex: 1,
         get tint() {
-            return new Color(`hsl(0, 100%, ${Random.int(30, 50)}%)`);
+            return new PIXI.Color(`hsl(0, 100%, ${Random.int(30, 50)}%)`);
         },
         sprite: ["blood-particle-01.svg", "blood-particle-02.svg"],
         rotation: { min: 0, max: Math.PI * 2 },
@@ -325,7 +318,7 @@ const ParticleDefs = {
         lifeTime: { min: 0.8, max: 1.1 },
         zIndex: 1,
         get tint() {
-            return new Color(`hsl(0, 100%, ${Random.int(30, 50)}%)`);
+            return new PIXI.Color(`hsl(0, 100%, ${Random.int(30, 50)}%)`);
         },
         sprite: ["blood-particle-01.svg", "blood-particle-02.svg"],
         rotation: { min: 0, max: Math.PI * 2 },

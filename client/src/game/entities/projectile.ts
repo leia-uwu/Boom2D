@@ -1,4 +1,4 @@
-import { Sprite } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { EntityType } from "../../../../common/src/constants";
 import {
     type ProjectileDef,
@@ -25,7 +25,7 @@ export class ProjectileManager extends EntityPool<Projectile> {
 export class Projectile extends ClientEntity {
     readonly __type = EntityType.Projectile;
     hitbox!: CircleHitbox;
-    sprite = new Sprite({
+    sprite = new PIXI.Sprite({
         anchor: { x: 0.5, y: 0.5 },
     });
 

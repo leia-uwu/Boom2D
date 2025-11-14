@@ -1,4 +1,4 @@
-import { Sprite } from "pixi.js";
+import * as PIXI from "pixi.js";
 import {
     type ExplosionDef,
     type ExplosionDefKey,
@@ -57,7 +57,7 @@ export class ExplosionManager {
 }
 
 class Explosion {
-    sprite = new Sprite();
+    sprite = new PIXI.Sprite();
     dead = false;
     ticks = 0;
     targetScale: number;

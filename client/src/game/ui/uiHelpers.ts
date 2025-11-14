@@ -1,14 +1,6 @@
-import {
-    Color,
-    type ColorSource,
-    Container,
-    type ContainerOptions,
-    Graphics,
-    Text,
-    type TextStyleOptions,
-} from "pixi.js";
+import * as PIXI from "pixi.js";
 
-export const UiTextStyle: TextStyleOptions = {
+export const UiTextStyle: PIXI.TextStyleOptions = {
     fill: 0xffffff,
     fontFamily: "Roboto Mono Semi Bold",
     dropShadow: {
@@ -32,7 +24,7 @@ export const UiStyle = {
 };
 
 export const UiHelpers = {
-    drawPanel(ctx: Graphics, width: number, height: number) {
+    drawPanel(ctx: PIXI.Graphics, width: number, height: number) {
         const style = UiStyle.panels;
         ctx.clear();
         ctx.roundRect(0, 0, width, height, style.borderRadius);
@@ -62,9 +54,9 @@ interface LayoutOptions {
     ignoreInvisible: boolean;
 }
 
-class Layout extends Container {
+class Layout extends PIXI.Container {
     layout: LayoutOptions;
-    constructor(layout?: Partial<LayoutOptions>, containerOptions?: ContainerOptions) {
+    constructor(layout?: Partial<LayoutOptions>, containerOptions?: PIXI.ContainerOptions) {
         super(containerOptions);
         this.layout = {
             width: 0,
@@ -101,15 +93,15 @@ export class HorizontalLayout extends Layout {
 interface ButtonOptions {
     text: string;
     width: number;
-    color: ColorSource;
+    color: PIXI.ColorSource;
     fontSize?: number;
 }
 
-export class Button extends Container {
-    bg = new Graphics({
+export class Button extends PIXI.Container {
+    bg = new PIXI.Graphics({
         cursor: "pointer",
     });
-    text = new Text({
+    text = new PIXI.Text({
         cursor: "pointer",
         style: UiTextStyle,
     });
@@ -137,7 +129,7 @@ export class Button extends Container {
 
         this.bg.fill(this.options.color);
         this.bg.stroke({
-            color: new Color(this.options.color).multiply(0x444444),
+            color: new PIXI.Color(this.options.color).multiply(0x444444),
             width: 4,
         });
         this.pivot.x = this.width / 2;

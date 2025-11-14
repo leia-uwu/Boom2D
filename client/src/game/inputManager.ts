@@ -1,4 +1,4 @@
-import type { FederatedPointerEvent, FederatedWheelEvent } from "pixi.js";
+import type * as PIXI from "pixi.js";
 import { type WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
 import { InputPacket } from "../../../common/src/packets/inputPacket";
 import { Vec2 } from "../../../common/src/utils/vector";
@@ -89,21 +89,21 @@ export class InputManager {
         };
     }
 
-    onPointerDown(e: FederatedPointerEvent) {
+    onPointerDown(e: PIXI.FederatedPointerEvent) {
         this._inputsDown[`Mouse${e.button}`] = {
             type: "mouse",
             down: true,
         };
     }
 
-    onPointerUp(e: FederatedPointerEvent) {
+    onPointerUp(e: PIXI.FederatedPointerEvent) {
         this._inputsDown[`Mouse${e.button}`] = {
             type: "mouse",
             down: false,
         };
     }
 
-    onPointerMove(e: FederatedPointerEvent) {
+    onPointerMove(e: PIXI.FederatedPointerEvent) {
         this.mousePos = Vec2.new(e.clientX, e.clientY);
 
         const rotation = Math.atan2(
@@ -115,7 +115,7 @@ export class InputManager {
         this.mouseDir = Vec2.new(Math.sin(rotation), -Math.cos(rotation));
     }
 
-    onWheel(e: FederatedWheelEvent) {
+    onWheel(e: PIXI.FederatedWheelEvent) {
         let key: typeof wheelEvents[number] | undefined = undefined;
         switch (true) {
             case e.deltaX > 0: {

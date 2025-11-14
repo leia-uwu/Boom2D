@@ -1,4 +1,4 @@
-import { type Graphics, type Sprite, Texture } from "pixi.js";
+import * as PIXI from "pixi.js";
 import type { ImgDefinition } from "../../common/src/utils/definitionList";
 import { type HitboxJSON, HitboxType } from "../../common/src/utils/hitbox";
 import { assert } from "../../common/src/utils/util";
@@ -15,8 +15,8 @@ export const Helpers = {
 
         return element as T;
     },
-    spriteFromDef(sprite: Sprite, def: ImgDefinition) {
-        sprite.texture = Texture.from(def.src);
+    spriteFromDef(sprite: PIXI.Sprite, def: ImgDefinition) {
+        sprite.texture = PIXI.Texture.from(def.src);
 
         sprite.rotation = def.rotation ?? 0;
 
@@ -31,7 +31,7 @@ export const Helpers = {
         sprite.anchor = def.anchor ?? { x: 0.5, y: 0.5 };
     },
 
-    drawHitbox(ctx: Graphics, hitbox: HitboxJSON) {
+    drawHitbox(ctx: PIXI.Graphics, hitbox: HitboxJSON) {
         switch (hitbox.type) {
             case HitboxType.Circle: {
                 const pos = Camera.vecToScreen(hitbox.position);

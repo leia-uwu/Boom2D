@@ -1,4 +1,4 @@
-import { Sprite } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { BaseBullet, type BulletParams } from "../../../common/src/baseBullet";
 import type { MapObject } from "../../../common/src/baseMap";
 import { EntityType } from "../../../common/src/constants";
@@ -65,7 +65,7 @@ export class BulletManager {
 }
 
 export class ClientBullet extends BaseBullet {
-    trailSprite = Sprite.from("bullet-trail.svg");
+    trailSprite = PIXI.Sprite.from("bullet-trail.svg");
     trailFadeTicker!: number;
     trailMaxLength!: number;
     trailLength!: number;

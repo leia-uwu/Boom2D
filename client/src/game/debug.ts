@@ -1,4 +1,4 @@
-import { type ColorSource, Graphics } from "pixi.js";
+import * as PIXI from "pixi.js";
 import {
     type CircleHitboxJSON,
     type HitboxJSON,
@@ -34,11 +34,11 @@ interface Ray {
 }
 
 type DebugShape = (CircleHitboxJSON | RectHitboxJSON | PolygonHitboxJSON | Line | Ray) & {
-    color: ColorSource;
+    color: PIXI.ColorSource;
 };
 
 export class DebugRenderer {
-    readonly graphics = new Graphics({
+    readonly graphics = new PIXI.Graphics({
         zIndex: 999,
     });
 
@@ -81,14 +81,14 @@ export class DebugRenderer {
         }
     }
 
-    addHitbox(hitbox: HitboxJSON, color: ColorSource): void {
+    addHitbox(hitbox: HitboxJSON, color: PIXI.ColorSource): void {
         this.shapes.push({
             ...hitbox,
             color,
         });
     }
 
-    addLine(a: Vector, b: Vector, color: ColorSource): void {
+    addLine(a: Vector, b: Vector, color: PIXI.ColorSource): void {
         this.shapes.push({
             type: ShapeType.Line,
             a,
@@ -101,7 +101,7 @@ export class DebugRenderer {
         position: Vector,
         direction: Vector,
         length: number,
-        color: ColorSource,
+        color: PIXI.ColorSource,
     ): void {
         this.shapes.push({
             type: ShapeType.Ray,

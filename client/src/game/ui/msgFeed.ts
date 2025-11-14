@@ -1,11 +1,11 @@
-import { type ColorSource, Container, Graphics, Text, type TextStyleOptions } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { UiTextStyle } from "./uiHelpers";
 
 const MsgMargin = 8;
 const MsgTextStyle = {
     ...UiTextStyle,
     fontSize: 16,
-} satisfies TextStyleOptions;
+} satisfies PIXI.TextStyleOptions;
 
 enum MsgState {
     Showing,
@@ -14,9 +14,9 @@ enum MsgState {
     BeingDeleted,
 }
 
-class FeedMsg extends Container {
-    bg = new Graphics();
-    text = new Text({ style: MsgTextStyle });
+class FeedMsg extends PIXI.Container {
+    bg = new PIXI.Graphics();
+    text = new PIXI.Text({ style: MsgTextStyle });
 
     state = MsgState.Showing;
 
@@ -25,7 +25,7 @@ class FeedMsg extends Container {
 
     lifeSpan = 2;
 
-    constructor(text: string, color: ColorSource, rightAligned?: boolean) {
+    constructor(text: string, color: PIXI.ColorSource, rightAligned?: boolean) {
         super();
 
         this.alpha = 0;
@@ -74,8 +74,8 @@ class FeedMsg extends Container {
     }
 }
 
-export class MsgFeed extends Container<FeedMsg> {
-    protected _addMsg(text: string, color: ColorSource, rightAligned?: boolean) {
+export class MsgFeed extends PIXI.Container<FeedMsg> {
+    protected _addMsg(text: string, color: PIXI.ColorSource, rightAligned?: boolean) {
         const msg = new FeedMsg(text, color, rightAligned);
         this.addChild(msg);
     }

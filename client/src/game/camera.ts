@@ -1,11 +1,11 @@
-import { Container } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { GameConstants } from "../../../common/src/constants";
 import { MathUtils } from "../../../common/src/utils/math";
 import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import type { Game } from "./game";
 
 export class Camera {
-    readonly container = new Container({
+    readonly container = new PIXI.Container({
         sortableChildren: true,
         isRenderGroup: true,
         interactive: false,
@@ -99,7 +99,7 @@ export class Camera {
         this.container.position.copyFrom(cameraPos);
     }
 
-    addObject(object: Container): void {
+    addObject(object: PIXI.Container): void {
         this.container.addChild(object);
     }
 }

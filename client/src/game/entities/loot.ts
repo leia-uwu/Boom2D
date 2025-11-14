@@ -1,4 +1,4 @@
-import { Sprite, Texture } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { EntityType } from "../../../../common/src/constants";
 import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import { type LootDefKey, LootDefs } from "../../../../common/src/defs/lootDefs";
@@ -22,12 +22,12 @@ export class Loot extends ClientEntity {
     canPickup = true;
     type = "" as LootDefKey;
 
-    sprite = new Sprite({
+    sprite = new PIXI.Sprite({
         anchor: { x: 0.5, y: 0.5 },
     });
 
-    background = new Sprite({
-        texture: Texture.from("glow-particle.svg"),
+    background = new PIXI.Sprite({
+        texture: PIXI.Texture.from("glow-particle.svg"),
         anchor: { x: 0.5, y: 0.5 },
     });
 

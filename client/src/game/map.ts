@@ -1,4 +1,4 @@
-import { type FillStyle, Graphics, Texture } from "pixi.js";
+import * as PIXI from "pixi.js";
 import { BaseGameMap, MapObjectType } from "../../../common/src/baseMap";
 import type { MapPacket } from "../../../common/src/packets/mapPacket";
 import { Helpers } from "../helpers";
@@ -6,11 +6,11 @@ import { Camera } from "./camera";
 import type { Game } from "./game";
 
 export class GameMap extends BaseGameMap {
-    mapGraphics = new Graphics({
+    mapGraphics = new PIXI.Graphics({
         zIndex: -99,
     });
 
-    wallGraphics = new Graphics({
+    wallGraphics = new PIXI.Graphics({
         zIndex: 50,
     });
 
@@ -34,10 +34,10 @@ export class GameMap extends BaseGameMap {
             ctx.beginPath();
             Helpers.drawHitbox(ctx, floor.hitbox);
 
-            const fillStyle: FillStyle = {
+            const fillStyle: PIXI.FillStyle = {
                 color: floor.color,
             };
-            if (floor.texture) fillStyle.texture = Texture.from(floor.texture);
+            if (floor.texture) fillStyle.texture = PIXI.Texture.from(floor.texture);
             ctx.fill(fillStyle);
         }
 
@@ -70,10 +70,10 @@ export class GameMap extends BaseGameMap {
             if (wall.type !== MapObjectType.Wall) continue;
 
             Helpers.drawHitbox(wallCtx, wall.hitbox);
-            const fillStyle: FillStyle = {
+            const fillStyle: PIXI.FillStyle = {
                 color: wall.color,
             };
-            if (wall.texture) fillStyle.texture = Texture.from(wall.texture);
+            if (wall.texture) fillStyle.texture = PIXI.Texture.from(wall.texture);
             wallCtx.fill(fillStyle);
 
             wallCtx.stroke({
