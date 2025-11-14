@@ -1,8 +1,7 @@
-import { Text, type TextOptions, VERSION } from "pixi.js";
+import { type CanvasTextOptions, Text } from "pixi.js";
 import { EntityType } from "../../../../common/src/constants";
-import { DebugFlags, type DebugPacket } from "../../../../common/src/packets/debugPacket";
+import { DebugFlags, DebugPacket } from "../../../../common/src/packets/debugPacket";
 import { DebugTogglePacket } from "../../../../common/src/packets/debugTogglePacket";
-import { PingPacket } from "../../../../common/src/packets/pingPacket";
 import { settings } from "../../settings";
 import type { Game } from "../game";
 import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
@@ -12,34 +11,22 @@ const DebugTextOptions = {
         ...UiTextStyle,
         fontSize: 13,
     },
-} as TextOptions;
+} as CanvasTextOptions;
 
 export class DebugUi extends VerticalLayout {
     active = false;
 
-    clientTexts = {
-        title: new Text({ text: "-- CLIENT --", ...DebugTextOptions }),
-        browser: new Text(DebugTextOptions),
-        pixi: new Text(DebugTextOptions),
-        fps: new Text(DebugTextOptions),
-        ping: new Text(DebugTextOptions),
-        position: new Text(DebugTextOptions),
-        entities: new Text(DebugTextOptions),
-        bullets: new Text(DebugTextOptions),
-        particles: new Text(DebugTextOptions),
-    };
+    texts: Text[] = [];
 
-    serverTexts = {
-        title: new Text({ text: "-- SERVER --", ...DebugTextOptions }),
-        tps: new Text(DebugTextOptions),
-        mspt: new Text(DebugTextOptions),
-        entities: new Text(DebugTextOptions),
-        bullets: new Text(DebugTextOptions),
+    serverInfo = {
+        tpsAvg: 0,
+        tpsMin: 0,
+        tpsMax: 0,
+        msptAvg: 0,
+        entityCounts: [] as DebugPacket["entityCounts"],
+        bullets: 0,
+        allocatedBullets: 0,
     };
-
-    lastPingSentTime = 0;
-    sendPingTicker = 0;
-    ping = 0;
 
     constructor(readonly game: Game) {
         super({
@@ -51,38 +38,11 @@ export class DebugUi extends VerticalLayout {
     init() {
         this.position.set(UiStyle.margin, UiStyle.margin);
 
-        for (const text of Object.values(this.clientTexts)) {
-            this.addChild(text);
-        }
-        for (const text of Object.values(this.serverTexts)) {
-            this.addChild(text);
-        }
-
-        this.clientTexts.browser.text = `Browser: ${navigator.userAgent}`;
-        this.clientTexts.pixi.text = `Pixi: ${VERSION}, ${this.game.pixi.renderer.name}`;
-        this.clientTexts.ping.text = `Ping: Unknown`;
-
-        settings.addListener("showFPS", (visible) => {
-            this.clientTexts.fps.visible = visible || this.active;
-        });
-        settings.addListener("showPing", (visible) => {
-            this.clientTexts.ping.visible = visible || this.active;
-        });
         this.setActive(false);
     }
 
     setActive(active: boolean) {
         this.active = active;
-
-        for (const text of Object.values(this.clientTexts)) {
-            text.visible = active;
-        }
-        for (const text of Object.values(this.serverTexts)) {
-            text.visible = active;
-        }
-
-        this.clientTexts.fps.visible = settings.get("showFPS") || this.active;
-        this.clientTexts.ping.visible = settings.get("showPing") || this.active;
 
         this.relayout();
 
@@ -95,55 +55,98 @@ export class DebugUi extends VerticalLayout {
         this.setActive(!this.active);
     }
 
-    render(dt: number) {
-        this.sendPingTicker -= dt;
+    render() {
+        const game = this.game;
 
-        if (this.sendPingTicker < 0) {
-            this.sendPingTicker = 2;
-            this.lastPingSentTime = Date.now();
-            this.game.sendPacket(new PingPacket());
+        for (let i = 0; i < this.texts.length; i++) {
+            this.texts[i].visible = false;
         }
 
-        const game = this.game;
-        const texts = this.clientTexts;
-        texts.fps.text = `FPS: ${game.fps}`;
+        if (!this.active) {
+            if (settings.get("showFPS")) {
+                this.addLine(`FPS: ${game.fps}`);
+            }
+            if (settings.get("showPing")) {
+                this.addLine(`Ping: ${game.ping}`);
+            }
+            this.relayout();
+            return;
+        }
 
-        if (!this.active) return;
-        texts.position.text = `Position: ${game.camera.position.x.toFixed(4)}, ${
-            game.camera.position.y.toFixed(4)
-        }`;
-        texts.entities.text = `Entities: ${game.entityManager.entities.length}`;
-        texts.bullets.text =
-            `Bullets: ${game.bulletManager.activeCount} / ${game.bulletManager.bullets.length}`;
-        texts.particles.text =
-            `Particles: ${game.particleManager.activeCount} / ${game.particleManager.particles.length}`;
+        const addEntityCount = (name: string, count: number, allocated: number) => {
+            const title = `${name}:`.padEnd(15);
+            this.addLine(` - ${title} ${count.toString().padStart(5)} / ${allocated}`);
+        };
+
+        this.addLine("-- CLIENT --");
+
+        this.addLine(`FPS: ${game.fps}`);
+        this.addLine(`Ping: ${game.ping}`);
+
+        const pos = game.camera.position;
+
+        this.addLine(`Pos: ${pos.x.toFixed(4)}, ${pos.y.toFixed(4)}`);
+
+        this.addLine(`Entities: (${game.entityManager.entities.length})`);
+
+        for (const [type, pool] of Object.entries(game.entityManager.typeToPool)) {
+            addEntityCount(
+                EntityType[type as unknown as EntityType],
+                pool.activeCount,
+                pool.allocatedCount,
+            );
+        }
+        addEntityCount(
+            "Bullets",
+            game.bulletManager.activeCount,
+            game.bulletManager.bullets.length,
+        );
+        addEntityCount(
+            "Particles",
+            game.particleManager.activeCount,
+            game.particleManager.particles.length,
+        );
+
+        this.addLine("\n-- SERVER --");
+
+        const sInfo = this.serverInfo;
+
+        this.addLine(`TPS: ${sInfo.tpsAvg} / ${sInfo.tpsMin} / ${sInfo.tpsMax} (avg/min/max)`);
+        this.addLine(`AVG MSPT: ${sInfo.msptAvg.toFixed(4)}`);
+        this.addLine("- Entities:");
+
+        for (let i = 0; i < sInfo.entityCounts.length; i++) {
+            const count = sInfo.entityCounts[i];
+            addEntityCount(EntityType[count.type], count.active, count.allocated);
+        }
+        addEntityCount("Bullets", sInfo.bullets, sInfo.allocatedBullets);
+
+        this.relayout();
     }
 
-    onPingPacket() {
-        this.ping = Date.now() - this.lastPingSentTime;
-        this.clientTexts.ping.text = `Ping: ${this.ping}ms`;
+    addLine(line: string) {
+        let text = this.texts.find(t => !t.visible);
+        if (!text) {
+            text = new Text(DebugTextOptions);
+            this.addChild(text);
+            this.texts.push(text);
+        }
+        text.visible = true;
+        text.text = line;
     }
 
     updateServerInfo(packet: DebugPacket) {
-        const texts = this.serverTexts;
-
         if (packet.flags & DebugFlags.Tps) {
-            texts.tps.text =
-                `TPS: ${packet.tpsAvg}, ${packet.tpsMin}, ${packet.tpsMax} (avg/min/max)`;
-            texts.mspt.text = `MSPT: ${packet.msptAvg.toFixed(2)} (avg)`;
+            this.serverInfo.tpsAvg = packet.tpsAvg;
+            this.serverInfo.tpsMin = packet.tpsMin;
+            this.serverInfo.tpsMax = packet.tpsMax;
+            this.serverInfo.msptAvg = packet.msptAvg;
         }
 
         if (packet.flags & DebugFlags.Objects) {
-            const counts = packet.entityCounts
-                .map((count) => {
-                    return `${EntityType[count.type]}: ${count.active} / ${count.allocated}`;
-                })
-                .join("; ");
-            const total = packet.entityCounts.reduce((a, b) => {
-                return a + b.active;
-            }, 0);
-            texts.entities.text = `Entities: ${counts}; total: ${total}`;
-            texts.bullets.text = `Bullets: ${packet.bullets}`;
+            this.serverInfo.entityCounts = packet.entityCounts;
+            this.serverInfo.bullets = packet.bullets;
+            this.serverInfo.allocatedBullets = packet.allocatedBullets;
         }
     }
 }

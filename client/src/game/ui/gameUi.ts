@@ -50,7 +50,7 @@ export class GameUi extends Container {
         this.weaponsUi.render(dt);
         this.deathUi.render(dt);
         this.killFeedUi.render(dt);
-        this.debugUi.render(dt);
+        this.debugUi.render();
     }
 
     resize(): void {

@@ -22,6 +22,7 @@ export class DebugPacket implements Packet {
     }> = [];
 
     bullets = 0;
+    allocatedBullets = 0;
 
     serialize(stream: GameBitStream): void {
         const flags = this.flags;
@@ -43,6 +44,7 @@ export class DebugPacket implements Packet {
             });
 
             stream.writeUint16(this.bullets);
+            stream.writeUint16(this.allocatedBullets);
         }
     }
     deserialize(stream: GameBitStream): void {
@@ -66,6 +68,7 @@ export class DebugPacket implements Packet {
             });
 
             this.bullets = stream.readUint16();
+            this.allocatedBullets = stream.readUint16();
         }
     }
 }

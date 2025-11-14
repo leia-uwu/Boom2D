@@ -7,7 +7,6 @@ import { JoinedPacket } from "../../../common/src/packets/joinedPacket";
 import { JoinPacket } from "../../../common/src/packets/joinPacket";
 import { KillPacket } from "../../../common/src/packets/killPacket";
 import { MapPacket } from "../../../common/src/packets/mapPacket";
-import { PingPacket } from "../../../common/src/packets/pingPacket";
 import { QuitPacket } from "../../../common/src/packets/quitPacket";
 import { UpdatePacket } from "../../../common/src/packets/updatePacket";
 import { MathUtils } from "../../../common/src/utils/math";
@@ -63,6 +62,8 @@ export class Game {
     projectileManager = new ProjectileManager();
 
     entityManager: EntityManager;
+
+    ping = 0;
 
     constructor(app: App) {
         this.app = app;
@@ -175,9 +176,6 @@ export class Game {
                         this.activePlayerID,
                     );
                     break;
-                case packet instanceof PingPacket:
-                    this.ui.debugUi.onPingPacket();
-                    break;
                 case packet instanceof DebugPacket:
                     this.ui.debugUi.updateServerInfo(packet);
                     break;
@@ -191,7 +189,6 @@ export class Game {
         this.ui.visible = true;
         this.inGame = true;
         this.ui.deathUi.hide();
-        this.ui.debugUi.sendPingTicker = 0;
 
         this.activePlayerID = packet.playerId;
     }
@@ -295,6 +292,15 @@ export class Game {
             this.camera.position = packet.cameraPosition;
         } else if (this.activePlayer) {
             this.camera.position = this.activePlayer.position;
+        }
+
+        if (
+            packet.updateSequence === this.inputManager.inputSequence
+            && this.inputManager.sequenceInFlight
+        ) {
+            this.inputManager.sequenceInFlight = false;
+            const now = performance.now();
+            this.ping = now - this.inputManager.lastSequenceTime;
         }
     }
 

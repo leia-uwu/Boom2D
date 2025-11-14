@@ -39,6 +39,10 @@ export class InputManager {
     inputPacket = new InputPacket();
     ticker = 0;
 
+    sequenceInFlight = false;
+    lastSequenceTime = 0;
+    inputSequence = 0;
+
     /**
      * Gets if an input is down
      * @param input The input key or mouse button
@@ -70,6 +74,11 @@ export class InputManager {
             type: "key",
             down: true,
         };
+
+        if (e.code === "F3") {
+            this.game.ui.debugUi.toggle();
+            e.preventDefault();
+        }
     }
 
     onKeyUp(e: KeyboardEvent) {
@@ -187,6 +196,13 @@ export class InputManager {
         inputPacket.direction = this.mouseDir;
 
         if (inputPacket.didChange(this.inputPacket) || this.ticker > 1) {
+            if (!this.sequenceInFlight) {
+                this.sequenceInFlight = true;
+                this.inputSequence = (this.inputSequence + 1) % 256;
+                this.lastSequenceTime = performance.now();
+            }
+            inputPacket.inputSequence = this.inputSequence;
+
             this.ticker = 0;
             this.game.sendPacket(inputPacket);
         }

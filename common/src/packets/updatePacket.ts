@@ -310,6 +310,8 @@ export class UpdatePacket implements Packet {
 
     hits: HitData[] = [];
 
+    updateSequence = 0;
+
     // server side cached entity serializations
     serverPartialEntities: Array<{
         partialStream: GameBitStream;
@@ -436,6 +438,8 @@ export class UpdatePacket implements Packet {
             flags |= UpdateFlags.Hits;
         }
 
+        stream.writeUint8(this.updateSequence);
+
         // write flags and restore stream index
         const idx = stream.index;
         stream.index = flagsIdx;
@@ -556,5 +560,7 @@ export class UpdatePacket implements Packet {
                 };
             });
         }
+
+        this.updateSequence = stream.readUint8();
     }
 }

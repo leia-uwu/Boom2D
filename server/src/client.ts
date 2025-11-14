@@ -5,7 +5,6 @@ import { DebugFlags, DebugPacket } from "../../common/src/packets/debugPacket";
 import { DebugTogglePacket } from "../../common/src/packets/debugTogglePacket";
 import { InputPacket } from "../../common/src/packets/inputPacket";
 import { JoinPacket } from "../../common/src/packets/joinPacket";
-import { PingPacket } from "../../common/src/packets/pingPacket";
 import { QuitPacket } from "../../common/src/packets/quitPacket";
 import { RespawnPacket } from "../../common/src/packets/respawnPacket";
 import { UpdatePacket } from "../../common/src/packets/updatePacket";
@@ -65,8 +64,10 @@ export class Client {
     player?: Player;
     zoom: number = GameConstants.player.defaultZoom;
 
-    debug = false;
-    forceSendDebugInfo = false;
+    debug = true;
+    forceSendDebugInfo = true;
+
+    pingSequence = 0;
 
     private packetStream = PacketStream.alloc(1 << 16);
     private firstPacket = true;
@@ -109,6 +110,7 @@ export class Client {
 
         switch (true) {
             case packet instanceof InputPacket: {
+                this.pingSequence = packet.inputSequence;
                 player.processInput(packet);
                 break;
             }
@@ -120,12 +122,6 @@ export class Client {
             case packet instanceof QuitPacket: {
                 this.game.playerManager.removePlayer(player);
                 this.player = undefined;
-                break;
-            }
-            case packet instanceof PingPacket: {
-                const stream = new PacketStream(new ArrayBuffer(1));
-                stream.serializeServerPacket(new PingPacket());
-                this.sendData(stream.getBuffer());
                 break;
             }
             case packet instanceof DebugTogglePacket: {
@@ -267,6 +263,8 @@ export class Client {
             }
         }
 
+        updatePacket.updateSequence = this.pingSequence;
+
         this.sendPacket(updatePacket);
     }
 
@@ -286,6 +284,7 @@ export class Client {
 
         debugPacket.entityCounts = game.entityManager.counts;
         debugPacket.bullets = game.bulletManager.activeCount;
+        debugPacket.allocatedBullets = game.bulletManager.bullets.length;
 
         if (game.debugObjCountDirty || this.forceSendDebugInfo) {
             debugPacket.flags |= DebugFlags.Objects;

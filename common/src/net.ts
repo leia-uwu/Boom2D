@@ -8,7 +8,6 @@ import { JoinedPacket } from "./packets/joinedPacket";
 import { JoinPacket } from "./packets/joinPacket";
 import { KillPacket } from "./packets/killPacket";
 import { MapPacket } from "./packets/mapPacket";
-import { PingPacket } from "./packets/pingPacket";
 import { QuitPacket } from "./packets/quitPacket";
 import { RespawnPacket } from "./packets/respawnPacket";
 import { UpdatePacket } from "./packets/updatePacket";
@@ -354,7 +353,6 @@ ClientToServerPackets.register(
     InputPacket,
     RespawnPacket,
     QuitPacket,
-    PingPacket,
     DebugTogglePacket,
 );
 
@@ -365,7 +363,6 @@ ServerToClientPackets.register(
     DeathPacket,
     MapPacket,
     KillPacket,
-    PingPacket,
     DebugPacket,
 );
 

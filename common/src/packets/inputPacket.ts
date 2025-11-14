@@ -13,6 +13,8 @@ export class InputPacket implements Packet {
 
     weaponToSwitch = "" as WeaponDefKey;
 
+    inputSequence = 0;
+
     serialize(stream: GameBitStream): void {
         stream.writeBoolean(this.moveLeft);
         stream.writeBoolean(this.moveRight);
@@ -23,6 +25,8 @@ export class InputPacket implements Packet {
         stream.writeUnit(this.direction, 16);
 
         WeaponDefs.write(stream, this.weaponToSwitch);
+
+        stream.writeUint8(this.inputSequence);
     }
 
     deserialize(stream: GameBitStream): void {
@@ -35,6 +39,8 @@ export class InputPacket implements Packet {
         this.direction = stream.readUnit(16);
 
         this.weaponToSwitch = WeaponDefs.read(stream);
+
+        this.inputSequence = stream.readUint8();
     }
 
     static readonly fieldsToCompare = [
