@@ -1,8 +1,8 @@
+import { AmmoDefs } from "@common/defs/ammoDefs";
+import { type GunDef, type WeaponDefKey, WeaponDefs } from "@common/defs/weaponDefs";
+import { UpdatePacket } from "@common/packets/updatePacket";
+import { MathUtils } from "@common/utils/math";
 import * as PIXI from "pixi.js";
-import { AmmoDefs } from "../../../../common/src/defs/ammoDefs";
-import { type GunDef, type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
-import { UpdatePacket } from "../../../../common/src/packets/updatePacket";
-import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
 import type { InputManager } from "../inputManager";
 import { HorizontalLayout, UiStyle } from "./uiHelpers";

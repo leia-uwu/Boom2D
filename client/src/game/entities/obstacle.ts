@@ -1,8 +1,8 @@
+import { EntityType } from "@common/constants";
+import { type ObstacleDefKey, ObstacleDefs } from "@common/defs/obstacleDefs";
+import type { EntitiesNetData } from "@common/packets/updatePacket";
+import { BaseHitbox, type Hitbox } from "@common/utils/hitbox";
 import * as PIXI from "pixi.js";
-import { EntityType } from "../../../../common/src/constants";
-import { type ObstacleDefKey, ObstacleDefs } from "../../../../common/src/defs/obstacleDefs";
-import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
-import { BaseHitbox, type Hitbox } from "../../../../common/src/utils/hitbox";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
 import { DEBUG_ENABLED, debugRenderer } from "../debug";

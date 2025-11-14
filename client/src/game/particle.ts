@@ -1,7 +1,7 @@
+import { EasinFunctions, MathUtils } from "@common/utils/math";
+import { Random } from "@common/utils/random";
+import { Vec2, type Vector } from "@common/utils/vector";
 import * as PIXI from "pixi.js";
-import { EasinFunctions, MathUtils } from "../../../common/src/utils/math";
-import { Random } from "../../../common/src/utils/random";
-import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { Camera } from "./camera";
 import type { Game } from "./game";
 

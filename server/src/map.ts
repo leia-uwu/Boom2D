@@ -1,21 +1,16 @@
+import { BaseGameMap, type BaseMapObject, MapObjectType } from "@common/baseMap";
+import { type LootDefKey, LootDefs } from "@common/defs/lootDefs";
+import { type MapDefKey, MapDefs } from "@common/defs/mapDefs";
+import type { ObstacleDefKey } from "@common/defs/obstacleDefs";
+import { PacketStream } from "@common/net";
+import { MapPacket } from "@common/packets/mapPacket";
+import { CircleHitbox, HitboxType, type PolygonHitboxJSON, RectHitbox } from "@common/utils/hitbox";
+import { Random } from "@common/utils/random";
+import { Vec2, type Vector } from "@common/utils/vector";
 import assert from "assert";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { type ElementNode, parse } from "svg-parser";
-import { BaseGameMap, type BaseMapObject, MapObjectType } from "../../common/src/baseMap";
-import { type LootDefKey, LootDefs } from "../../common/src/defs/lootDefs";
-import { type MapDefKey, MapDefs } from "../../common/src/defs/mapDefs";
-import type { ObstacleDefKey } from "../../common/src/defs/obstacleDefs";
-import { PacketStream } from "../../common/src/net";
-import { MapPacket } from "../../common/src/packets/mapPacket";
-import {
-    CircleHitbox,
-    HitboxType,
-    type PolygonHitboxJSON,
-    RectHitbox,
-} from "../../common/src/utils/hitbox";
-import { Random } from "../../common/src/utils/random";
-import { Vec2, type Vector } from "../../common/src/utils/vector";
 import type { Game } from "./game";
 
 export class GameMap extends BaseGameMap {

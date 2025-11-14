@@ -1,4 +1,4 @@
-import type { MapDefKey } from "../../common/src/defs/mapDefs";
+import type { MapDefKey } from "@common/defs/mapDefs";
 
 export const Config: ServerConfig = {
     host: "127.0.0.1",

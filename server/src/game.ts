@@ -1,6 +1,6 @@
-import { EntityType, GameConstants } from "../../common/src/constants";
-import { type Packet, PacketStream } from "../../common/src/net";
-import { MathUtils } from "../../common/src/utils/math";
+import { EntityType, GameConstants } from "@common/constants";
+import { type Packet, PacketStream } from "@common/net";
+import { MathUtils } from "@common/utils/math";
 import { BulletManager } from "./bullet";
 import { ClientManager } from "./client";
 import type { ServerConfig } from "./config";

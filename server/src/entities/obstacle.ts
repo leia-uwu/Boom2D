@@ -1,8 +1,8 @@
-import { EntityType } from "../../../common/src/constants";
-import { type ObstacleDefKey, ObstacleDefs } from "../../../common/src/defs/obstacleDefs";
-import type { EntitiesNetData } from "../../../common/src/packets/updatePacket";
-import { BaseHitbox, type Hitbox } from "../../../common/src/utils/hitbox";
-import type { Vector } from "../../../common/src/utils/vector";
+import { EntityType } from "@common/constants";
+import { type ObstacleDefKey, ObstacleDefs } from "@common/defs/obstacleDefs";
+import type { EntitiesNetData } from "@common/packets/updatePacket";
+import { BaseHitbox, type Hitbox } from "@common/utils/hitbox";
+import type { Vector } from "@common/utils/vector";
 import type { Game } from "../game";
 import { AbstractServerEntity, EntityPool } from "./entity";
 

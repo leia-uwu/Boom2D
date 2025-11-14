@@ -1,5 +1,5 @@
-import type { ServerInfo } from "../../common/src/apiTypings";
-import { GameConstants } from "../../common/src/constants";
+import type { ServerInfo } from "@common/apiTypings";
+import { GameConstants } from "@common/constants";
 import { ClientConfig } from "./config";
 import { Helpers } from "./helpers";
 import type { App } from "./main";

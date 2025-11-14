@@ -1,12 +1,12 @@
-import * as PIXI from "pixi.js";
 import {
     type CircleHitboxJSON,
     type HitboxJSON,
     HitboxType,
     type PolygonHitboxJSON,
     type RectHitboxJSON,
-} from "../../../common/src/utils/hitbox";
-import { Vec2, type Vector } from "../../../common/src/utils/vector";
+} from "@common/utils/hitbox";
+import { Vec2, type Vector } from "@common/utils/vector";
+import * as PIXI from "pixi.js";
 import { Helpers } from "../helpers";
 import { Camera } from "./camera";
 

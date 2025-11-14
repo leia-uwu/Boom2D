@@ -1,10 +1,10 @@
+import { EntityType } from "@common/constants";
+import { type AmmoDefKey, AmmoDefs } from "@common/defs/ammoDefs";
+import { type LootDefKey, LootDefs } from "@common/defs/lootDefs";
+import type { EntitiesNetData } from "@common/packets/updatePacket";
+import { CircleHitbox } from "@common/utils/hitbox";
+import { MathUtils } from "@common/utils/math";
 import * as PIXI from "pixi.js";
-import { EntityType } from "../../../../common/src/constants";
-import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
-import { type LootDefKey, LootDefs } from "../../../../common/src/defs/lootDefs";
-import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
-import { CircleHitbox } from "../../../../common/src/utils/hitbox";
-import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
 import { Game } from "../game";

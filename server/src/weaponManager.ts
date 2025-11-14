@@ -1,9 +1,9 @@
-import { EntityType } from "../../common/src/constants";
-import { type GunDef, type WeaponDefKey, WeaponDefs } from "../../common/src/defs/weaponDefs";
-import { CollisionHelpers } from "../../common/src/utils/collisionHelpers";
-import { MathUtils } from "../../common/src/utils/math";
-import { Random } from "../../common/src/utils/random";
-import { Vec2 } from "../../common/src/utils/vector";
+import { EntityType } from "@common/constants";
+import { type GunDef, type WeaponDefKey, WeaponDefs } from "@common/defs/weaponDefs";
+import { CollisionHelpers } from "@common/utils/collisionHelpers";
+import { MathUtils } from "@common/utils/math";
+import { Random } from "@common/utils/random";
+import { Vec2 } from "@common/utils/vector";
 import type { Player } from "./entities/player";
 
 enum WeaponState {

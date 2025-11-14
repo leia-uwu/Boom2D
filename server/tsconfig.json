@@ -2,6 +2,13 @@
     "extends": [
         "../baseTsconfig.json"
     ],
+    "compilerOptions": {
+        "paths": {
+            "@common/*": [
+                "../common/src/*"
+            ]
+        }
+    },
     "include": [
         "src",
         "../common/src"

@@ -1,7 +1,7 @@
+import { type WeaponDefKey, WeaponDefs } from "@common/defs/weaponDefs";
+import { InputPacket } from "@common/packets/inputPacket";
+import { Vec2 } from "@common/utils/vector";
 import type * as PIXI from "pixi.js";
-import { type WeaponDefKey, WeaponDefs } from "../../../common/src/defs/weaponDefs";
-import { InputPacket } from "../../../common/src/packets/inputPacket";
-import { Vec2 } from "../../../common/src/utils/vector";
 import type { Game } from "./game";
 
 interface Input {

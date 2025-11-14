@@ -1,8 +1,8 @@
+import { GameConstants } from "@common/constants";
+import { type AmmoDefKey, AmmoDefs } from "@common/defs/ammoDefs";
+import type { UpdatePacket } from "@common/packets/updatePacket";
+import { MathUtils } from "@common/utils/math";
 import * as PIXI from "pixi.js";
-import { GameConstants } from "../../../../common/src/constants";
-import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
-import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
-import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
 import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 

@@ -1,10 +1,10 @@
+import { GameConstants, type ValidEntityType } from "@common/constants";
+import type { EntitiesNetData } from "@common/packets/updatePacket";
+import type { Hitbox } from "@common/utils/hitbox";
+import { MathUtils } from "@common/utils/math";
+import { assert } from "@common/utils/util";
+import { Vec2 } from "@common/utils/vector";
 import * as PIXI from "pixi.js";
-import { GameConstants, type ValidEntityType } from "../../../../common/src/constants";
-import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
-import type { Hitbox } from "../../../../common/src/utils/hitbox";
-import { MathUtils } from "../../../../common/src/utils/math";
-import { assert } from "../../../../common/src/utils/util";
-import { Vec2 } from "../../../../common/src/utils/vector";
 import type { Game } from "../game";
 
 export abstract class ClientEntity<T extends ValidEntityType = ValidEntityType> {

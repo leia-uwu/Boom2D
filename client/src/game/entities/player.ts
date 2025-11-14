@@ -1,11 +1,11 @@
+import { EntityType, GameConstants } from "@common/constants";
+import { type GunDef, type WeaponDefKey, WeaponDefs } from "@common/defs/weaponDefs";
+import type { EntitiesNetData } from "@common/packets/updatePacket";
+import { CircleHitbox } from "@common/utils/hitbox";
+import { MathUtils } from "@common/utils/math";
+import { Random } from "@common/utils/random";
+import { Vec2 } from "@common/utils/vector";
 import * as PIXI from "pixi.js";
-import { EntityType, GameConstants } from "../../../../common/src/constants";
-import { type GunDef, type WeaponDefKey, WeaponDefs } from "../../../../common/src/defs/weaponDefs";
-import type { EntitiesNetData } from "../../../../common/src/packets/updatePacket";
-import { CircleHitbox } from "../../../../common/src/utils/hitbox";
-import { MathUtils } from "../../../../common/src/utils/math";
-import { Random } from "../../../../common/src/utils/random";
-import { Vec2 } from "../../../../common/src/utils/vector";
 import { Helpers } from "../../helpers";
 import type { GameSound } from "../audioManager";
 import { Camera } from "../camera";

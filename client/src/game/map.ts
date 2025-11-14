@@ -1,6 +1,6 @@
+import { BaseGameMap, MapObjectType } from "@common/baseMap";
+import type { MapPacket } from "@common/packets/mapPacket";
 import * as PIXI from "pixi.js";
-import { BaseGameMap, MapObjectType } from "../../../common/src/baseMap";
-import type { MapPacket } from "../../../common/src/packets/mapPacket";
 import { Helpers } from "../helpers";
 import { Camera } from "./camera";
 import type { Game } from "./game";

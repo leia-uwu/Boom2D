@@ -1,7 +1,7 @@
 // add a namespace to pixi sound imports because it has annoying generic names like "sound" and "filters" without a namespace
+import { MathUtils } from "@common/utils/math";
+import { Vec2, type Vector } from "@common/utils/vector";
 import * as PixiSound from "@pixi/sound";
-import { MathUtils } from "../../../common/src/utils/math";
-import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { settings } from "../settings";
 import type { Game } from "./game";
 

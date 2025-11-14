@@ -1,6 +1,6 @@
+import { GameConstants } from "@common/constants";
+import type { LeaderboardEntry } from "@common/packets/updatePacket";
 import * as PIXI from "pixi.js";
-import { GameConstants } from "../../../../common/src/constants";
-import type { LeaderboardEntry } from "../../../../common/src/packets/updatePacket";
 import type { PlayerManager } from "../entities/player";
 import { UiHelpers, UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 

@@ -1,9 +1,9 @@
-import { DamageType, EntityType } from "../../common/src/constants";
-import { type ExplosionDefKey, ExplosionDefs } from "../../common/src/defs/explosionDefs";
-import { CollisionHelpers } from "../../common/src/utils/collisionHelpers";
-import { CircleHitbox } from "../../common/src/utils/hitbox";
-import { MathUtils } from "../../common/src/utils/math";
-import { Vec2, type Vector } from "../../common/src/utils/vector";
+import { DamageType, EntityType } from "@common/constants";
+import { type ExplosionDefKey, ExplosionDefs } from "@common/defs/explosionDefs";
+import { CollisionHelpers } from "@common/utils/collisionHelpers";
+import { CircleHitbox } from "@common/utils/hitbox";
+import { MathUtils } from "@common/utils/math";
+import { Vec2, type Vector } from "@common/utils/vector";
 import type { Player } from "./entities/player";
 import type { Game } from "./game";
 

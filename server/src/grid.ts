@@ -1,6 +1,6 @@
-import { type Hitbox, RectHitbox } from "../../common/src/utils/hitbox";
-import { MathUtils } from "../../common/src/utils/math";
-import { Vec2, type Vector } from "../../common/src/utils/vector";
+import { type Hitbox, RectHitbox } from "@common/utils/hitbox";
+import { MathUtils } from "@common/utils/math";
+import { Vec2, type Vector } from "@common/utils/vector";
 import type { ServerEntity } from "./entities/entity";
 
 /**

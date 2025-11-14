@@ -1,8 +1,8 @@
-import { EntityType } from "../../../common/src/constants";
-import { type LootDefKey, LootDefs } from "../../../common/src/defs/lootDefs";
-import type { EntitiesNetData } from "../../../common/src/packets/updatePacket";
-import { CircleHitbox } from "../../../common/src/utils/hitbox";
-import type { Vector } from "../../../common/src/utils/vector";
+import { EntityType } from "@common/constants";
+import { type LootDefKey, LootDefs } from "@common/defs/lootDefs";
+import type { EntitiesNetData } from "@common/packets/updatePacket";
+import { CircleHitbox } from "@common/utils/hitbox";
+import type { Vector } from "@common/utils/vector";
 import type { Game } from "../game";
 import { AbstractServerEntity, EntityPool } from "./entity";
 

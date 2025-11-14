@@ -1,7 +1,7 @@
+import type { ImgDefinition } from "@common/utils/definitionList";
+import { type HitboxJSON, HitboxType } from "@common/utils/hitbox";
+import { assert } from "@common/utils/util";
 import * as PIXI from "pixi.js";
-import type { ImgDefinition } from "../../common/src/utils/definitionList";
-import { type HitboxJSON, HitboxType } from "../../common/src/utils/hitbox";
-import { assert } from "../../common/src/utils/util";
 import { Camera } from "./game/camera";
 
 export const Helpers = {

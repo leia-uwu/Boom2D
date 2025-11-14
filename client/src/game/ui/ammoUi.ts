@@ -1,6 +1,6 @@
+import { type AmmoDefKey, AmmoDefs } from "@common/defs/ammoDefs";
+import type { UpdatePacket } from "@common/packets/updatePacket";
 import * as PIXI from "pixi.js";
-import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
-import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { Helpers } from "../../helpers";
 import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 

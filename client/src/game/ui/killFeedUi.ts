@@ -1,4 +1,4 @@
-import type { KillPacket } from "../../../../common/src/packets/killPacket";
+import type { KillPacket } from "@common/packets/killPacket";
 import type { PlayerManager } from "../entities/player";
 import { LeaderBoardUi } from "./leaderBoardUi";
 import { MsgFeed } from "./msgFeed";

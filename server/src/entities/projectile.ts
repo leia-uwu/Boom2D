@@ -1,15 +1,15 @@
-import { MapObjectType } from "../../../common/src/baseMap";
-import { DamageType, EntityType } from "../../../common/src/constants";
+import { MapObjectType } from "@common/baseMap";
+import { DamageType, EntityType } from "@common/constants";
 import {
     type ProjectileDef,
     type ProjectileDefKey,
     ProjectileDefs,
-} from "../../../common/src/defs/projectileDefs";
-import type { EntitiesNetData } from "../../../common/src/packets/updatePacket";
-import { CircleHitbox } from "../../../common/src/utils/hitbox";
-import { MathUtils } from "../../../common/src/utils/math";
-import { Random } from "../../../common/src/utils/random";
-import { Vec2, type Vector } from "../../../common/src/utils/vector";
+} from "@common/defs/projectileDefs";
+import type { EntitiesNetData } from "@common/packets/updatePacket";
+import { CircleHitbox } from "@common/utils/hitbox";
+import { MathUtils } from "@common/utils/math";
+import { Random } from "@common/utils/random";
+import { Vec2, type Vector } from "@common/utils/vector";
 import type { Game } from "../game";
 import { AbstractServerEntity, EntityPool, type ServerEntity } from "./entity";
 import type { Player } from "./player";

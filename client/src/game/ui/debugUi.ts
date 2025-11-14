@@ -1,7 +1,7 @@
+import { EntityType } from "@common/constants";
+import { DebugFlags, DebugPacket } from "@common/packets/debugPacket";
+import { DebugTogglePacket } from "@common/packets/debugTogglePacket";
 import * as PIXI from "pixi.js";
-import { EntityType } from "../../../../common/src/constants";
-import { DebugFlags, DebugPacket } from "../../../../common/src/packets/debugPacket";
-import { DebugTogglePacket } from "../../../../common/src/packets/debugTogglePacket";
 import { settings } from "../../settings";
 import type { Game } from "../game";
 import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";

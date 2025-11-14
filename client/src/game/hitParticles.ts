@@ -1,7 +1,7 @@
+import type { HitData } from "@common/packets/updatePacket";
+import { Random } from "@common/utils/random";
+import { Vec2, type Vector } from "@common/utils/vector";
 import * as PIXI from "pixi.js";
-import type { HitData } from "../../../common/src/packets/updatePacket";
-import { Random } from "../../../common/src/utils/random";
-import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import { Camera } from "./camera";
 
 const hitBreakPoints = [

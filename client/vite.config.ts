@@ -1,3 +1,4 @@
+import path from "node:path";
 import { defineConfig } from "vite";
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 import { Config } from "../server/src/config";
@@ -41,6 +42,11 @@ export default defineConfig({
             logStats: false,
         }),
     ],
+    resolve: {
+        alias: {
+            "@common": path.resolve(import.meta.dirname, "../common/src"),
+        },
+    },
     server: {
         port: 3000,
         host: "0.0.0.0",

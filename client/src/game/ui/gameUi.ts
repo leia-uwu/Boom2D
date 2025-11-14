@@ -1,7 +1,7 @@
+import type { AmmoDefKey } from "@common/defs/ammoDefs";
+import { WeaponDefs } from "@common/defs/weaponDefs";
+import type { UpdatePacket } from "@common/packets/updatePacket";
 import * as PIXI from "pixi.js";
-import type { AmmoDefKey } from "../../../../common/src/defs/ammoDefs";
-import { WeaponDefs } from "../../../../common/src/defs/weaponDefs";
-import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import type { Game } from ".././game";
 import { AmmoUi } from "./ammoUi";
 import { DeathUi } from "./deathUi";

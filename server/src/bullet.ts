@@ -1,9 +1,9 @@
-import { BaseBullet, type BulletParams } from "../../common/src/baseBullet";
-import { DamageType } from "../../common/src/constants";
-import { BulletDefs } from "../../common/src/defs/bulletDefs";
-import type { Shot } from "../../common/src/packets/updatePacket";
-import { Random } from "../../common/src/utils/random";
-import { Vec2 } from "../../common/src/utils/vector";
+import { BaseBullet, type BulletParams } from "@common/baseBullet";
+import { DamageType } from "@common/constants";
+import { BulletDefs } from "@common/defs/bulletDefs";
+import type { Shot } from "@common/packets/updatePacket";
+import { Random } from "@common/utils/random";
+import { Vec2 } from "@common/utils/vector";
 import { Player } from "./entities/player";
 import type { Game } from "./game";
 

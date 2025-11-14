@@ -1,7 +1,7 @@
+import { GameConstants } from "@common/constants";
+import { MathUtils } from "@common/utils/math";
+import { Vec2, type Vector } from "@common/utils/vector";
 import * as PIXI from "pixi.js";
-import { GameConstants } from "../../../common/src/constants";
-import { MathUtils } from "../../../common/src/utils/math";
-import { Vec2, type Vector } from "../../../common/src/utils/vector";
 import type { Game } from "./game";
 
 export class Camera {

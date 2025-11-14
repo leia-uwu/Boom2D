@@ -1,13 +1,9 @@
+import { type ExplosionDef, type ExplosionDefKey, ExplosionDefs } from "@common/defs/explosionDefs";
+import { CircleHitbox } from "@common/utils/hitbox";
+import { MathUtils } from "@common/utils/math";
+import { Random } from "@common/utils/random";
+import type { Vector } from "@common/utils/vector";
 import * as PIXI from "pixi.js";
-import {
-    type ExplosionDef,
-    type ExplosionDefKey,
-    ExplosionDefs,
-} from "../../../common/src/defs/explosionDefs";
-import { CircleHitbox } from "../../../common/src/utils/hitbox";
-import { MathUtils } from "../../../common/src/utils/math";
-import { Random } from "../../../common/src/utils/random";
-import type { Vector } from "../../../common/src/utils/vector";
 import { Helpers } from "../helpers";
 import { Camera } from "./camera";
 import { DEBUG_ENABLED, debugRenderer } from "./debug";

@@ -1,6 +1,6 @@
+import type { DeathPacket } from "@common/packets/deathPacket";
+import { RespawnPacket } from "@common/packets/respawnPacket";
 import * as PIXI from "pixi.js";
-import type { DeathPacket } from "../../../../common/src/packets/deathPacket";
-import { RespawnPacket } from "../../../../common/src/packets/respawnPacket";
 import type { Game } from "../game";
 import { Button, UiHelpers, UiTextStyle, VerticalLayout } from "./uiHelpers";
 

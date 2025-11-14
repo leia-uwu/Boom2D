@@ -1,9 +1,20 @@
 {
     "compilerOptions": {
-        "lib": ["DOM", "ESNext"]
+        "paths": {
+            "@common/*": [
+                "../common/src/*"
+            ]
+        },
+        "lib": [
+            "DOM",
+            "ESNext"
+        ]
     },
     "extends": [
         "../baseTsconfig.json"
     ],
-    "include": ["src", "../common/src"]
+    "include": [
+        "src",
+        "../common/src"
+    ]
 }

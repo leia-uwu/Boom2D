@@ -1,13 +1,10 @@
-import { EntityType, GameConstants, type ValidEntityType } from "../../../common/src/constants";
-import { GameBitStream } from "../../../common/src/net";
-import type { DebugPacket } from "../../../common/src/packets/debugPacket";
-import {
-    type EntitiesNetData,
-    EntitySerializations,
-} from "../../../common/src/packets/updatePacket";
-import type { Hitbox } from "../../../common/src/utils/hitbox";
-import { assert } from "../../../common/src/utils/util";
-import type { Vector } from "../../../common/src/utils/vector";
+import { EntityType, GameConstants, type ValidEntityType } from "@common/constants";
+import { GameBitStream } from "@common/net";
+import type { DebugPacket } from "@common/packets/debugPacket";
+import { type EntitiesNetData, EntitySerializations } from "@common/packets/updatePacket";
+import type { Hitbox } from "@common/utils/hitbox";
+import { assert } from "@common/utils/util";
+import type { Vector } from "@common/utils/vector";
 import type { Game } from "../game";
 import type { Loot } from "./loot";
 import type { Obstacle } from "./obstacle";

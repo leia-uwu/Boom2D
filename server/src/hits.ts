@@ -1,5 +1,5 @@
-import type { HitData } from "../../common/src/packets/updatePacket";
-import { Vec2 } from "../../common/src/utils/vector";
+import type { HitData } from "@common/packets/updatePacket";
+import { Vec2 } from "@common/utils/vector";
 
 interface Hit extends HitData {
     active: boolean;
