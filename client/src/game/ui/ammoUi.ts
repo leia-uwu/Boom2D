@@ -1,11 +1,11 @@
-import { Container, Sprite, Text, type TextOptions } from "pixi.js";
+import { type CanvasTextOptions, Container, Sprite, Text } from "pixi.js";
 import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
 import { Helpers } from "../../helpers";
 import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 
 const itemHeight = 24;
-const AmmoTextStyle: TextOptions = {
+const AmmoTextStyle: CanvasTextOptions = {
     style: {
         ...UiTextStyle,
         fontSize: itemHeight,

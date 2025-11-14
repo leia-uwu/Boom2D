@@ -1,4 +1,4 @@
-import { Container, Sprite, Text, type TextOptions, Texture } from "pixi.js";
+import { type CanvasTextOptions, Container, Sprite, Text, Texture } from "pixi.js";
 import { GameConstants } from "../../../../common/src/constants";
 import { type AmmoDefKey, AmmoDefs } from "../../../../common/src/defs/ammoDefs";
 import type { UpdatePacket } from "../../../../common/src/packets/updatePacket";
@@ -6,7 +6,7 @@ import { MathUtils } from "../../../../common/src/utils/math";
 import { Helpers } from "../../helpers";
 import { UiStyle, UiTextStyle, VerticalLayout } from "./uiHelpers";
 
-const StatusTextStyle: TextOptions = {
+const StatusTextStyle: CanvasTextOptions = {
     style: {
         ...UiTextStyle,
         fontSize: 30,
