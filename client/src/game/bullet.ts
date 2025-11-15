@@ -75,6 +75,7 @@ export class ClientBullet extends BaseBullet {
         super();
         this.game.camera.addObject(this.trailSprite);
         this.trailSprite.anchor.set(1, 0.5);
+        this.trailSprite.zIndex = 1;
     }
 
     init(params: BulletParams) {
