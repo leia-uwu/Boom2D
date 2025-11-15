@@ -22,12 +22,16 @@ export class ParticleManager {
         position: Vector,
         rotation: Vector,
         type: keyof typeof ParticleDefs,
-        overrides: Partial<ParticleDef> = {},
+        overrides?: Partial<ParticleDef>,
     ) {
-        const def = {
-            ...ParticleDefs[type],
-            ...overrides,
-        };
+        let def: ParticleDef = ParticleDefs[type];
+
+        if (overrides) {
+            def = {
+                ...ParticleDefs[type],
+                ...overrides,
+            };
+        }
 
         let particle: Particle | undefined = undefined;
         for (let i = 0; i < this.particles.length; i++) {
