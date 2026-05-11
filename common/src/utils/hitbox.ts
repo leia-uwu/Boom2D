@@ -204,6 +204,18 @@ export class RectHitbox extends BaseHitbox {
         };
     }
 
+    getPoints() {
+        const { min, max } = this;
+        const pts: Vector[] = [
+            Vec2.clone(min),
+            Vec2.new(min.x, max.y),
+            Vec2.clone(max),
+            Vec2.new(max.x, min.y),
+        ];
+
+        return pts;
+    }
+
     /**
      * Creates a new rectangle hitbox from the bounds of a circle
      */
@@ -350,6 +362,27 @@ export class PolygonHitbox extends BaseHitbox {
         return new RectHitbox(min, max);
     }
 
+    rotate(angle: number): this {
+        for (let i = 0; i < this.verts.length; i++) {
+            const pt = this.verts[i];
+            const dist = Vec2.distance(pt, this.center);
+
+            const dir = Vec2.normalize(
+                Vec2.rotate(
+                    Vec2.normalize(Vec2.sub(pt, this.center)),
+                    angle,
+                ),
+            );
+
+            Vec2.set(pt, Vec2.sub(this.center, Vec2.mul(dir, dist)));
+
+            Vec2.set(this.normals[i], Vec2.normalize(Vec2.rotate(this.normals[i], angle)));
+        }
+
+        this.center = Collision.polygonCenter(this.verts);
+        return this;
+    }
+
     override isPointInside(point: Vector): boolean {
         return Collision.pointInsidePolygon(point, this.verts);
     }
@@ -463,6 +496,10 @@ setIntersectionFn(RectHitbox, CircleHitbox, (a, b) => {
 
 setIntersectionFn(RectHitbox, RectHitbox, (a, b) => {
     return Collision.rectRectIntersection(a.min, a.max, b.min, b.max);
+});
+
+setIntersectionFn(RectHitbox, PolygonHitbox, (a, b) => {
+    return Collision.RectPolygonIntersection(a.min, a.max, b.verts, b.normals, b.center);
 });
 
 setIntersectionFn(CircleHitbox, PolygonHitbox, (a, b) => {

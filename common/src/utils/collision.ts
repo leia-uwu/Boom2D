@@ -562,6 +562,98 @@ export const Collision = {
             const { min: minA, max: maxA } = Collision.projectVertices(
                 vertsA,
                 vertNormal,
+                Vec2.new(0, 0),
+            );
+            const { min: minB, max: maxB } = Collision.projectVertices(
+                vertsB,
+                vertNormal,
+                Vec2.new(0, 0),
+            );
+
+            if (minA >= maxB || minB >= maxA) {
+                return null;
+            }
+
+            const axisDepth = MathUtils.min(maxB - minA, maxA - minB);
+
+            if (axisDepth < pen) {
+                pen = axisDepth;
+                normal = vertNormal;
+            }
+        }
+
+        for (let i = 0; i < normalsB.length; i++) {
+            const vertNormal = normalsB[i];
+
+            const { min: minA, max: maxA } = Collision.projectVertices(
+                vertsA,
+                vertNormal,
+                Vec2.new(0, 0),
+            );
+            const { min: minB, max: maxB } = Collision.projectVertices(
+                vertsB,
+                vertNormal,
+                Vec2.new(0, 0),
+            );
+
+            if (minA >= maxB || minB >= maxA) {
+                return null;
+            }
+
+            const axisDepth = MathUtils.min(maxB - minA, maxA - minB);
+
+            if (axisDepth < pen) {
+                pen = axisDepth;
+                normal = vertNormal;
+            }
+        }
+
+        const direction = Vec2.sub(centerB, centerA);
+
+        if (Vec2.dot(direction, normal) < 0) {
+            normal = Vec2.neg(normal);
+        }
+
+        return {
+            normal,
+            pen,
+        };
+    },
+
+    RectPolygonIntersection(
+        min: Vector,
+        max: Vector,
+        vertsB: Vector[],
+        normalsB: Vector[],
+        centerB: Vector,
+    ) {
+        let normal = Vec2.new(0, 0);
+        let pen = Number.MAX_VALUE;
+
+        const rectPoints = [
+            Vec2.clone(min),
+            Vec2.new(min.x, max.y),
+            Vec2.clone(max),
+            Vec2.new(max.x, min.y),
+        ];
+
+        const rectNormals = [
+            Vec2.new(0, 1),
+            Vec2.new(-1, 0),
+            Vec2.new(0, -1),
+            Vec2.new(1, 0),
+        ];
+
+        const centerX = (min.x + max.x) / 2;
+        const centerY = (min.y + max.y) / 2;
+        const centerA = Vec2.new(centerX, centerY);
+
+        for (let i = 0; i < rectNormals.length; i++) {
+            let vertNormal = rectNormals[i];
+
+            const { min: minA, max: maxA } = Collision.projectVertices(
+                rectPoints,
+                vertNormal,
                 centerA,
             );
             const { min: minB, max: maxB } = Collision.projectVertices(
@@ -586,7 +678,7 @@ export const Collision = {
             const vertNormal = normalsB[i];
 
             const { min: minA, max: maxA } = Collision.projectVertices(
-                vertsA,
+                rectPoints,
                 vertNormal,
                 centerA,
             );
