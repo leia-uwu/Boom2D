@@ -20,9 +20,9 @@
     },
     "license": "GPL-3.0",
     "devDependencies": {
-        "@types/node": "^24.10.0",
-        "dprint": "^0.50.2",
-        "oxlint": "^1.26.0",
-        "typescript": "^5.9.3"
+        "@types/node": "^25.7.0",
+        "dprint": "^0.54.0",
+        "oxlint": "^1.64.0",
+        "typescript": "^6.0.3"
     }
 }
