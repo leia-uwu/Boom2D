@@ -1,5 +1,6 @@
 import { MapObjectType } from "@common/baseMap";
 import { DamageType, EntityType } from "@common/constants";
+import { BeamDefs } from "@common/defs/beamDefs";
 import {
     type ProjectileDef,
     type ProjectileDefKey,
@@ -11,7 +12,7 @@ import { MathUtils } from "@common/utils/math";
 import { Random } from "@common/utils/random";
 import { Vec2, type Vector } from "@common/utils/vector";
 import type { Game } from "../game";
-import { AbstractServerEntity, EntityPool, type ServerEntity } from "./entity";
+import { AbstractServerEntity, EntityPool } from "./entity";
 import type { Player } from "./player";
 
 export class ProjectileManager extends EntityPool<Projectile> {
@@ -44,7 +45,8 @@ export class Projectile extends AbstractServerEntity {
     }
 
     tracerTicker = 0;
-    damagedEntities!: Set<ServerEntity>;
+
+    activeBeamIds!: Set<number>;
 
     init(position: Vector, type: ProjectileDefKey, direction: Vector, source: Player) {
         const def = ProjectileDefs.typeToDef(type);
@@ -56,7 +58,7 @@ export class Projectile extends AbstractServerEntity {
         this.isNew = true;
         this.dead = false;
 
-        this.damagedEntities = new Set<ServerEntity>();
+        this.activeBeamIds = new Set();
         this.tracerTicker = 0;
     }
 
@@ -89,6 +91,7 @@ export class Projectile extends AbstractServerEntity {
                 continue;
             }
             if (entity === this.source) continue;
+            if (entity.__type === EntityType.Player && entity.dead) continue;
 
             const intersection = entity.hitbox.getIntersection(this.hitbox);
 
@@ -133,13 +136,25 @@ export class Projectile extends AbstractServerEntity {
             }
         }
 
-        if (def.tracers && !this.dead) {
+        if (def.beams && !this.dead) {
             this.tracerTicker += dt;
 
-            if (this.tracerTicker > def.tracers.rate) {
+            if (this.tracerTicker > def.beams.rate) {
+                const activeTargets = new Set<number>();
+                for (const beamId of this.activeBeamIds) {
+                    const beam = this.game.entityManager.getById(beamId);
+                    if (
+                        !beam || beam.__type !== EntityType.Beam || beam.sourceTargetId !== this.id
+                    ) {
+                        this.activeBeamIds.delete(beamId);
+                        continue;
+                    }
+                    activeTargets.add(beam.targetEntityid);
+                }
+
                 this.tracerTicker = 0;
 
-                const hitbox = new CircleHitbox(def.tracers.radius, this.position);
+                const hitbox = new CircleHitbox(def.beams.distance, this.position);
                 const entities = this.game.grid.intersectsHitbox(hitbox);
 
                 for (const entity of entities) {
@@ -147,21 +162,15 @@ export class Projectile extends AbstractServerEntity {
                     if (entity.__type !== EntityType.Player) continue;
                     if (entity === this.source) continue;
                     if (entity.dead) continue;
-                    if (this.damagedEntities.has(entity)) continue;
+                    if (activeTargets.has(entity.id)) continue;
 
-                    this.damagedEntities.add(entity);
-
-                    const angle = MathUtils.angleBetweenPoints(
-                        entity.position,
+                    const beam = this.game.beamManager.allocEntity(
                         this.position,
+                        entity.position,
+                        def.beams.type,
                     );
-                    const direction = Vec2.new(Math.cos(angle), Math.sin(angle));
-                    this.game.bulletManager.fireBullet(this.source, {
-                        initialPosition: this.position,
-                        direction,
-                        type: def.tracers.type,
-                        shooterId: this.source.id,
-                    });
+                    beam.trackEntities(this.id, entity.id);
+                    this.activeBeamIds.add(beam.id);
                 }
             }
         }

@@ -6,7 +6,7 @@ import * as PIXI from "pixi.js";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
 import { DEBUG_ENABLED, debugRenderer } from "../debug";
-import { Game } from "../game";
+import type { Game } from "../game";
 import { ClientEntity, EntityPool } from "./entity";
 
 export class ObstacleManager extends EntityPool<Obstacle> {

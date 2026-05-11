@@ -93,7 +93,7 @@ export abstract class AbstractServerEntity<T extends ValidEntityType = ValidEnti
     abstract get data(): Required<EntitiesNetData[ValidEntityType]>;
 }
 
-export type ServerEntity = Player | Projectile | Obstacle | Loot;
+export type ServerEntity = Player | Projectile | Obstacle | Loot | Beam;
 
 export abstract class EntityPool<T extends ServerEntity> {
     abstract type: T["__type"];
@@ -172,6 +172,7 @@ export class EntityManager {
         [EntityType.Projectile]: EntityPool<Projectile>;
         [EntityType.Obstacle]: EntityPool<Obstacle>;
         [EntityType.Loot]: EntityPool<Loot>;
+        [EntityType.Beam]: EntityPool<Beam>;
     };
 
     counts: DebugPacket["entityCounts"] = [];

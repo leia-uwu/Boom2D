@@ -4,6 +4,7 @@ import { MathUtils } from "@common/utils/math";
 import { BulletManager } from "./bullet";
 import { ClientManager } from "./client";
 import type { ServerConfig } from "./config";
+import { BeamManager } from "./entities/beam";
 import { EntityManager } from "./entities/entity";
 import { LootManager } from "./entities/loot";
 import { ObstacleManager } from "./entities/obstacle";
@@ -28,6 +29,7 @@ export class Game {
     projectileManager = new ProjectileManager(this);
     obstacleManager = new ObstacleManager(this);
     lootManager = new LootManager(this);
+    beamManager = new BeamManager(this);
     bulletManager = new BulletManager(this);
     explosionManager = new ExplosionManager(this);
     hitManager = new HitManager();
@@ -56,6 +58,7 @@ export class Game {
             [EntityType.Loot]: this.lootManager,
             [EntityType.Obstacle]: this.obstacleManager,
             [EntityType.Projectile]: this.projectileManager,
+            [EntityType.Beam]: this.beamManager,
         });
         this.map = new GameMap(this, config.map);
         this.timer = setInterval(this.update.bind(this), 1000 / config.tps);

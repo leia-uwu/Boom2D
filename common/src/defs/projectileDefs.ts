@@ -1,5 +1,5 @@
 import { DefinitionList, type ImgDefinition } from "../utils/definitionList";
-import type { BulletDefKey } from "./bulletDefs";
+import type { BeamDefKey } from "./beamDefs";
 import type { ExplosionDefKey } from "./explosionDefs";
 
 export interface ProjectileDef {
@@ -18,9 +18,13 @@ export interface ProjectileDef {
         type: string;
         randomPlacement?: boolean;
     };
-    tracers?: {
-        type: BulletDefKey;
-        radius: number;
+    beams?: {
+        // targeting distance
+        // note: should be equal or smaller than the maxLength on the beam definition
+        // preferably smaller, so if an entity gets targeted and quickly gets away from the range
+        // the beam wont just appear for like 2 frames
+        distance: number;
+        type: BeamDefKey;
         rate: number;
     };
 }
@@ -79,9 +83,9 @@ const rawDefs: Record<ProjectileDefKey, ProjectileDef> = {
             type: "bfg_trail",
             randomPlacement: true,
         },
-        tracers: {
-            type: "bfg_tracer",
-            radius: 5,
+        beams: {
+            distance: 8,
+            type: "bfg_beam",
             rate: 0.2,
         },
     },

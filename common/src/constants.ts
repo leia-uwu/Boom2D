@@ -4,6 +4,7 @@ export enum EntityType {
     Projectile,
     Obstacle,
     Loot,
+    Beam,
 }
 
 export type ValidEntityType = Exclude<EntityType, EntityType.Invalid>;

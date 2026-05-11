@@ -18,6 +18,7 @@ import { AudioManager } from "./audioManager";
 import { BulletManager } from "./bullet";
 import { Camera } from "./camera";
 import { DEBUG_ENABLED, debugRenderer } from "./debug";
+import { BeamManager } from "./entities/beam";
 import { type ClientEntity, EntityManager } from "./entities/entity";
 import { LootManager } from "./entities/loot";
 import { ObstacleManager } from "./entities/obstacle";
@@ -60,6 +61,7 @@ export class Game {
     lootManager = new LootManager();
     obstacleManager = new ObstacleManager();
     projectileManager = new ProjectileManager();
+    beamManager = new BeamManager();
 
     entityManager: EntityManager;
 
@@ -74,6 +76,7 @@ export class Game {
             [EntityType.Loot]: this.lootManager,
             [EntityType.Obstacle]: this.obstacleManager,
             [EntityType.Projectile]: this.projectileManager,
+            [EntityType.Beam]: this.beamManager,
         });
     }
 
@@ -332,7 +335,7 @@ export class Game {
         this.particleManager.update(dt);
         this.hitManager.update(dt);
         this.explosionManager.update(dt);
-        this.audioManager.update();
+        this.audioManager.update(dt);
 
         this.camera.render(dt);
         this.ui.render(dt);

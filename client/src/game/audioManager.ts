@@ -37,6 +37,10 @@ export class GameSound {
 
     ended = false;
 
+    fading = false;
+    fadeDuration = 0;
+    fadeTicker = 0;
+
     constructor(name: string, options: SoundOptions, manager: AudioManager) {
         this.name = name;
         this.manager = manager;
@@ -69,32 +73,62 @@ export class GameSound {
 
     init(instance: PixiSound.IMediaInstance): void {
         this.instance = instance;
-        instance.on("end", () => {
+        // instance.on("end", () => {
+        //     this.onEnd?.();
+        //     this.ended = true;
+        // });
+        instance.on("stop", () => {
+            console.log(this.ended);
             this.onEnd?.();
             this.ended = true;
         });
-        instance.on("stop", () => {
-            this.ended = true;
-        });
-        this.update();
+        this.update(1);
     }
 
-    update(): void {
-        if (this.instance && this.position) {
+    update(dt: number): void {
+        if (!this.instance) return;
+
+        let volume = 1;
+        if (this.position) {
             const diff = Vec2.sub(this.manager.position, this.position);
             const t = MathUtils.clamp(Math.abs(Vec2.length(diff) / this.maxRange), 0, 1);
-            this.instance.volume = (1 - t) ** (1 + this.fallOff * 2) * this.manager.volume;
+            volume = (1 - t) ** (1 + this.fallOff * 2) * this.manager.volume;
 
             this.stereoFilter.pan = MathUtils.clamp((diff.x / this.maxRange) * -1, -1, 1);
         }
+
+        if (this.fading) {
+            this.fadeTicker -= dt;
+
+            const t = MathUtils.clamp(this.fadeTicker / this.fadeDuration, 0, 1);
+            volume *= t;
+
+            if (this.fadeTicker <= 0) {
+                this.stop();
+                return;
+            }
+        }
+
+        this.instance.set("volume", volume);
     }
 
     stop(): void {
         // trying to stop a sound that already ended or was stopped will stop a random sound
         // (maybe a bug? idk)
+        console.log("stop", this.ended);
         if (this.ended) return;
+
+        this.instance?.set("loop", false);
         this.instance?.stop();
+
         this.ended = true;
+    }
+
+    fadeAndDestroy(duration: number): void {
+        this.instance?.set("loop", false);
+
+        this.fading = true;
+        this.fadeDuration = this.fadeTicker = duration;
     }
 }
 
@@ -129,7 +163,7 @@ export class AudioManager {
         return sound;
     }
 
-    update(): void {
+    update(dt: number): void {
         if (this.game.activePlayer) {
             this.position = this.game.activePlayer.position;
         }
@@ -140,7 +174,7 @@ export class AudioManager {
                 this.dynamicSounds.splice(i, 1);
                 continue;
             }
-            sound.update();
+            sound.update(dt);
         }
     }
 

@@ -1,6 +1,7 @@
 import type { BulletParams } from "../baseBullet";
 import { EntityType, GameConstants, type ValidEntityType } from "../constants";
 import { type AmmoDefKey, AmmoDefs } from "../defs/ammoDefs";
+import { type BeamDefKey, BeamDefs } from "../defs/beamDefs";
 import { BulletDefs } from "../defs/bulletDefs";
 import { type ExplosionDefKey, ExplosionDefs } from "../defs/explosionDefs";
 import { type LootDefKey, LootDefs } from "../defs/lootDefs";
@@ -40,6 +41,13 @@ export interface EntitiesNetData {
         full?: {
             position: Vector;
             type: LootDefKey;
+        };
+    };
+    [EntityType.Beam]: {
+        sourcePos: Vector;
+        targetPos: Vector;
+        full?: {
+            type: BeamDefKey;
         };
     };
 }
@@ -141,6 +149,28 @@ export const EntitySerializations: { [K in ValidEntityType]: EntitySerialization
             return {
                 position: stream.readPosition(),
                 type: LootDefs.read(stream),
+            };
+        },
+    },
+    [EntityType.Beam]: {
+        partialSize: 8,
+        fullSize: 1,
+        serializePartial(stream, data) {
+            stream.writePosition(data.sourcePos);
+            stream.writePosition(data.targetPos);
+        },
+        serializeFull(stream, data) {
+            BeamDefs.write(stream, data.type);
+        },
+        deserializePartial(stream) {
+            return {
+                sourcePos: stream.readPosition(),
+                targetPos: stream.readPosition(),
+            };
+        },
+        deserializeFull(stream) {
+            return {
+                type: BeamDefs.read(stream),
             };
         },
     },

@@ -290,6 +290,32 @@ const ParticleDefs = {
         scale: { start: 4, end: 0 },
         speed: { min: 2, max: 5 },
     },
+    bfg_beam_ray: {
+        lifeTime: { min: 0.1, max: 0.3 },
+        blendMode: "add",
+        zIndex: 3,
+        get tint() {
+            return new PIXI.Color(`hsl(${Random.int(90, 140)}, 100%, 50%)`);
+        },
+        sprite: ["glow-particle.svg"],
+        rotation: { value: 0 },
+        alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
+        scale: { start: 2, end: 0 },
+        speed: { min: 2, max: 5 },
+    },
+    bfg_beam_target: {
+        lifeTime: { min: 0.3, max: 0.8 },
+        blendMode: "add",
+        zIndex: 3,
+        get tint() {
+            return new PIXI.Color(`hsl(${Random.int(90, 140)}, 100%, 50%)`);
+        },
+        sprite: ["glow-particle.svg"],
+        rotation: { value: 0 },
+        alpha: { start: 1, end: 0, easing: EasinFunctions.sineIn },
+        scale: { start: 1.5, end: 0 },
+        speed: { min: 0.5, max: 1 },
+    },
     wall_chip: {
         lifeTime: { min: 0.5, max: 0.8 },
         blendMode: "normal",

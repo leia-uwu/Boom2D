@@ -7,7 +7,7 @@ import { MathUtils } from "@common/utils/math";
 import * as PIXI from "pixi.js";
 import { Helpers } from "../../helpers";
 import { Camera } from "../camera";
-import { Game } from "../game";
+import type { Game } from "../game";
 import { ClientEntity, EntityPool } from "./entity";
 
 export class LootManager extends EntityPool<Loot> {

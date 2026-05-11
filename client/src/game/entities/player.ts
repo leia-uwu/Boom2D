@@ -10,7 +10,7 @@ import { Helpers } from "../../helpers";
 import type { GameSound } from "../audioManager";
 import { Camera } from "../camera";
 import { DEBUG_ENABLED, debugRenderer } from "../debug";
-import { Game } from "../game";
+import type { Game } from "../game";
 import type { ParticleDefKey } from "../particle";
 import { ClientEntity, EntityPool } from "./entity";
 

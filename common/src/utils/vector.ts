@@ -1,3 +1,5 @@
+import { MathUtils } from "./math";
+
 /**
  * 2D vector
  */
@@ -115,6 +117,18 @@ export const Vec2 = {
 
     equals(a: Vector, b: Vector, epsilon = 0.001): boolean {
         return Math.abs(a.x - b.x) <= epsilon && Math.abs(a.y - b.y) <= epsilon;
+    },
+
+    midpoint(p1: Vector, p2: Vector): Vector {
+        return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+    },
+
+    minElems(a: Vector, b: Vector): Vector {
+        return { x: MathUtils.min(a.x, b.x), y: MathUtils.min(a.y, b.y) };
+    },
+
+    maxElems(a: Vector, b: Vector): Vector {
+        return { x: MathUtils.max(a.x, b.x), y: MathUtils.max(a.y, b.y) };
     },
 
     /**
