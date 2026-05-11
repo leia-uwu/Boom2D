@@ -6,10 +6,44 @@ import type { Hitbox } from "@common/utils/hitbox";
 import { assert } from "@common/utils/util";
 import type { Vector } from "@common/utils/vector";
 import type { Game } from "../game";
+import type { Beam } from "./beam";
 import type { Loot } from "./loot";
 import type { Obstacle } from "./obstacle";
 import type { Player } from "./player";
 import type { Projectile } from "./projectile";
+
+// Referring to entities by their class instance or by their ID has issues
+// like if the entity or the ID gets reused, another entity referencing that entity will end up
+// having a totally random entity, which could cause random bugs
+// it could also prevent an entity from getting garbage collected as references to it will still exist
+// so instead we have unique entity "handles", which get invalidated when the entity is destroyed
+// that way places that want to refer to entities can do it in a safe way
+// example the "source" / shooter of a projectile
+
+export class EntityHandle<T extends ServerEntity> {
+    id: number;
+    game: Game;
+    type: T["__type"];
+
+    constructor(id: number, game: Game) {
+        this.id = id;
+        this.game = game;
+        const entity = this.game.entityManager.getById(this.id);
+        assert(entity, "Tried to create EntityHandle with non existing entity");
+        this.type = entity.__type;
+    }
+
+    get(): T | undefined {
+        if (!this.id) return undefined;
+
+        const entity = this.game.entityManager.getById(this.id);
+        if (!entity || entity.__type !== this.type) {
+            this.id = 0;
+            return undefined;
+        }
+        return entity as T;
+    }
+}
 
 export abstract class AbstractServerEntity<T extends ValidEntityType = ValidEntityType> {
     abstract readonly __type: T;
@@ -27,6 +61,8 @@ export abstract class AbstractServerEntity<T extends ValidEntityType = ValidEnti
     abstract hitbox: Hitbox;
 
     _position!: Vector;
+
+    private _handle!: EntityHandle<ServerEntity & { "__type": T }>;
 
     get position() {
         return this._position;
@@ -50,6 +86,14 @@ export abstract class AbstractServerEntity<T extends ValidEntityType = ValidEnti
             EntitySerializations[this.__type].partialSize + 3,
         );
         this.fullStream = GameBitStream.alloc(EntitySerializations[this.__type].fullSize);
+    }
+
+    getHandle() {
+        return this._handle as unknown as Readonly<EntityHandle<ServerEntity & { "__type": T }>>;
+    }
+
+    initHandle() {
+        this._handle = new EntityHandle(this.id, this.game);
     }
 
     serializePartial(): void {
@@ -83,6 +127,12 @@ export abstract class AbstractServerEntity<T extends ValidEntityType = ValidEnti
             console.warn("Tried to destroy entity twice");
             return;
         }
+        // invalidate our handle
+        // so places that are referring to this entity know its destroyed
+        this._handle.id = 0;
+        // @ts-expect-error
+        this._handle.type = EntityType.Invalid;
+
         // @ts-expect-error
         this.game.entityManager.typeToPool[this.__type].freeEntity(this);
 
@@ -128,6 +178,9 @@ export abstract class EntityPool<T extends ServerEntity> {
 
         this.game.entityManager.register(entity);
         entity.serializeFull();
+
+        entity.initHandle();
+
         this.game.grid.addEntity(entity);
 
         return entity;

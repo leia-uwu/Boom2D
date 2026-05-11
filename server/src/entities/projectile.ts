@@ -1,6 +1,5 @@
 import { MapObjectType } from "@common/baseMap";
 import { DamageType, EntityType } from "@common/constants";
-import { BeamDefs } from "@common/defs/beamDefs";
 import {
     type ProjectileDef,
     type ProjectileDefKey,
@@ -12,7 +11,8 @@ import { MathUtils } from "@common/utils/math";
 import { Random } from "@common/utils/random";
 import { Vec2, type Vector } from "@common/utils/vector";
 import type { Game } from "../game";
-import { AbstractServerEntity, EntityPool } from "./entity";
+import type { Beam } from "./beam";
+import { AbstractServerEntity, EntityHandle, EntityPool, type ServerEntity } from "./entity";
 import type { Player } from "./player";
 
 export class ProjectileManager extends EntityPool<Projectile> {
@@ -29,7 +29,7 @@ export class Projectile extends AbstractServerEntity {
 
     type!: ProjectileDefKey;
     direction!: Vector;
-    source!: Player;
+    source!: EntityHandle<Player>;
 
     dead = false;
 
@@ -46,9 +46,14 @@ export class Projectile extends AbstractServerEntity {
 
     tracerTicker = 0;
 
-    activeBeamIds!: Set<number>;
+    activeBeams!: Set<EntityHandle<Beam>>;
 
-    init(position: Vector, type: ProjectileDefKey, direction: Vector, source: Player) {
+    init(
+        position: Vector,
+        type: ProjectileDefKey,
+        direction: Vector,
+        source: EntityHandle<Player>,
+    ) {
         const def = ProjectileDefs.typeToDef(type);
         this.hitbox = new CircleHitbox(def.radius, position);
         this.type = type;
@@ -58,7 +63,7 @@ export class Projectile extends AbstractServerEntity {
         this.isNew = true;
         this.dead = false;
 
-        this.activeBeamIds = new Set();
+        this.activeBeams = new Set();
         this.tracerTicker = 0;
     }
 
@@ -90,7 +95,7 @@ export class Projectile extends AbstractServerEntity {
             ) {
                 continue;
             }
-            if (entity === this.source) continue;
+            if (entity.getHandle() === this.source) continue;
             if (entity.__type === EntityType.Player && entity.dead) continue;
 
             const intersection = entity.hitbox.getIntersection(this.hitbox);
@@ -140,16 +145,18 @@ export class Projectile extends AbstractServerEntity {
             this.tracerTicker += dt;
 
             if (this.tracerTicker > def.beams.rate) {
-                const activeTargets = new Set<number>();
-                for (const beamId of this.activeBeamIds) {
-                    const beam = this.game.entityManager.getById(beamId);
+                const activeTargets = new Set<EntityHandle<ServerEntity>>();
+                for (const beamHandler of this.activeBeams) {
+                    const beam = beamHandler.get();
                     if (
-                        !beam || beam.__type !== EntityType.Beam || beam.sourceTargetId !== this.id
+                        !beam || beam.__type !== EntityType.Beam
+                        || beam.sourceTarget?.id !== this.id
+                        || !beam.targetEntity?.get()
                     ) {
-                        this.activeBeamIds.delete(beamId);
+                        this.activeBeams.delete(beamHandler);
                         continue;
                     }
-                    activeTargets.add(beam.targetEntityid);
+                    activeTargets.add(beam.targetEntity);
                 }
 
                 this.tracerTicker = 0;
@@ -160,17 +167,17 @@ export class Projectile extends AbstractServerEntity {
                 for (const entity of entities) {
                     if (!entity.hitbox.collidesWith(hitbox)) continue;
                     if (entity.__type !== EntityType.Player) continue;
-                    if (entity === this.source) continue;
+                    if (entity.getHandle() === this.source) continue;
                     if (entity.dead) continue;
-                    if (activeTargets.has(entity.id)) continue;
+                    if (activeTargets.has(entity.getHandle())) continue;
 
                     const beam = this.game.beamManager.allocEntity(
                         this.position,
                         entity.position,
                         def.beams.type,
                     );
-                    beam.trackEntities(this.id, entity.id);
-                    this.activeBeamIds.add(beam.id);
+                    beam.trackEntities(this.getHandle(), entity.getHandle());
+                    this.activeBeams.add(beam.getHandle());
                 }
             }
         }

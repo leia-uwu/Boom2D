@@ -16,7 +16,7 @@ import { Vec2, type Vector } from "@common/utils/vector";
 import type { Client } from "../client";
 import type { Game } from "../game";
 import { WeaponManager } from "../weaponManager";
-import { AbstractServerEntity, EntityPool, type ServerEntity } from "./entity";
+import { AbstractServerEntity, EntityHandle, EntityPool, type ServerEntity } from "./entity";
 import type { Loot } from "./loot";
 import { Obstacle } from "./obstacle";
 
@@ -152,7 +152,7 @@ export interface PlayerDamageParams {
     amount: number;
     position: Vector;
     direction: Vector;
-    sourceEntity?: ServerEntity;
+    sourceEntity?: EntityHandle<ServerEntity>;
 }
 
 export class Player extends AbstractServerEntity {
@@ -402,7 +402,9 @@ export class Player extends AbstractServerEntity {
     }
 
     damage(params: PlayerDamageParams) {
-        let { amount, sourceEntity } = params;
+        let { amount } = params;
+
+        const sourceEntity = params.sourceEntity?.get();
 
         if (this.dead) return;
 

@@ -6,7 +6,7 @@ import { Random } from "@common/utils/random";
 import { assert } from "@common/utils/util";
 import { Vec2, type Vector } from "@common/utils/vector";
 import type { Game } from "../game";
-import { AbstractServerEntity, EntityPool } from "./entity";
+import { AbstractServerEntity, EntityHandle, EntityPool, type ServerEntity } from "./entity";
 
 export class BeamManager extends EntityPool<Beam> {
     override readonly type = EntityType.Beam;
@@ -15,7 +15,7 @@ export class BeamManager extends EntityPool<Beam> {
     }
 }
 
-export class Beam extends AbstractServerEntity {
+export class Beam extends AbstractServerEntity<EntityType.Beam> {
     override readonly __type = EntityType.Beam;
 
     type!: BeamDefKey;
@@ -25,8 +25,8 @@ export class Beam extends AbstractServerEntity {
     targetPos = Vec2.new(0, 0);
 
     trackingEntities = false;
-    sourceTargetId = 0;
-    targetEntityid = 0;
+    sourceTarget?: EntityHandle<ServerEntity>;
+    targetEntity?: EntityHandle<ServerEntity>;
 
     maxLength!: number;
 
@@ -72,19 +72,19 @@ export class Beam extends AbstractServerEntity {
         this.setDirty();
     }
 
-    trackEntities(sourceId: number, targetId: number) {
-        assert(this.game.entityManager.getById(sourceId));
-        assert(this.game.entityManager.getById(targetId));
+    trackEntities(source: EntityHandle<ServerEntity>, target: EntityHandle<ServerEntity>) {
+        assert(source.get());
+        assert(target.get());
 
-        this.sourceTargetId = sourceId;
-        this.targetEntityid = targetId;
+        this.sourceTarget = source;
+        this.targetEntity = target;
         this.trackingEntities = true;
     }
 
     update(dt: number) {
         if (!this.trackingEntities) return;
-        const sourceEntity = this.game.entityManager.getById(this.sourceTargetId);
-        const targetEntity = this.game.entityManager.getById(this.targetEntityid);
+        const sourceEntity = this.sourceTarget?.get();
+        const targetEntity = this.targetEntity?.get();
 
         // just remove ourselves if any of the 2 entities dont exist anymore
         if (!sourceEntity || !targetEntity) {
@@ -103,7 +103,7 @@ export class Beam extends AbstractServerEntity {
 
         this.updatePositions(sourceEntity.position, targetEntity.position);
 
-        let damageSource = sourceEntity;
+        let damageSource = this.sourceTarget;
         if (sourceEntity.__type === EntityType.Projectile && sourceEntity.source) {
             damageSource = sourceEntity.source;
         }

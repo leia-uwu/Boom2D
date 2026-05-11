@@ -4,6 +4,7 @@ import { CollisionHelpers } from "@common/utils/collisionHelpers";
 import { CircleHitbox } from "@common/utils/hitbox";
 import { MathUtils } from "@common/utils/math";
 import { Vec2, type Vector } from "@common/utils/vector";
+import type { EntityHandle } from "./entities/entity";
 import type { Player } from "./entities/player";
 import type { Game } from "./game";
 
@@ -12,7 +13,7 @@ export class ExplosionManager {
 
     constructor(readonly game: Game) {}
 
-    addExplosion(type: ExplosionDefKey, position: Vector, source: Player) {
+    addExplosion(type: ExplosionDefKey, position: Vector, source: EntityHandle<Player>) {
         const explosion = new Explosion(type, position, source);
         this.explosions.push(explosion);
     }
@@ -33,7 +34,7 @@ class Explosion {
     constructor(
         readonly type: ExplosionDefKey,
         readonly position: Vector,
-        readonly source: Player,
+        readonly source: EntityHandle<Player>,
     ) {
         const def = ExplosionDefs.typeToDef(this.type);
         this.hitbox = new CircleHitbox(def.radius, position);
