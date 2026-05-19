@@ -91,7 +91,7 @@ export class WeaponManager {
                 bulletSpawnPos,
                 weaponDef.projectileType,
                 dir,
-                this.player,
+                this.player.getHandle(),
             );
         }
     }

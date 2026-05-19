@@ -13,7 +13,7 @@ export class ObstacleManager extends EntityPool<Obstacle> {
     }
 }
 
-export class Obstacle extends AbstractServerEntity {
+export class Obstacle extends AbstractServerEntity<EntityType.Obstacle> {
     override readonly __type = EntityType.Obstacle;
 
     type!: ObstacleDefKey;

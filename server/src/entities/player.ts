@@ -155,7 +155,7 @@ export interface PlayerDamageParams {
     sourceEntity?: EntityHandle<ServerEntity>;
 }
 
-export class Player extends AbstractServerEntity {
+export class Player extends AbstractServerEntity<EntityType.Player> {
     readonly __type = EntityType.Player;
     readonly hitbox = new CircleHitbox(GameConstants.player.radius);
 

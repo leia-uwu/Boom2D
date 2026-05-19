@@ -23,7 +23,7 @@ export class ProjectileManager extends EntityPool<Projectile> {
     }
 }
 
-export class Projectile extends AbstractServerEntity {
+export class Projectile extends AbstractServerEntity<EntityType.Projectile> {
     readonly __type = EntityType.Projectile;
     hitbox!: CircleHitbox;
 

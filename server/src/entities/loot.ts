@@ -13,7 +13,7 @@ export class LootManager extends EntityPool<Loot> {
     }
 }
 
-export class Loot extends AbstractServerEntity {
+export class Loot extends AbstractServerEntity<EntityType.Loot> {
     override readonly __type = EntityType.Loot;
 
     type!: LootDefKey;
